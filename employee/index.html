@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Portal - Truck Management</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👨‍💼 Employee Portal</h1>
+            <button onclick="window.location.href='../index.html'" class="btn btn-back">← Back to Home</button>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="openTab('truck-list')">🚛 Truck List</button>
+            <button class="nav-tab" onclick="openTab('allowances')">💰 Allowances</button>
+            <button class="nav-tab" onclick="openTab('distance')">📏 Distance</button>
+            <button class="nav-tab" onclick="openTab('diesel')">⛽ Diesel</button>
+        </div>
+
+        <div id="truck-list" class="tab-content active">
+    <h2>Truck List</h2>
+    
+    <!-- New Tabs for Employee -->
+    <div class="nav-tabs secondary-tabs">
+        <button class="nav-tab secondary-tab active" onclick="openEmployeeTab('all-trucks')">All Drivers/Trucks</button>
+        <button class="nav-tab secondary-tab" onclick="openEmployeeTab('no-truck')">Drivers with No Trucks</button>
+        <button class="nav-tab secondary-tab" onclick="openEmployeeTab('left')">Drivers Who Left</button>
+    </div>
+
+
+<!-- Dropdown Filter Container -->
+<div class="filter-container" id="filterContainer" style="display: none;">
+    <div class="filter-dropdown" onclick="toggleFilterDropdown()">
+        <div class="filter-label">
+            <span class="filter-icon">🔧</span>
+            Filters: 
+            <span id="filterStatus">All</span>
+            <span class="filter-count" id="activeFilterCount">0</span>
+        </div>
+        <span class="dropdown-arrow">▼</span>
+    </div>
+    
+    <div class="filter-menu">
+        <button class="filter-option" onclick="toggleFilter('no_driver')">
+            <div class="option-checkbox"></div>
+            <span class="option-label">
+                <span>🚫</span>
+                No Driver
+            </span>
+        </button>
+        
+        <button class="filter-option" onclick="toggleFilter('comesa')">
+            <div class="option-checkbox"></div>
+            <span class="option-label">
+                <span>🌍</span>
+                COMESA
+            </span>
+        </button>
+        
+        <button class="filter-option" onclick="toggleFilter('c28')">
+            <div class="option-checkbox"></div>
+            <span class="option-label">
+                <span>📋</span>
+                C28
+            </span>
+        </button>
+        
+        <div class="filter-actions">
+            <button class="btn-clear-filters" onclick="clearAllFilters()">
+                🗑️ Clear All Filters
+            </button>
+        </div>
+    </div>
+</div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="search-icon">🔍</div>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search..." style="border-color: #667eea; border-width: 3px;">
+        <div id="searchResultsCount" class="search-results-count"></div>
+    </div>
+    <!-- Content for each sub-tab -->
+    <div id="all-trucks" class="employee-tab-content active">
+        <div id="trucks-list" class="trucks-grid">
+            <div class="loading">Loading trucks...</div>
+        </div>
+    </div>
+    <div id="no-truck" class="employee-tab-content">
+        <div id="no-truck-list" class="trucks-grid">
+            <div class="loading">Loading drivers with no trucks...</div>
+        </div>
+    </div>
+    <div id="left" class="employee-tab-content">
+        <div id="left-list" class="trucks-grid">
+            <div class="loading">Loading drivers who left...</div>
+        </div>
+    </div>
+</div>
+
+        <div id="allowances" class="tab-content">
+            <h2>Allowances</h2>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-icon">🔍</div>
+                <input type="text" id="allowanceSearchInput" class="search-input" placeholder="Search allowances...">
+                <div id="allowanceSearchResultsCount" class="search-results-count"></div>
+            </div>
+            
+            <div id="allowances-list" class="allowances-table-container">
+                <div class="loading">Loading allowances...</div>
+            </div>
+        </div>
+
+        <div id="distance" class="tab-content">
+            <h2>Distance</h2>
+            <div class="loading">Distance tracking coming soon...</div>
+        </div>
+
+
+       <div id="diesel" class="tab-content">
+    <h2>Diesel Data</h2>
+    
+    <!-- Main Tabs for Long/Short Haul -->
+    <div class="diesel-main-tabs">
+        <button class="diesel-main-tab active" onclick="openDieselType('long_haul')">
+            🚛 Long Haul
+        </button>
+        <button class="diesel-main-tab" onclick="openDieselType('short_haul')">
+            🚚 Short Haul
+        </button>
+    </div>
+
+    <!-- Back Button - Right Aligned -->
+    <div id="dieselBackButton" style="display: none;">
+        <button class="btn btn-back" onclick="goBackDieselLevel()">← Back</button>
+    </div>
+
+    <!-- Add Button (Admin Only) -->
+    <div id="dieselAddButton" style="display: none;"></div>
+
+    <!-- Content Areas -->
+    <div id="dieselCategories" class="diesel-level-grid"></div>
+    <div id="dieselRoutes" class="diesel-level-grid" style="display: none;"></div>
+    <div id="dieselTruckData" style="display: none;"></div>
+    
+    <!-- Coming Soon for Short Haul -->
+    <div id="dieselComingSoon" class="diesel-coming-soon" style="display: none;">
+        <h3>🚧 Coming Soon</h3>
+        <p>Short haul diesel data will be available soon.</p>
+    </div>
+</div>
+    </div>
+    
+
+    <!-- More Details Modzal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close">&times;</span>
+            <h2>🚛 Truck Details</h2>
+            <div id="modalContent">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/employee.js"></script>
+</body>
+</html>

@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Truck Management</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔧 Admin Portal</h1>
+            <button onclick="window.location.href='../index.html'" class="btn btn-back">← Back to Home</button>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="openTab('truck-list')">🚛 Truck List</button>
+            <button class="nav-tab" onclick="openTab('allowances')">💰 Allowances</button>
+            <button class="nav-tab" onclick="openTab('distance')">📏 Distance</button>
+            <button class="nav-tab" onclick="openTab('diesel')">⛽ Diesel</button>
+        </div>
+
+  <div id="truck-list" class="tab-content active">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Truck List</h2>
+        <button class="btn btn-primary" onclick="openAddTruckModal()">➕ Add New Truck</button>
+    </div>
+    <div id="last-updated-truck-list" class="last-updated-container"></div>
+    
+
+
+    <!-- Three Tabs for Admin -->
+    <div class="nav-tabs secondary-tabs">
+        <button class="nav-tab secondary-tab active" onclick="openAdminTab('all-trucks')">All Drivers/Trucks</button>
+        <button class="nav-tab secondary-tab" onclick="openAdminTab('no-truck')">Drivers with No Trucks</button>
+        <button class="nav-tab secondary-tab" onclick="openAdminTab('left')">Drivers Who Left</button>
+    </div>
+    
+
+    <!-- Dropdown Filter Container - ADMIN -->
+<div class="filter-container" id="adminFilterContainer" style="display: none;">
+    <div class="filter-dropdown" onclick="toggleAdminFilterDropdown()">
+        <div class="filter-label">
+            <span class="filter-icon">🔧</span>
+            Filters: 
+            <span id="adminFilterStatus">All</span>
+            <span class="filter-count" id="adminActiveFilterCount">0</span>
+        </div>
+        <span class="dropdown-arrow">▼</span>
+    </div>
+    
+    <div class="filter-menu">
+        <button class="filter-option" onclick="toggleAdminFilter('no_driver')">
+            <div class="option-checkbox"></div>
+            <span class="option-label">
+                <span>🚫</span>
+                No Driver
+            </span>
+        </button>
+        
+        <button class="filter-option" onclick="toggleAdminFilter('comesa')">
+            <div class="option-checkbox"></div>
+            <span class="option-label">
+                <span>🌍</span>
+                COMESA
+            </span>
+        </button>
+        
+        <button class="filter-option" onclick="toggleAdminFilter('c28')">
+            <div class="option-checkbox"></div>
+            <span class="option-label">
+                <span>📋</span>
+                C28
+            </span>
+        </button>
+        
+        <div class="filter-actions">
+            <button class="btn-clear-filters" onclick="clearAllAdminFilters()">
+                🗑️ Clear All Filters
+            </button>
+        </div>
+    </div>
+</div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="search-icon">🔍</div>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search..." style="border-color: #667eea; border-width: 3px;">
+        <div id="searchResultsCount" class="search-results-count"></div>
+    </div>
+    <!-- Content for each sub-tab -->
+    <div id="all-trucks" class="admin-tab-content active">
+        <div id="trucks-list" class="trucks-grid">
+            <div class="loading">Loading trucks...</div>
+        </div>
+    </div>
+    <div id="no-truck" class="admin-tab-content">
+        <div id="no-truck-list" class="trucks-grid">
+            <div class="loading">Loading drivers with no trucks...</div>
+        </div>
+    </div>
+    <div id="left" class="admin-tab-content">
+        <div id="left-list" class="trucks-grid">
+            <div class="loading">Loading drivers who left...</div>
+        </div>
+    </div>
+</div>
+
+        <div id="allowances" class="tab-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Allowances</h2>
+        <button class="btn btn-primary" onclick="openAddAllowanceModal()">➕ Add New Allowance</button>
+    </div>
+    <div id="last-updated-allowances" class="last-updated-container"></div>
+
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-icon">🔍</div>
+                <input type="text" id="allowanceSearchInput" class="search-input" placeholder="Search allowances...">
+                <div id="allowanceSearchResultsCount" class="search-results-count"></div>
+            </div>
+            
+            <div id="allowances-list" class="allowances-table-container">
+                <div class="loading">Loading allowances...</div>
+            </div>
+        </div>
+
+        <div id="distance" class="tab-content">
+    <h2>Distance</h2>
+    <div id="last-updated-distance" class="last-updated-container"></div>
+    <div class="loading">Distance management coming soon...</div>
+</div>
+
+      <div id="diesel" class="tab-content">
+    <h2>Diesel Data</h2>
+    <div id="last-updated-diesel" class="last-updated-container"></div>
+    
+    <!-- Main Tabs for Long/Short Haul -->
+    <div class="diesel-main-tabs">
+        <button class="diesel-main-tab active" onclick="openDieselType('long_haul')">
+            🚛 Long Haul
+        </button>
+        <button class="diesel-main-tab" onclick="openDieselType('short_haul')">
+            🚚 Short Haul
+        </button>
+    </div>
+
+    <!-- Back Button - Right Aligned -->
+    <div id="dieselBackButton" style="display: none;">
+        <button class="btn btn-back" onclick="goBackDieselLevel()">← Back</button>
+    </div>
+
+    <!-- Add Button (Admin Only) -->
+    <div id="dieselAddButton" style="display: none;"></div>
+
+    <!-- Content Areas -->
+    <div id="dieselCategories" class="diesel-level-grid"></div>
+    <div id="dieselRoutes" class="diesel-level-grid" style="display: none;"></div>
+    <div id="dieselTruckData" style="display: none;"></div>
+    
+    <!-- Coming Soon for Short Haul -->
+    <div id="dieselComingSoon" class="diesel-coming-soon" style="display: none;">
+        <h3>🚧 Coming Soon</h3>
+        <p>Short haul diesel data will be available soon.</p>
+    </div>
+</div>
+    </div>
+    
+
+<!-- Enhanced Edit Truck Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content modal-large">
+        <span class="close">&times;</span>
+        <h2>✏️ Edit Truck</h2>
+        <form id="editForm">
+            <input type="hidden" id="editTruckId">
+            
+            <!-- Standard Fields -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label id="label-truck-number">Truck Number:</label>
+                    <input type="text" id="editTruckNumber" required>
+                </div>
+                <div class="form-group">
+                    <label id="label-driver-name">Driver Name:</label>
+                    <input type="text" id="editDriverName" required>
+                </div>
+            </div>
+            <!-- Add this to Edit Truck modal after Driver Contacts section -->
+<div class="form-group">
+    <label>Click on the No Driver button if there is no Driver:</label>
+    <button type="button" id="editNoDriverBtn" class="btn btn-warning" onclick="toggleEditNoDriverMode()" style="margin-top: 10px;">
+        🚫 No Driver
+    </button>
+    
+</div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label id="label-driver-license">Driver License:</label>
+                    <input type="text" id="editDriverLicense" required>
+                </div>
+                <div class="form-group">
+                    <label>Driver Contacts:</label>
+                    <div id="editContactsContainer">
+                        <!-- Contacts will be loaded dynamically -->
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="addContactField('edit')">➕ Add Another Number</button>
+                </div>
+            </div>
+
+            <!-- Add this after the Driver License field -->
+<div class="form-group">
+    <label>Driving License Google Drive Link:</label>
+    <input type="url" id="editDriverLicenseUrl" placeholder="https://drive.google.com/..." style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+    <small style="color: #666; display: block; margin-top: 5px;">Optional: Paste Google Drive shareable link</small>
+    
+    <!-- Current License Section -->
+    <div id="currentLicenseSection" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; display: none;">
+        <p style="margin: 0 0 8px 0; font-weight: bold;">Current License:</p>
+        <div class="license-actions">
+    <button type="button" class="btn-view" onclick="viewLicenseDocument()">👁️ View License</button>
+</div>
+    </div>
+</div>
+            
+            <!-- Images Section -->
+            <div class="images-section">
+                <h3>Images</h3>
+                
+                <!-- Driver Image -->
+                <div class="form-group">
+                    <label>Driver Image:</label>
+                    <input type="file" id="editDriverImage" accept="image/*">
+                    <img id="currentDriverImage" src="" alt="Current Driver Image" class="image-preview">
+                </div>
+                
+                <!-- Truck Image -->
+                <div class="form-group">
+                    <label>Truck Image:</label>
+                    <input type="file" id="editTruckImage" accept="image/*">
+                    <img id="currentTruckImage" src="" alt="Current Truck Image" class="image-preview">
+                </div>
+            </div>
+            
+            <!-- Truck Specifications -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="editTruckType">Truck Type:</label>
+                    <input type="text" id="editTruckType">
+                </div>
+                <div class="form-group">
+                    <label for="editTruckBody">Truck Body:</label>
+                    <input type="text" id="editTruckBody">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="editTruckMake">Truck Make:</label>
+                    <input type="text" id="editTruckMake">
+                </div>
+                <div class="form-group">
+                    <label for="editTruckTons">Truck Tons:</label>
+                    <input type="text" id="editTruckTons">
+                </div>
+            </div>
+            
+           <!-- COMESA Section -->
+<div class="form-row">
+    <div class="form-group">
+        <label for="editComesa">COMESA:</label>
+        <select id="editComesa" onchange="handleComesaChange('edit')">
+            <option value="NO">NO</option>
+            <option value="YES">YES</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="editComesaExpiry" style="display: none;">COMESA Expiry:</label>
+        <input type="date" id="editComesaExpiry" style="display: none;" onchange="updateEditSaveButtonState()">
+    </div>
+</div>
+
+<!-- C28 Section -->
+<div class="form-row">
+    <div class="form-group">
+        <label for="editC28">C28:</label>
+        <select id="editC28" onchange="handleC28Change('edit')">
+            <option value="NO">NO</option>
+            <option value="YES">YES</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="editC28Expiry" style="display: none;">C28 Expiry:</label>
+        <input type="date" id="editC28Expiry" style="display: none;" onchange="updateEditSaveButtonState()">
+    </div>
+</div>
+            
+            <!-- Additional Information Section -->
+            <div class="additional-section">
+                <h3>Additional Information</h3>
+                
+                <!-- Dynamic Fields Container for Edit Modal -->
+                <div id="editDynamicFieldsContainer" class="dynamic-fields-container"></div>
+
+                <!-- Add New Field Section for Edit Modal -->
+                <div class="add-section">
+                    <button type="button" class="btn btn-secondary" onclick="toggleAddFieldSection('edit')">
+                        ➕ Add New Field
+                    </button>
+                    <div id="editFieldSection" class="add-field-section" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Field Name:</label>
+                                <input type="text" id="editNewFieldLabel" placeholder="e.g., Engine Type">
+                            </div>
+                            <div class="form-group">
+                                <label>Field Value:</label>
+                                <input type="text" id="editNewFieldValue" placeholder="e.g., Diesel">
+                            </div>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" class="btn btn-primary" onclick="addNewField('edit')">
+                                ✅ Add Field
+                            </button>
+                            <button type="button" class="btn btn-back" onclick="toggleAddFieldSection('edit')">
+                                ✕ Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Images Container for Edit Modal -->
+                <div id="editAdditionalImagesContainer" class="additional-images-container"></div>
+
+                <!-- Add Additional Image Section for Edit Modal -->
+                <div class="add-image-section">
+                    <button type="button" class="btn btn-secondary" onclick="toggleAddImageSection('edit')">
+                        📷 Add Another Image
+                    </button>
+                    <div id="editImageSection" class="add-image-form" style="display: none;">
+                        <div class="form-group">
+                            <label>Image Description:</label>
+                            <input type="text" id="editNewImageDescription" placeholder="e.g., Interior view">
+                        </div>
+                        <div class="form-group">
+                            <label>Select Image:</label>
+                            <input type="file" id="editNewAdditionalImage" accept="image/*">
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" class="btn btn-primary" onclick="addAdditionalImage('edit')">
+                                ✅ Add Image
+                            </button>
+                            <button type="button" class="btn btn-back" onclick="toggleAddImageSection('edit')">
+                                ✕ Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                💾 Save Changes
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Confirmation Modal for Status Changes -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content confirm-modal">
+        <span class="close">&times;</span>
+        <h3 id="confirmTitle">Confirm Action</h3>
+        <p id="confirmMessage">Are you sure you want to perform this action?</p>
+        <div class="confirm-buttons">
+            <button class="btn btn-primary" id="confirmYes">Yes</button>
+            <button class="btn btn-back" id="confirmNo">No</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Truck Modal -->
+<div id="addModal" class="modal">
+    <div class="modal-content modal-large">
+        <span class="close">&times;</span>
+        <h2>➕ Add New Truck</h2>
+        <form id="addForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="addTruckNumber">Truck Number:</label>
+                    <input type="text" id="addTruckNumber" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="addDriverName">Driver Name:</label>
+                    <input type="text" id="addDriverName" required>
+                </div>
+            </div>
+                            <!-- Add this to your Add Truck modal -->
+<div class="form-group">
+    <label>Click on the No Driver button if there is no Driver:</label>
+    <button type="button" id="noDriverBtn" class="btn btn-warning" onclick="toggleNoDriverMode()" style="margin-top: 10px;">
+        🚫 No Driver
+    </button>
+   
+</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="addDriverLicense">Driver License:</label>
+                    <input type="text" id="addDriverLicense" required>
+                </div>
+                <div class="form-group">
+                    <label for="addDriverPhone">Driver Contacts:</label>
+                    <div id="addContactsContainer">
+                        <div class="contact-input-group">
+                            <input type="text" class="contact-input" placeholder="Phone number" required>
+                            <button type="button" class="btn-remove-contact" onclick="removeContactField(this)" style="display:none;">🗑️</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="addContactField('add')">➕ Add Another Number</button>
+                </div>
+
+                <!-- Add this after the Driver License field -->
+<div class="form-group">
+    <label>Driving License Google Drive Link:</label>
+    <input type="url" id="addDriverLicenseUrl" placeholder="https://drive.google.com/..." style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+    <small style="color: #666; display: block; margin-top: 5px;">Optional: Paste Google Drive shareable link</small>
+</div>
+
+                
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="addTruckType">Truck Type:</label>
+                    <input type="text" id="addTruckType">
+                </div>
+                <div class="form-group">
+                    <label for="addTruckBody">Truck Body:</label>
+                    <input type="text" id="addTruckBody">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="addTruckMake">Truck Make:</label>
+                    <input type="text" id="addTruckMake">
+                </div>
+                <div class="form-group">
+                    <label for="addTruckTons">Truck Tons:</label>
+                    <input type="text" id="addTruckTons">
+                </div>
+            </div>
+            
+            <!-- COMESA Section -->
+<div class="form-row">
+    <div class="form-group">
+        <label for="addComesa">COMESA:</label>
+        <select id="addComesa" onchange="handleComesaChange('add')">
+            <option value="NO">NO</option>
+            <option value="YES">YES</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="addComesaExpiry" style="display: none;">COMESA Expiry:</label>
+        <input type="date" id="addComesaExpiry" style="display: none;" onchange="updateSaveButtonState()">
+    </div>
+</div>
+
+<!-- C28 Section -->
+<div class="form-row">
+    <div class="form-group">
+        <label for="addC28">C28:</label>
+        <select id="addC28" onchange="handleC28Change('add')">
+            <option value="NO">NO</option>
+            <option value="YES">YES</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="addC28Expiry" style="display: none;">C28 Expiry:</label>
+        <input type="date" id="addC28Expiry" style="display: none;" onchange="updateSaveButtonState()">
+    </div>
+</div>
+            <!-- Images Section -->
+            <div class="images-section">
+                <h3>Images</h3>
+                
+                <!-- Driver Image -->
+                <div class="form-group">
+                    <label>Driver Image:</label>
+                    <input type="file" id="addDriverImage" accept="image/*">
+                </div>
+                
+                <!-- Truck Image -->
+                <div class="form-group">
+                    <label>Truck Image:</label>
+                    <input type="file" id="addTruckImage" accept="image/*">
+                </div>
+            </div>
+            
+            <!-- Additional Fields and Images Section -->
+            <div class="additional-section">
+                <h3>Additional Information</h3>
+                
+                <!-- Dynamic Fields Container for Add Modal -->
+                <div id="addDynamicFieldsContainer" class="dynamic-fields-container"></div>
+                
+                <!-- Add New Field Section for Add Modal -->
+                <div class="add-section">
+                    <button type="button" class="btn btn-secondary" onclick="toggleAddFieldSection('add')">
+                        ➕ Add New Field
+                    </button>
+                    <div id="addFieldSection" class="add-field-section" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Field Name:</label>
+                                <input type="text" id="addNewFieldLabel" placeholder="e.g., Engine Type">
+                            </div>
+                            <div class="form-group">
+                                <label>Field Value:</label>
+                                <input type="text" id="addNewFieldValue" placeholder="e.g., Diesel">
+                            </div>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" class="btn btn-primary" onclick="addNewField('add')">
+                                ✅ Add Field
+                            </button>
+                            <button type="button" class="btn btn-back" onclick="toggleAddFieldSection('add')">
+                                ✕ Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Images Container for Add Modal -->
+                <div id="addAdditionalImagesContainer" class="additional-images-container"></div>
+                
+                <!-- Add Additional Image Section for Add Modal -->
+                <div class="add-image-section">
+                    <button type="button" class="btn btn-secondary" onclick="toggleAddImageSection('add')">
+                        📷 Add Another Image
+                    </button>
+                    <div id="addImageSection" class="add-image-form" style="display: none;">
+                        <div class="form-group">
+                            <label>Image Description:</label>
+                            <input type="text" id="addNewImageDescription" placeholder="e.g., Interior view">
+                        </div>
+                        <div class="form-group">
+                            <label>Select Image:</label>
+                            <input type="file" id="addNewAdditionalImage" accept="image/*">
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" class="btn btn-primary" onclick="addAdditionalImage('add')">
+                                ✅ Add Image
+                            </button>
+                            <button type="button" class="btn btn-back" onclick="toggleAddImageSection('add')">
+                                ✕ Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">➕ Add Truck</button>
+        </form>
+    </div>
+</div>
+    <!-- Add Allowance Modal -->
+    <div id="addAllowanceModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>➕ Add New Allowance</h2>
+            <form id="addAllowanceForm" class="allowance-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="addSource">Source:</label>
+                        <input type="text" id="addSource" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addDestination">Destination:</label>
+                        <input type="text" id="addDestination" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="addDriverPosho">Driver's Posho:</label>
+                        <input type="number" id="addDriverPosho" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addTboyPosho">T/Boy's Posho:</label>
+                        <input type="number" id="addTboyPosho" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="addComments">Comments:</label>
+                    <textarea id="addComments">None</textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">➕ Add Allowance</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Allowance Modal -->
+    <div id="editAllowanceModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>✏️ Edit Allowance</h2>
+            <form id="editAllowanceForm" class="allowance-form">
+                <input type="hidden" id="editAllowanceId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editSource">Source:</label>
+                        <input type="text" id="editSource" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDestination">Destination:</label>
+                        <input type="text" id="editDestination" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editDriverPosho">Driver's Posho:</label>
+                        <input type="number" id="editDriverPosho" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTboyPosho">T/Boy's Posho:</label>
+                        <input type="number" id="editTboyPosho" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editComments">Comments:</label>
+                    <textarea id="editComments"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">💾 Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Diesel Category Modal -->
+<div id="addDieselCategoryModal" class="modal">
+    <div class="modal-content diesel-modal-content">
+        <span class="close">&times;</span>
+        <h2>➕ Add Diesel Category</h2>
+        <form id="addDieselCategoryForm">
+            <div class="diesel-form-grid">
+                <div class="diesel-form-group">
+                    <label for="addCategoryName">Category Name:</label>
+                    <input type="text" id="addCategoryName" required>
+                </div>
+                <div class="diesel-form-group">
+                    <label for="addCategoryType">Type:</label>
+                    <select id="addCategoryType" required>
+                        <option value="long_haul">Long Haul</option>
+                        <option value="short_haul">Short Haul</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                ➕ Add Category
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Add/Edit Diesel Truck Data Modal -->
+<div id="dieselTruckDataModal" class="modal">
+    <div class="modal-content diesel-modal-content">
+        <span class="close">&times;</span>
+        <h2 id="dieselTruckDataModalTitle">➕ Add Truck Data</h2>
+        <form id="dieselTruckDataForm">
+            <input type="hidden" id="editTruckDataId">
+            <input type="hidden" id="editTruckDataRouteId" value="${currentRouteId}">
+            
+            <div class="diesel-form-grid">
+                <div class="diesel-form-group">
+                    <label for="truckDataType">Truck Type:</label>
+                    <select id="truckDataType" required>
+                        <option value="">Select Truck Type</option>
+                        <option value="Howo Truck">Howo Truck</option>
+                        <option value="Shacman Truck">Shacman Truck</option>
+                        <option value="Semi Truck">Semi Truck</option>
+                        <option value="P360 Truck">P360 Truck</option>
+                        <option value="Howo Old">Howo (Old)</option>
+                        <option value="Howo New">Howo (New)</option>
+                        <option value="Semi Scania Body">Semi Scania (Body)</option>
+                        <option value="Semi Scania Flat Bed">Semi Scania (Flat Bed)</option>
+                        <option value="Semi Howo Body">Semi Howo (Body)</option>
+                        <option value="Semi Howo Flat Bed">Semi Howo (Flat Bed)</option>
+                        <option value="Semi Shacman Body">Semi Shacman (Body)</option>
+                        <option value="Semi Shacman Flat Bed">Semi Shacman (Flat Bed)</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="diesel-form-group">
+                        <label for="distance113">113:</label>
+                        <input type="number" id="distance113" step="1">
+                    </div>
+                    <div class="diesel-form-group">
+                        <label for="distance114">114:</label>
+                        <input type="number" id="distance114" step="1">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="diesel-form-group">
+                        <label for="p360">P360:</label>
+                        <input type="number" id="p360" step="0.1">
+                    </div>
+                    <div class="diesel-form-group">
+                        <label for="shacman">Shacman:</label>
+                        <input type="number" id="shacman" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="diesel-form-group">
+                        <label for="howoOld">Howo (Old):</label>
+                        <input type="number" id="howoOld" step="0.1">
+                    </div>
+                    <div class="diesel-form-group">
+                        <label for="howoNew">Howo (New):</label>
+                        <input type="number" id="howoNew" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="diesel-form-group">
+                        <label for="semiScaniaBody">Semi Scania (Body):</label>
+                        <input type="number" id="semiScaniaBody" step="0.1">
+                    </div>
+                    <div class="diesel-form-group">
+                        <label for="semiScaniaFlatBed">Semi Scania (Flat Bed):</label>
+                        <input type="number" id="semiScaniaFlatBed" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="diesel-form-group">
+                        <label for="semiHowoBody">Semi Howo (Body):</label>
+                        <input type="number" id="semiHowoBody" step="0.1">
+                    </div>
+                    <div class="diesel-form-group">
+                        <label for="semiHowoFlatBed">Semi Howo (Flat Bed):</label>
+                        <input type="number" id="semiHowoFlatBed" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="diesel-form-group">
+                        <label for="semiShacmanBody">Semi Shacman (Body):</label>
+                        <input type="number" id="semiShacmanBody" step="0.1">
+                    </div>
+                    <div class="diesel-form-group">
+                        <label for="semiShacmanFlatBed">Semi Shacman (Flat Bed):</label>
+                        <input type="number" id="semiShacmanFlatBed" step="0.1">
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                💾 Save Truck Data
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Driver Details Modal (for No Trucks and Left sections) -->
+<div id="editDriverModal" class="modal">
+    <div class="modal-content modal-large">
+        <span class="close">&times;</span>
+        <h2>✏️ Edit Driver Details</h2>
+        <form id="editDriverForm">
+            <input type="hidden" id="editDriverId">
+            
+            <!-- Driver Information -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Driver Name:</label>
+                    <input type="text" id="editDriverNameOnly" required>
+                </div>
+                <div class="form-group">
+                    <label>Driver License:</label>
+                    <input type="text" id="editDriverLicenseOnly" required>
+                </div>
+            </div>
+            
+            <!-- Driver Contacts -->
+            <div class="form-group">
+                <label>Driver Contacts:</label>
+                <div id="editDriverContactsContainer">
+                    <!-- Contacts will be loaded dynamically -->
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="addDriverContactField()">➕ Add Another Number</button>
+            </div>
+            
+            <!-- Previous Trucks Section -->
+            <div class="previous-trucks-section">
+                <h3>Previous Trucks</h3>
+                <div id="previousTrucksContainer" class="previous-trucks-container">
+                    <!-- Previous trucks will be loaded dynamically -->
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="addPreviousTruckField()">➕ Add Previous Truck</button>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                💾 Save Driver Details
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Reactivate Driver Confirmation Modal -->
+<div id="reactivateModal" class="modal">
+    <div class="modal-content confirm-modal">
+        <span class="close">&times;</span>
+        <h3>🔄 Reactivate Driver</h3>
+        <p id="reactivateMessage">Are you sure you want to reactivate this driver? This will move the driver to "Drivers with No Trucks" section.</p>
+        <div class="confirm-buttons">
+            <button class="btn btn-primary" id="reactivateYes">✅ Yes, Reactivate</button>
+            <button class="btn btn-back" id="reactivateNo">❌ No, Cancel</button>
+        </div>
+    </div>
+</div>
+<!-- Assign Truck Selection Modal -->
+<div id="assignTruckModal" class="modal">
+    <div class="modal-content modal-large">
+        <span class="close">&times;</span>
+        <h2>🚛 Assign Truck to Driver</h2>
+        <p>Select an available truck:</p>
+        <div id="availableTrucksList" class="available-trucks-grid">
+            <!-- Available trucks will be loaded here -->
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-back" onclick="document.getElementById('assignTruckModal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Truck Confirmation Modal -->
+<div id="assignConfirmModal" class="modal">
+    <div class="modal-content confirm-modal">
+        <span class="close">&times;</span>
+        <h3>🚛 Assign Truck</h3>
+        <p id="assignConfirmMessage">Do you want to assign this driver to the truck?</p>
+        <div class="confirm-buttons">
+            <button class="btn btn-primary" id="assignConfirmYes">✅ Yes, Assign</button>
+            <button class="btn btn-back" id="assignConfirmNo">❌ No, Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteConfirmModal" class="modal">
+    <div class="modal-content confirm-modal delete-confirm-modal">
+        <span class="close" onclick="document.getElementById('deleteConfirmModal').style.display='none'">&times;</span>
+        <h3 style="color: #dc3545;">🗑️ Delete Truck</h3>
+        <div id="deleteConfirmMessage" class="delete-message">
+            <!-- Message will be inserted here -->
+        </div>
+        <div class="confirm-buttons">
+            <button class="btn btn-delete-confirm" id="deleteConfirmYes" onclick="handleDeleteTruck()">🗑️ Yes, Delete Permanently</button>
+            <button class="btn btn-back" onclick="document.getElementById('deleteConfirmModal').style.display='none'">❌ No, Cancel</button>
+        </div>
+    </div>
+</div>
+    <script src="../js/admin.js"></script>
+</body>
+</html>
