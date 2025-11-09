@@ -1447,18 +1447,27 @@ function applyFiltersToData(trucks, containerId) {
     
     if (activeFilterTypes.length > 0) {
         filteredTrucks = trucks.filter(truck => {
-            return activeFilterTypes.some(filterType => {
-                switch (filterType) {
-                    case 'no_driver':
-                        return truck.driver_name === 'NO DRIVER' || !truck.driver_name || truck.driver_name === '';
-                    case 'comesa':
-                        return truck.comesa === 'YES';
-                    case 'c28':
-                        return truck.c28 === 'YES';
-                    default:
-                        return false;
-                }
-            });
+            // Check if both COMESA and C28 filters are active
+            const bothFiltersActive = activeFilters.comesa && activeFilters.c28;
+            
+            if (bothFiltersActive) {
+                // When both filters are active, require BOTH to be YES
+                return truck.comesa === 'YES' && truck.c28 === 'YES';
+            } else {
+                // Normal behavior when only one or neither filter is active
+                return activeFilterTypes.some(filterType => {
+                    switch (filterType) {
+                        case 'no_driver':
+                            return truck.driver_name === 'NO DRIVER' || !truck.driver_name || truck.driver_name === '';
+                        case 'comesa':
+                            return truck.comesa === 'YES';
+                        case 'c28':
+                            return truck.c28 === 'YES';
+                        default:
+                            return false;
+                    }
+                });
+            }
         });
     }
     
@@ -1746,20 +1755,31 @@ function handleEmployeeSearch(event) {
     if (activeEmployeeTab === 'all-trucks') {
         const activeFilterTypes = Object.keys(activeFilters).filter(key => activeFilters[key]);
         if (activeFilterTypes.length > 0) {
-            filteredTrucks = filteredTrucks.filter(truck => {
-                return activeFilterTypes.some(filterType => {
-                    switch (filterType) {
-                        case 'no_driver':
-                            return truck.driver_name === 'NO DRIVER' || !truck.driver_name || truck.driver_name === '';
-                        case 'comesa':
-                            return truck.comesa === 'YES';
-                        case 'c28':
-                            return truck.c28 === 'YES';
-                        default:
-                            return false;
-                    }
+            // Check if both COMESA and C28 filters are active
+            const bothFiltersActive = activeFilters.comesa && activeFilters.c28;
+            
+            if (bothFiltersActive) {
+                // When both filters are active, require BOTH to be YES
+                filteredTrucks = filteredTrucks.filter(truck => 
+                    truck.comesa === 'YES' && truck.c28 === 'YES'
+                );
+            } else {
+                // Normal behavior when only one or neither filter is active
+                filteredTrucks = filteredTrucks.filter(truck => {
+                    return activeFilterTypes.some(filterType => {
+                        switch (filterType) {
+                            case 'no_driver':
+                                return truck.driver_name === 'NO DRIVER' || !truck.driver_name || truck.driver_name === '';
+                            case 'comesa':
+                                return truck.comesa === 'YES';
+                            case 'c28':
+                                return truck.c28 === 'YES';
+                            default:
+                                return false;
+                        }
+                    });
                 });
-            });
+            }
         }
     }
     
