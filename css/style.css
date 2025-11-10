@@ -1080,8 +1080,8 @@ h2 {
 }
 
 .last-updated-text {
-    color: #2e7d32;
-    font-size: 0.55rem;
+    color: #000000;
+    font-size: 0.65rem;
     font-style: italic;
     font-weight: 500;
 }
