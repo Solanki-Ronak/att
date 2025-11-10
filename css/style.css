@@ -1882,34 +1882,29 @@ h2 {
     }
 }
 
-/* Super Compact Back Button */
+/* Compact Back Button for Small Screens */
 @media (max-width: 768px) {
     .btn-back {
-        padding: 5px 8px !important;
-        font-size: 0.7rem !important;
+        padding: 10px 15px !important;
+        font-size: 0.85rem !important;
         width: auto !important;
-        min-width: 70px !important;
-        max-width: 80px !important;
+        min-width: 80px !important; /* Fixed width */
+        max-width: 100px !important;
         flex-shrink: 0 !important;
-        margin-left: 8px !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
+        margin-left: 10px !important;
     }
 
     header {
         flex-direction: row !important;
         justify-content: space-between !important;
         align-items: center !important;
-        gap: 8px;
+        gap: 10px;
     }
 
     header h1 {
-        font-size: 1.4rem !important;
+        font-size: 1.5rem !important;
         margin-bottom: 0 !important;
         flex: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        min-width: 0; /* Allow text truncation if needed */
     }
 }
