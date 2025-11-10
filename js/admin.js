@@ -3989,8 +3989,7 @@ function getContactsText(truckId) {
 }
 
 
-
-// UPDATED: Function to get last updated date for a tab
+// Function to get last updated date for a tab
 async function getLastUpdatedDate(tabName) {
     try {
         const { data, error } = await supabase
@@ -3999,13 +3998,7 @@ async function getLastUpdatedDate(tabName) {
             .eq('tab_name', tabName)
             .single();
         
-        if (error) {
-            // If no record found, return current time
-            if (error.code === 'PGRST116') {
-                return new Date().toISOString();
-            }
-            throw error;
-        }
+        if (error) throw error;
         
         return data ? data.last_updated : new Date().toISOString();
     } catch (error) {
@@ -4013,6 +4006,7 @@ async function getLastUpdatedDate(tabName) {
         return new Date().toISOString();
     }
 }
+
 // UPDATED: Function to update last updated date for a tab
 async function updateLastUpdatedDate(tabName) {
     try {

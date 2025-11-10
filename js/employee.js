@@ -436,13 +436,6 @@ function deleteDieselCategory(categoryId) {
     }
 }
 
-// Similar functions for routes and truck data...
-
-// Update the openTab function to handle diesel tab
-// Replace the existing openTab function with this enhanced version
-
-
-
 function openTab(tabName) {
     const tabContents = document.querySelectorAll('.tab-content');
     tabContents.forEach(tab => tab.classList.remove('active'));
@@ -452,6 +445,18 @@ function openTab(tabName) {
 
     document.getElementById(tabName).classList.add('active');
     event.currentTarget.classList.add('active');
+
+    // Load data when specific tabs are opened
+    if (tabName === 'allowances') {
+        loadAllowances();
+    } else if (tabName === 'diesel') {
+        initializeDieselTab();
+    } else if (tabName === 'truck-list') {
+        restoreActiveEmployeeSubTab();
+    }
+    
+    // Display last updated date for the active tab
+    displayLastUpdatedDate(tabName);
 }
 
 function setupSearch() {
@@ -467,7 +472,58 @@ let currentEmployeeTrucksData = {
     'left': []
 };
 
+// Function to display last updated date
+async function displayLastUpdatedDate(tabName) {
+    try {
+        const { data, error } = await supabase
+            .from('last_updated_dates')
+            .select('last_updated')
+            .eq('tab_name', tabName)
+            .single();
+        
+        if (error) throw error;
+        
+        const date = data ? data.last_updated : new Date().toISOString();
+        const formattedDate = formatLastUpdatedDate(date);
+        
+        const container = document.getElementById(`last-updated-${tabName}`);
+        if (container) {
+            container.innerHTML = `<small class="last-updated-text">Last updated: ${formattedDate}</small>`;
+        }
+    } catch (error) {
+        console.error('Error fetching last updated date:', error);
+        const container = document.getElementById(`last-updated-${tabName}`);
+        if (container) {
+            container.innerHTML = `<small class="last-updated-text">Last updated: Unknown</small>`;
+        }
+    }
+}
 
+// Format date as "06th Nov 2025" using local time
+function formatLastUpdatedDate(dateString) {
+    if (!dateString) return 'Unknown';
+    
+    try {
+        const date = new Date(dateString);
+        
+        // Convert to local timezone
+        const localDate = new Date(date.getTime());
+        
+        const day = localDate.getDate();
+        const month = localDate.toLocaleString('en-US', { month: 'short' });
+        const year = localDate.getFullYear();
+        
+        // Add ordinal suffix to day
+        const dayWithSuffix = day + (day % 10 === 1 && day !== 11 ? 'st' : 
+                                    day % 10 === 2 && day !== 12 ? 'nd' : 
+                                    day % 10 === 3 && day !== 13 ? 'rd' : 'th');
+        
+        return `${dayWithSuffix} ${month} ${year}`;
+    } catch (error) {
+        console.error('Error formatting date:', error);
+        return 'Unknown';
+    }
+}
 
 function setupAllowanceSearch() {
     const searchInput = document.getElementById('allowanceSearchInput');
@@ -1626,27 +1682,7 @@ function clearAllFilters() {
     document.querySelector('.filter-dropdown').classList.remove('active');
 }
 
-// UPDATED: Open tab function for employee with sub-tab preservation
-function openTab(tabName) {
-    const tabContents = document.querySelectorAll('.tab-content');
-    tabContents.forEach(tab => tab.classList.remove('active'));
 
-    const tabs = document.querySelectorAll('.nav-tab');
-    tabs.forEach(tab => tab.classList.remove('active'));
-
-    document.getElementById(tabName).classList.add('active');
-    event.currentTarget.classList.add('active');
-
-    // Load data when specific tabs are opened
-    if (tabName === 'allowances') {
-        loadAllowances();
-    } else if (tabName === 'diesel') {
-        initializeDieselTab();
-    } else if (tabName === 'truck-list') {
-        // RESTORE the active employee sub-tab when returning to truck list
-        restoreActiveEmployeeSubTab();
-    }
-}
 
 // NEW FUNCTION: Restore active employee sub-tab
 function restoreActiveEmployeeSubTab() {
@@ -1855,6 +1891,11 @@ document.addEventListener('DOMContentLoaded', function() {
             filterContainer.style.display = 'none';
         }
     }
+
+     displayLastUpdatedDate('truck-list');
+    displayLastUpdatedDate('allowances');
+    displayLastUpdatedDate('distance');
+    displayLastUpdatedDate('diesel');
     updateEmployeeFilterVisibility(currentEmployeeTab);
     loadTrucks();
     loadAllowances();
