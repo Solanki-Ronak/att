@@ -1881,3 +1881,35 @@ h2 {
         gap: 15px;
     }
 }
+
+/* Super Compact Back Button */
+@media (max-width: 768px) {
+    .btn-back {
+        padding: 5px 8px !important;
+        font-size: 0.7rem !important;
+        width: auto !important;
+        min-width: 70px !important;
+        max-width: 80px !important;
+        flex-shrink: 0 !important;
+        margin-left: 8px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    header {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 8px;
+    }
+
+    header h1 {
+        font-size: 1.4rem !important;
+        margin-bottom: 0 !important;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
