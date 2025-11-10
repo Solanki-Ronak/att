@@ -634,7 +634,7 @@ async function deleteDieselRoute(routeId) {
             
             if (error) throw error;
             
-            alert('✅ Route deleted successfully!');
+           showSuccessModal('Category deleted successfully!');
             
             // UPDATE LAST UPDATED DATE - ADD THIS LINE
             await updateLastUpdatedDate('diesel');
@@ -644,10 +644,9 @@ async function deleteDieselRoute(routeId) {
             
         } catch (error) {
             console.error('Error deleting route:', error);
-            alert('❌ Error deleting route: ' + error.message);
-        }
+            showErrorModal('Error deleting category: ' + error.message);
     }
-}
+}}
 // Display diesel routes
 function displayDieselRoutes(routes, categoryName) {
     const container = document.getElementById('dieselRoutes');
@@ -1099,7 +1098,7 @@ async function deleteDieselCategory(categoryId) {
             
             if (error) throw error;
             
-            alert('✅ Category deleted successfully!');
+           showSuccessModal('Category deleted successfully!');
             
             // UPDATE LAST UPDATED DATE - ADD THIS LINE
             await updateLastUpdatedDate('diesel');
@@ -1109,7 +1108,7 @@ async function deleteDieselCategory(categoryId) {
             
         } catch (error) {
             console.error('Error deleting category:', error);
-            alert('❌ Error deleting category: ' + error.message);
+           showErrorModal('Error deleting category: ' + error.message);
         }
     }
 }
@@ -1398,7 +1397,7 @@ async function handleAddAllowanceSubmit(event) {
         
         if (error) throw error;
         
-        alert('✅ Allowance added successfully!');
+       showSuccessModal('Allowance added successfully!');
         document.getElementById('addAllowanceModal').style.display = 'none';
         document.getElementById('addAllowanceForm').reset();
         loadAllowances();
@@ -1406,7 +1405,7 @@ async function handleAddAllowanceSubmit(event) {
         
     } catch (error) {
         console.error('Error adding allowance:', error);
-        alert('❌ Error adding allowance: ' + error.message);
+        showErrorModal('Error adding allowance: ' + error.message);
     } finally {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
@@ -1441,14 +1440,14 @@ async function handleEditAllowanceSubmit(event) {
         
         if (error) throw error;
         
-        alert('✅ Allowance updated successfully!');
+        showSuccessModal('Allowance updated successfully!');
         document.getElementById('editAllowanceModal').style.display = 'none';
         loadAllowances();
         await updateLastUpdatedDate('allowances');
         
     } catch (error) {
         console.error('Error updating allowance:', error);
-        alert('❌ Error updating allowance: ' + error.message);
+        showErrorModal('Error updating allowance: ' + error.message);
     } finally {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
@@ -2220,7 +2219,7 @@ async function handleEditFormSubmit(event) {
         await saveAdditionalFields();
         await saveAdditionalImages();
         
-        alert('✅ Truck updated successfully!');
+        showSuccessModal('Truck updated successfully!');
         document.getElementById('editModal').style.display = 'none';
         resetFileInputs('edit');
         await updateLastUpdatedDate('truck-list');
@@ -2228,7 +2227,7 @@ async function handleEditFormSubmit(event) {
         
     } catch (error) {
         console.error('Error updating truck:', error);
-        alert('❌ Error updating truck: ' + error.message);
+       showErrorModal('Error updating truck: ' + error.message);
     } finally {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
@@ -2503,7 +2502,7 @@ document.getElementById('confirmYes').onclick = async function() {
             if (deleteError) throw deleteError;
         }
         
-        alert('✅ Status updated successfully!');
+        showSuccessModal('Status updated successfully!');
         document.getElementById('confirmModal').style.display = 'none';
         await updateLastUpdatedDate('truck-list');
         // Reload all tabs
@@ -2513,7 +2512,7 @@ document.getElementById('confirmYes').onclick = async function() {
         
     } catch (error) {
         console.error('Error updating status:', error);
-        alert('❌ Error updating status: ' + error.message);
+        showErrorModal('Error updating status: ' + error.message);
     } finally {
         currentTruckId = null;
         pendingAction = null;
@@ -2839,7 +2838,7 @@ async function handleDeleteTruck() {
         
         if (truckError) throw truckError;
         
-        alert('✅ Truck deleted successfully!');
+       showSuccessModal('Truck deleted successfully!');
         document.getElementById('deleteConfirmModal').style.display = 'none';
         
         // UPDATE LAST UPDATED DATE
@@ -2852,7 +2851,7 @@ async function handleDeleteTruck() {
         
     } catch (error) {
         console.error('Error deleting truck:', error);
-        alert('❌ Error deleting truck: ' + error.message);
+        showErrorModal('Error deleting truck: ' + error.message);
     } finally {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
@@ -3194,7 +3193,7 @@ async function handleAddFormSubmit(event) {
         // Save additional images for add modal
         await saveAdditionalImages('add', newTruck.id);
         
-        alert('✅ Truck added successfully!');
+        showSuccessModal('Truck added successfully!');
         document.getElementById('addModal').style.display = 'none';
         document.getElementById('addForm').reset();
         resetFileInputs('add');
@@ -3219,7 +3218,7 @@ async function handleAddFormSubmit(event) {
         
     } catch (error) {
         console.error('Error adding truck:', error);
-        alert('❌ Error adding truck: ' + error.message);
+        showErrorModal('Error adding truck: ' + error.message);
     } finally {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
@@ -3990,7 +3989,8 @@ function getContactsText(truckId) {
 }
 
 
-// Function to get last updated date for a tab
+
+// UPDATED: Function to get last updated date for a tab
 async function getLastUpdatedDate(tabName) {
     try {
         const { data, error } = await supabase
@@ -3999,7 +3999,13 @@ async function getLastUpdatedDate(tabName) {
             .eq('tab_name', tabName)
             .single();
         
-        if (error) throw error;
+        if (error) {
+            // If no record found, return current time
+            if (error.code === 'PGRST116') {
+                return new Date().toISOString();
+            }
+            throw error;
+        }
         
         return data ? data.last_updated : new Date().toISOString();
     } catch (error) {
@@ -4007,8 +4013,7 @@ async function getLastUpdatedDate(tabName) {
         return new Date().toISOString();
     }
 }
-
-// Function to update last updated date for a tab
+// UPDATED: Function to update last updated date for a tab
 async function updateLastUpdatedDate(tabName) {
     try {
         // Use local time instead of server time
@@ -4020,6 +4025,8 @@ async function updateLastUpdatedDate(tabName) {
             .upsert({
                 tab_name: tabName,
                 last_updated: localISOTime
+            }, {
+                onConflict: 'tab_name' // Specify the conflict target
             });
         
         if (error) throw error;
@@ -4028,6 +4035,7 @@ async function updateLastUpdatedDate(tabName) {
         displayLastUpdatedDate(tabName);
     } catch (error) {
         console.error('Error updating last updated date:', error);
+        // Don't show error modal for this as it's not critical for user
     }
 }
 
@@ -4599,7 +4607,7 @@ async function handleReactivateDriver() {
         
         if (updateError) throw updateError;
         
-        alert('✅ Driver reactivated successfully! Moved to "Drivers with No Trucks" section.');
+       showSuccessModal('Driver reactivated successfully! Moved to "Drivers with No Trucks" section.');
         
         // Close the modal
         document.getElementById('reactivateModal').style.display = 'none';
@@ -4613,7 +4621,7 @@ async function handleReactivateDriver() {
         
     } catch (error) {
         console.error('Error reactivating driver:', error);
-        alert('❌ Error reactivating driver: ' + error.message);
+        showErrorModal('Error reactivating driver: ' + error.message);
     } finally {
         driverToReactivate = null;
     }
@@ -4840,7 +4848,7 @@ async function handleTruckAssignment() {
         
         if (deleteError) throw deleteError;
         
-        alert('✅ Driver assigned to truck successfully!');
+        showSuccessModal('Driver assigned to truck successfully!');
         
         // Close the modal
         document.getElementById('assignConfirmModal').style.display = 'none';
@@ -4854,7 +4862,7 @@ async function handleTruckAssignment() {
         
     } catch (error) {
         console.error('Error assigning truck:', error);
-        alert('❌ Error assigning truck: ' + error.message);
+        showErrorModal('Error assigning truck: ' + error.message);
     } finally {
         // Reset variables
         driverToAssign = null;
@@ -5556,3 +5564,37 @@ function convertToDirectDownloadUrl(googleDriveUrl) {
     // If we can't convert, return original URL (user might need to sign in)
     return googleDriveUrl;
 }
+
+// Success/Error Modal Functions
+function showSuccessModal(message, title = 'Success') {
+    document.getElementById('successTitle').textContent = title;
+    document.getElementById('successMessage').textContent = message;
+    document.getElementById('successModal').style.display = 'block';
+}
+
+function showErrorModal(message, title = 'Error') {
+    document.getElementById('errorTitle').textContent = title;
+    document.getElementById('errorMessage').textContent = message;
+    document.getElementById('errorModal').style.display = 'block';
+}
+
+function closeSuccessModal() {
+    document.getElementById('successModal').style.display = 'none';
+}
+
+function closeErrorModal() {
+    document.getElementById('errorModal').style.display = 'none';
+}
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const successModal = document.getElementById('successModal');
+    const errorModal = document.getElementById('errorModal');
+    
+    if (event.target === successModal) {
+        closeSuccessModal();
+    }
+    if (event.target === errorModal) {
+        closeErrorModal();
+    }
+};
