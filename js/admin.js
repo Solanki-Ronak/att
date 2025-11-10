@@ -12,8 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadFieldLabels();
     updateAdminFilterUI();
     
-    // Initialize filter container visibility
-    initializeAdminFilterVisibility();
+    updateAdminFilterVisibility(currentAdminTab);
     
     // Initialize last updated dates for all tabs
     displayLastUpdatedDate('truck-list');
@@ -29,19 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     addValidationListeners();
 });
 
-// ADD THIS FUNCTION to initialize filter visibility
-function initializeAdminFilterVisibility() {
-    const filterContainer = document.getElementById('adminFilterContainer');
-    if (filterContainer) {
-        // Check if we're currently on the All Drivers/Trucks tab
-        const allTrucksTab = document.getElementById('all-trucks');
-        if (allTrucksTab && allTrucksTab.classList.contains('active')) {
-            filterContainer.style.display = 'block';
-        } else {
-            filterContainer.style.display = 'none';
-        }
-    }
-}
+
 
 // Diesel Data Management
 let currentDieselType = 'long_haul';
@@ -1125,26 +1112,6 @@ async function deleteDieselCategory(categoryId) {
             alert('❌ Error deleting category: ' + error.message);
         }
     }
-}
-function openTab(tabName) {
-    const tabContents = document.querySelectorAll('.tab-content');
-    tabContents.forEach(tab => tab.classList.remove('active'));
-
-    const tabs = document.querySelectorAll('.nav-tab');
-    tabs.forEach(tab => tab.classList.remove('active'));
-
-    document.getElementById(tabName).classList.add('active');
-    event.currentTarget.classList.add('active');
-
-    // Load data when specific tabs are opened
-    if (tabName === 'allowances') {
-        loadAllowances();
-    } else if (tabName === 'diesel') {
-        initializeDieselTab();
-    }
-    
-    // Display last updated date for the active tab
-    displayLastUpdatedDate(tabName);
 }
 
 
@@ -3534,33 +3501,92 @@ function applyAdminFiltersToCurrentTab() {
     }
 }
 
+// UPDATED: Open tab function with sub-tab preservation
+function openTab(tabName) {
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(tab => tab.classList.remove('active'));
+
+    const tabs = document.querySelectorAll('.nav-tab');
+    tabs.forEach(tab => tab.classList.remove('active'));
+
+    document.getElementById(tabName).classList.add('active');
+    event.currentTarget.classList.add('active');
+
+    // Load data when specific tabs are opened
+    if (tabName === 'allowances') {
+        loadAllowances();
+    } else if (tabName === 'diesel') {
+        initializeDieselTab();
+    } else if (tabName === 'truck-list') {
+        // RESTORE the active admin sub-tab when returning to truck list
+        restoreActiveAdminSubTab();
+    }
+    
+    // Display last updated date for the active tab
+    displayLastUpdatedDate(tabName);
+}
+
+// NEW FUNCTION: Restore active admin sub-tab
+function restoreActiveAdminSubTab() {
+    // Check if we have a stored active sub-tab, otherwise default to 'all-trucks'
+    const activeSubTab = currentAdminTab || 'all-trucks';
+    
+    // Update the UI to show the correct active sub-tab
+    document.querySelectorAll('.secondary-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    document.querySelectorAll('.admin-tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Activate the stored sub-tab
+    const activeTabElement = document.querySelector(`[onclick="openAdminTab('${activeSubTab}')"]`);
+    const activeContent = document.getElementById(activeSubTab);
+    
+    if (activeTabElement && activeContent) {
+        activeTabElement.classList.add('active');
+        activeContent.classList.add('active');
+        
+        // Load the data for this sub-tab
+        loadTrucksByAdminStatus(activeSubTab);
+        
+        // Update filter container visibility
+        updateAdminFilterVisibility(activeSubTab);
+    }
+}
+
+// UPDATED: Update filter visibility function
+function updateAdminFilterVisibility(activeSubTab) {
+    const filterContainer = document.getElementById('adminFilterContainer');
+    if (filterContainer) {
+        if (activeSubTab === 'all-trucks') {
+            filterContainer.style.display = 'block';
+        } else {
+            filterContainer.style.display = 'none';
+        }
+    }
+}
+
+// UPDATED: openAdminTab function to store the current sub-tab
 function openAdminTab(tabName) {
-    currentAdminTab = tabName;
+    currentAdminTab = tabName; // STORE the current sub-tab
     
     // Update active tab
     document.querySelectorAll('.secondary-tab').forEach(tab => {
         tab.classList.remove('active');
     });
     event.target.classList.add('active');
-    
+
     // Show active content
     document.querySelectorAll('.admin-tab-content').forEach(content => {
         content.classList.remove('active');
     });
     document.getElementById(tabName).classList.add('active');
-    
-    // Show/hide filter container based on active tab
-    const filterContainer = document.getElementById('adminFilterContainer');
-    if (filterContainer) {
-        if (tabName === 'all-trucks') {
-            filterContainer.style.display = 'block';
-        } else {
-            filterContainer.style.display = 'none';
-            // Clear filters when switching away from All Drivers/Trucks
-            clearAllAdminFilters();
-        }
-    }
-    
+
+    // Update filter container visibility
+    updateAdminFilterVisibility(tabName);
+
     // Load appropriate data
     loadTrucksByAdminStatus(tabName);
 }

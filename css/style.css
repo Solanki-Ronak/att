@@ -685,7 +685,7 @@ h2 {
 
 .driver-image {
     width: 100%;
-    height: 300px;
+    height: 400px;
     object-fit: cover;
     border-radius: 8px;
     margin-bottom: 12px;
@@ -1231,7 +1231,7 @@ h2 {
     font-weight: bold;
 }
 
-.truck-image, .driver-image {
+.truck-image {
     width: 100%;
     height: 180px;
     object-fit: cover;
@@ -1602,7 +1602,7 @@ h2 {
     }
     
     .driver-image {
-        height: 260px;
+        height: 350px;
     }
     
     .modal-content {
@@ -1737,7 +1737,7 @@ h2 {
     }
     
     .driver-image {
-        height: 220px;
+        height: 350px;
     }
     
     .info-label {
