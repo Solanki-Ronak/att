@@ -97,10 +97,15 @@
         </div>
     </div>
     <div id="no-truck" class="admin-tab-content">
-        <div id="no-truck-list" class="trucks-grid">
-            <div class="loading">Loading drivers with no trucks...</div>
-        </div>
+    <!-- ADD THIS BUTTON CONTAINER -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Drivers with No Trucks</h2>
+        <button class="btn btn-primary" onclick="openAddDriverModal()">➕ Add Driver</button>
     </div>
+    <div id="no-truck-list" class="trucks-grid">
+        <div class="loading">Loading drivers with no trucks...</div>
+    </div>
+</div>
     <div id="left" class="admin-tab-content">
         <div id="left-list" class="trucks-grid">
             <div class="loading">Loading drivers who left...</div>
@@ -775,23 +780,32 @@
     </div>
 </div>
 
-<!-- Edit Driver Details Modal (for No Trucks and Left sections) -->
+<!-- Enhanced Edit Driver Modal -->
 <div id="editDriverModal" class="modal">
     <div class="modal-content modal-large">
-        <span class="close">&times;</span>
+        <span class="close" onclick="document.getElementById('editDriverModal').style.display='none'">&times;</span>
         <h2>✏️ Edit Driver Details</h2>
         <form id="editDriverForm">
             <input type="hidden" id="editDriverId">
             
+            <!-- Driver Image Section -->
+            <div class="form-group">
+                <label>Driver Picture:</label>
+                <input type="file" id="editDriverImageOnly" accept="image/*" onchange="previewEditDriverImage(this)">
+                <small style="color: #666; display: block; margin-top: 5px;">Update driver photo</small>
+                <img id="currentDriverImageOnly" src="" alt="Current Driver Image" class="image-preview" style="display: none; margin-top: 10px; max-height: 200px;">
+                <!-- REMOVED the separate preview - we'll use the same image element -->
+            </div>
+
             <!-- Driver Information -->
             <div class="form-row">
                 <div class="form-group">
                     <label>Driver Name:</label>
-                    <input type="text" id="editDriverNameOnly" required>
+                    <input type="text" id="editDriverNameOnly" required oninput="updateEditDriverSaveButtonState()">
                 </div>
                 <div class="form-group">
                     <label>Driver License:</label>
-                    <input type="text" id="editDriverLicenseOnly" required>
+                    <input type="text" id="editDriverLicenseOnly" required oninput="updateEditDriverSaveButtonState()">
                 </div>
             </div>
             
@@ -801,25 +815,31 @@
                 <div id="editDriverContactsContainer">
                     <!-- Contacts will be loaded dynamically -->
                 </div>
-                <button type="button" class="btn btn-secondary" onclick="addDriverContactField()">➕ Add Another Number</button>
+                <button type="button" class="btn btn-secondary" onclick="addEditDriverContactField()">➕ Add Another Number</button> <!-- CHANGED FUNCTION NAME -->
             </div>
-            
+
+            <!-- Driving License Google Drive Link -->
+            <div class="form-group">
+                <label>Driving License Google Drive Link:</label>
+                <input type="url" id="editDriverLicenseUrlOnly" placeholder="https://drive.google.com/...">
+                <small style="color: #666; display: block; margin-top: 5px;">Optional: Paste Google Drive shareable link</small>
+            </div>
+
             <!-- Previous Trucks Section -->
             <div class="previous-trucks-section">
                 <h3>Previous Trucks</h3>
-                <div id="previousTrucksContainer" class="previous-trucks-container">
+                <div id="editPreviousTrucksContainer" class="previous-trucks-container"> <!-- CHANGED ID -->
                     <!-- Previous trucks will be loaded dynamically -->
                 </div>
-                <button type="button" class="btn btn-secondary" onclick="addPreviousTruckField()">➕ Add Previous Truck</button>
+                <button type="button" class="btn btn-secondary" onclick="addEditPreviousTruckField()">➕ Add Previous Truck</button> <!-- CHANGED FUNCTION NAME -->
             </div>
             
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
-                💾 Save Driver Details
+            <button type="submit" class="btn btn-primary" id="editDriverSubmitBtn" style="width: 100%; margin-top: 20px;">
+                💾 Save Changes
             </button>
         </form>
     </div>
 </div>
-
 <!-- Reactivate Driver Confirmation Modal -->
 <div id="reactivateModal" class="modal">
     <div class="modal-content confirm-modal">
@@ -899,6 +919,69 @@
         </div>
     </div>
 </div>
+<!-- ADD DRIVER MODAL -->
+<div id="addDriverModal" class="modal">
+    <div class="modal-content modal-large">
+        <span class="close" onclick="closeAddDriverModal()">&times;</span>
+        <h2>➕ Add Driver (No Truck)</h2>
+        <form id="addDriverForm">
+            <!-- Driver Image Section -->
+            <div class="form-group">
+                <label>Driver Picture (Required):</label>
+                <input type="file" id="addDriverImageOnly" accept="image/*" required onchange="previewDriverImage(this)">
+                <small style="color: #666; display: block; margin-top: 5px;">Please upload a clear photo of the driver</small>
+                <img id="driverImagePreview" src="" alt="Driver Image Preview" class="image-preview" style="display: none; margin-top: 10px; max-height: 200px;">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Driver Name:</label>
+                    <input type="text" id="addDriverNameOnly" required oninput="validateAddDriverForm()">
+                </div>
+                <div class="form-group">
+                    <label>Driver License:</label>
+                    <input type="text" id="addDriverLicenseOnly" required oninput="validateAddDriverForm()">
+                </div>
+            </div>
+            
+            <!-- Driver Contacts -->
+            <div class="form-group">
+                <label>Driver Contacts (Required):</label>
+                <div id="addDriverContactsContainer">
+                    <div class="contact-input-group">
+                        <input type="text" class="contact-input" placeholder="Phone number" required oninput="validateAddDriverForm()">
+                        <button type="button" class="btn-remove-contact" onclick="removeAddDriverContactField(this)" style="display:none;">🗑️</button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="addDriverContactField()">➕ Add Another Number</button>
+            </div>
+
+            <!-- Driving License Google Drive Link -->
+            <div class="form-group">
+                <label>Driving License Google Drive Link:</label>
+                <input type="url" id="addDriverLicenseUrlOnly" placeholder="https://drive.google.com/...">
+                <small style="color: #666; display: block; margin-top: 5px;">Optional: Paste Google Drive shareable link</small>
+            </div>
+
+            <!-- Previous Trucks Section -->
+            <div class="previous-trucks-section">
+                <h3>Previous Trucks (Optional)</h3>
+                <div id="addPreviousTrucksContainer" class="previous-trucks-container">
+                    <div class="previous-truck-group">
+                        <input type="text" class="previous-truck-input" placeholder="Truck Number">
+                        <button type="button" class="btn-remove-truck" onclick="removeAddPreviousTruckField(this)" style="display:none;">🗑️</button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="addPreviousTruckField()">➕ Add Previous Truck</button>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" id="addDriverSubmitBtn" style="width: 100%; margin-top: 20px;" disabled>
+                ➕ Add Driver
+            </button>
+        </form>
+    </div>
+</div>
+
     <script src="../js/admin.js"></script>
 </body>
 </html>

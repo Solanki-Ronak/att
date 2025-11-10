@@ -378,6 +378,7 @@ async function openNoDriverDetailsModal(truckId) {
         alert('Error loading truck details');
     }
 }
+// Fixed View Details for Drivers with No Trucks
 async function openDriverNoTruckDetailsModal(truckId) {
     try {
         const { data: truck, error } = await supabase
@@ -411,7 +412,7 @@ async function openDriverNoTruckDetailsModal(truckId) {
         // Generate contacts HTML for details modal
         const contactsHtml = generateDetailsContactsHtml(truck.driver_contacts);
         
-        // Create previous trucks list with numbers
+        // Create previous trucks list with numbers - FIXED LAYOUT
         let previousTrucksHtml = '<div class="no-results">No previous trucks</div>';
         if (truck.previous_trucks) {
             const trucksArray = truck.previous_trucks.split(', ').filter(t => t.trim() !== '');
@@ -424,29 +425,23 @@ async function openDriverNoTruckDetailsModal(truckId) {
                 ).join('');
             }
         }
-        
-        // Generate COMESA/C28 expiry sections conditionally
-        const comesaExpiryHtml = truck.comesa === 'YES' ? 
-            `<div class="detail-item">
-                <span class="detail-label">COMESA Expiry:</span>
-                <span class="detail-value">${truck.comesa_expiry ? formatDate(truck.comesa_expiry) : 'Not set'}</span>
-            </div>` : '';
-        
-        const c28ExpiryHtml = truck.c28 === 'YES' ? 
-            `<div class="detail-item">
-                <span class="detail-label">C28 Expiry:</span>
-                <span class="detail-value">${truck.c28_expiry ? formatDate(truck.c28_expiry) : 'Not set'}</span>
-            </div>` : '';
 
+        const statusTitle = 'No Truck Assigned';
+        const statusClass = 'no-assigned-truck';
+        
         modal.innerHTML = `
             <div class="modal-content modal-large">
                 <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
-                <h2>👨‍💼 Driver Details - No Truck Assigned</h2>
+                <h2>👨‍💼 Driver Details - ${statusTitle}</h2>
                 <div class="details-grid">
                     <div class="detail-section ${!hasDriverImage ? 'no-image' : ''}">
                         <h3>Driver Information</h3>
                         ${driverImageHtml}
                         
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span>
+                            <span class="detail-value ${statusClass}">${truck.truck_number}</span>
+                        </div>
                         <div class="detail-item">
                             <span class="detail-label">Driver Name:</span>
                             <span class="detail-value">${truck.driver_name}</span>
@@ -463,20 +458,9 @@ async function openDriverNoTruckDetailsModal(truckId) {
                     </div>
                     
                     <div class="detail-section no-image">
-                        <h3>Additional Information</h3>
-                        <div class="detail-item">
-                            <span class="detail-label">COMESA:</span>
-                            <span class="detail-value">${truck.comesa || 'NO'}</span>
-                        </div>
-                        ${comesaExpiryHtml}
-                        <div class="detail-item">
-                            <span class="detail-label">C28:</span>
-                            <span class="detail-value">${truck.c28 || 'NO'}</span>
-                        </div>
-                        ${c28ExpiryHtml}
-                        <div class="detail-item">
-                            <span class="detail-label">Previous Trucks:</span>
-                            <span class="detail-value">${previousTrucksHtml}</span>
+                        <h3>Previous Trucks</h3>
+                        <div class="previous-trucks-list" style="max-height: 300px; overflow-y: auto;">
+                            ${previousTrucksHtml}
                         </div>
                     </div>
                 </div>
@@ -497,7 +481,6 @@ async function openDriverNoTruckDetailsModal(truckId) {
         alert('Error loading driver details');
     }
 }
-
 function assignTruck(truckId) {
     // Will implement later
     alert('Assign truck to driver - ID: ' + truckId);
@@ -3045,7 +3028,25 @@ function setupModals() {
             editDriverModal.style.display = 'none';
         }
     };
-
+ const addDriverModal = document.getElementById('addDriverModal');
+    if (addDriverModal) {
+        const addDriverCloseBtn = addDriverModal.querySelector('.close');
+        const addDriverForm = document.getElementById('addDriverForm');
+        
+        addDriverCloseBtn.onclick = () => {
+            addDriverModal.style.display = 'none';
+        };
+        
+        addDriverForm.onsubmit = handleAddDriverSubmit;
+        
+        // Close when clicking outside
+        window.onclick = (event) => {
+            if (event.target === addDriverModal) {
+                addDriverModal.style.display = 'none';
+            }
+        };
+    }
+    
     setupReactivateModal();
     setupAssignTruckModals();
 }
@@ -3830,50 +3831,7 @@ function updateContactRemoveButtons(containerId) {
     }
 }
 
-async function updateDriverContacts(truckId, contacts) {
-    try {
-        // Delete contacts marked for removal
-        if (window.contactsToDelete && window.contactsToDelete.length > 0) {
-            const { error: deleteError } = await supabase
-                .from('driver_contacts')
-                .delete()
-                .in('id', window.contactsToDelete);
-            
-            if (deleteError) throw deleteError;
-            window.contactsToDelete = [];
-        }
-        
-        // Update or insert contacts
-        for (const contact of contacts) {
-            if (contact.id && !contact.id.startsWith('new_')) {
-                // Update existing contact
-                const { error: updateError } = await supabase
-                    .from('driver_contacts')
-                    .update({
-                        phone_number: contact.phone,
-                        contact_type: contact.type
-                    })
-                    .eq('id', contact.id);
-                
-                if (updateError) throw updateError;
-            } else {
-                // Insert new contact
-                const { error: insertError } = await supabase
-                    .from('driver_contacts')
-                    .insert({
-                        truck_id: truckId,
-                        phone_number: contact.phone,
-                        contact_type: contact.type
-                    });
-                
-                if (insertError) throw insertError;
-            }
-        }
-    } catch (error) {
-        console.error('Error updating contacts:', error);
-        throw error;
-    }
-}
+
 
 function generateContactsHtml(contacts) {
     if (!contacts || contacts.length === 0) {
@@ -4293,7 +4251,7 @@ function resetModalState(modalType) {
         if (imagesContainer) imagesContainer.innerHTML = '';
     }
 }
-// NEW: Open edit driver modal for No Trucks and Left sections
+// Enhanced Edit Driver Modal for No Trucks Section
 async function openEditDriverModal(truckId) {
     currentTruckId = truckId;
     const modal = document.getElementById('editDriverModal');
@@ -4315,12 +4273,28 @@ async function openEditDriverModal(truckId) {
         document.getElementById('editDriverId').value = truck.id;
         document.getElementById('editDriverNameOnly').value = truck.driver_name || '';
         document.getElementById('editDriverLicenseOnly').value = truck.driver_license || '';
+        document.getElementById('editDriverLicenseUrlOnly').value = truck.driver_license_url || '';
+        
+        // Load and display current driver image
+        const currentDriverImage = document.getElementById('currentDriverImageOnly');
+        const hasDriverImage = truck.driver_image_url && truck.driver_image_url !== '';
+        if (currentDriverImage) {
+            if (hasDriverImage) {
+                currentDriverImage.src = truck.driver_image_url;
+                currentDriverImage.style.display = 'block';
+            } else {
+                currentDriverImage.style.display = 'none';
+            }
+        }
         
         // Load contacts
         await loadDriverContactsForEdit(truckId);
         
         // Load previous trucks
         await loadPreviousTrucks(truckId);
+        
+        // Update save button state
+        updateEditDriverSaveButtonState();
         
         modal.style.display = 'block';
     } catch (error) {
@@ -4329,34 +4303,6 @@ async function openEditDriverModal(truckId) {
     }
 }
 
-// NEW: Load driver contacts for edit driver modal
-async function loadDriverContactsForEdit(truckId) {
-    const container = document.getElementById('editDriverContactsContainer');
-    container.innerHTML = '';
-    
-    try {
-        const { data: contacts, error } = await supabase
-            .from('driver_contacts')
-            .select('*')
-            .eq('truck_id', truckId)
-            .order('created_at');
-        
-        if (error) throw error;
-        
-        if (contacts && contacts.length > 0) {
-            contacts.forEach(contact => {
-                addDriverContactField(contact.phone_number, contact.id);
-            });
-        } else {
-            // Add one empty contact field
-            addDriverContactField();
-        }
-    } catch (error) {
-        console.error('Error loading contacts:', error);
-        // Add one empty contact field as fallback
-        addDriverContactField();
-    }
-}
 
 // NEW: Add driver contact field
 function addDriverContactField(phone = '', contactId = null) {
@@ -4410,35 +4356,7 @@ function updateDriverContactRemoveButtons() {
     }
 }
 
-// NEW: Load previous trucks
-async function loadPreviousTrucks(truckId) {
-    const container = document.getElementById('previousTrucksContainer');
-    container.innerHTML = '';
-    
-    try {
-        const { data: truck, error } = await supabase
-            .from('trucks')
-            .select('previous_trucks')
-            .eq('id', truckId)
-            .single();
-        
-        if (error) throw error;
-        
-        if (truck.previous_trucks) {
-            const trucksArray = truck.previous_trucks.split(', ').filter(t => t.trim() !== '');
-            trucksArray.forEach((truckNum, index) => {
-                addPreviousTruckField(truckNum, index);
-            });
-        } else {
-            // Add one empty field if no previous trucks
-            addPreviousTruckField();
-        }
-    } catch (error) {
-        console.error('Error loading previous trucks:', error);
-        // Add one empty field as fallback
-        addPreviousTruckField();
-    }
-}
+
 
 // NEW: Add previous truck field
 function addPreviousTruckField(truckNumber = '', index = null) {
@@ -5592,3 +5510,772 @@ window.onclick = function(event) {
         closeErrorModal();
     }
 };
+
+// =============================================
+// ADD DRIVER FUNCTIONS
+// =============================================
+
+let driverImageFile = null;
+
+// Open Add Driver Modal
+function openAddDriverModal() {
+    console.log('Opening Add Driver Modal');
+    
+    // Reset the form and state
+    document.getElementById('addDriverForm').reset();
+    driverImageFile = null;
+    
+    // Reset image preview
+    const imagePreview = document.getElementById('driverImagePreview');
+    imagePreview.style.display = 'none';
+    imagePreview.src = '';
+    
+    // Reset contacts container with one empty field
+    const contactsContainer = document.getElementById('addDriverContactsContainer');
+    contactsContainer.innerHTML = `
+        <div class="contact-input-group">
+            <input type="text" class="contact-input" placeholder="Phone number" required oninput="validateAddDriverForm()">
+            <button type="button" class="btn-remove-contact" onclick="removeAddDriverContactField(this)" style="display:none;">🗑️</button>
+        </div>
+    `;
+    
+    // Reset previous trucks container with one empty field
+    const trucksContainer = document.getElementById('addPreviousTrucksContainer');
+    trucksContainer.innerHTML = `
+        <div class="previous-truck-group">
+            <input type="text" class="previous-truck-input" placeholder="Truck Number">
+            <button type="button" class="btn-remove-truck" onclick="removeAddPreviousTruckField(this)" style="display:none;">🗑️</button>
+        </div>
+    `;
+    
+    // Reset submit button
+    document.getElementById('addDriverSubmitBtn').disabled = true;
+    
+    // Show the modal
+    document.getElementById('addDriverModal').style.display = 'block';
+}
+
+// Close Add Driver Modal
+function closeAddDriverModal() {
+    document.getElementById('addDriverModal').style.display = 'none';
+}
+
+// Preview Driver Image
+function previewDriverImage(input) {
+    const preview = document.getElementById('driverImagePreview');
+    const file = input.files[0];
+    
+    if (file) {
+        driverImageFile = file;
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        
+        reader.readAsDataURL(file);
+    } else {
+        preview.style.display = 'none';
+        preview.src = '';
+        driverImageFile = null;
+    }
+    
+    validateAddDriverForm();
+}
+
+// Validate Add Driver Form
+function validateAddDriverForm() {
+    const driverName = document.getElementById('addDriverNameOnly').value.trim();
+    const driverLicense = document.getElementById('addDriverLicenseOnly').value.trim();
+    const driverImage = document.getElementById('addDriverImageOnly').files[0];
+    
+    // Check contacts
+    const contacts = getAddDriverContactsFromForm();
+    const hasValidContacts = contacts.length > 0;
+    
+    // All required fields must be filled
+    const isValid = driverName && driverLicense && driverImage && hasValidContacts;
+    
+    const submitBtn = document.getElementById('addDriverSubmitBtn');
+    submitBtn.disabled = !isValid;
+    
+    return isValid;
+}
+
+// Add Driver Contact Field
+function addDriverContactField(phone = '') {
+    const container = document.getElementById('addDriverContactsContainer');
+    
+    const contactGroup = document.createElement('div');
+    contactGroup.className = 'contact-input-group';
+    contactGroup.setAttribute('data-contact-id', `new_${Date.now()}`);
+    
+    contactGroup.innerHTML = `
+        <input type="text" class="contact-input" placeholder="Phone number" value="${phone}" required oninput="validateAddDriverForm()">
+        <button type="button" class="btn-remove-contact" onclick="removeAddDriverContactField(this)">🗑️</button>
+    `;
+    
+    container.appendChild(contactGroup);
+    updateAddDriverContactRemoveButtons();
+    validateAddDriverForm();
+}
+
+// Remove Driver Contact Field
+function removeAddDriverContactField(button) {
+    const contactGroup = button.closest('.contact-input-group');
+    const container = contactGroup.parentElement;
+    const contactGroups = container.querySelectorAll('.contact-input-group');
+    
+    if (contactGroups.length > 1) {
+        contactGroup.remove();
+    } else {
+        const contactInput = contactGroup.querySelector('.contact-input');
+        contactInput.value = '';
+        contactInput.focus();
+    }
+    
+    updateAddDriverContactRemoveButtons();
+    validateAddDriverForm();
+}
+
+// Update Driver Contact Remove Buttons Visibility
+function updateAddDriverContactRemoveButtons() {
+    const container = document.getElementById('addDriverContactsContainer');
+    const contactGroups = container.querySelectorAll('.contact-input-group');
+    const removeButtons = container.querySelectorAll('.btn-remove-contact');
+    
+    if (contactGroups.length > 1) {
+        removeButtons.forEach(btn => btn.style.display = 'inline-block');
+    } else {
+        removeButtons.forEach(btn => btn.style.display = 'none');
+    }
+}
+
+// Add Previous Truck Field
+function addPreviousTruckField(truckNumber = '') {
+    const container = document.getElementById('addPreviousTrucksContainer');
+    
+    const truckGroup = document.createElement('div');
+    truckGroup.className = 'previous-truck-group';
+    truckGroup.setAttribute('data-truck-index', `new_${Date.now()}`);
+    
+    truckGroup.innerHTML = `
+        <input type="text" class="previous-truck-input" placeholder="Truck Number" value="${truckNumber}">
+        <button type="button" class="btn-remove-truck" onclick="removeAddPreviousTruckField(this)">🗑️</button>
+    `;
+    
+    container.appendChild(truckGroup);
+    updateAddPreviousTruckRemoveButtons();
+}
+
+// Remove Previous Truck Field
+function removeAddPreviousTruckField(button) {
+    const truckGroup = button.closest('.previous-truck-group');
+    const container = truckGroup.parentElement;
+    const truckGroups = container.querySelectorAll('.previous-truck-group');
+    
+    if (truckGroups.length > 1) {
+        truckGroup.remove();
+    } else {
+        const truckInput = truckGroup.querySelector('.previous-truck-input');
+        truckInput.value = '';
+        truckInput.focus();
+    }
+    
+    updateAddPreviousTruckRemoveButtons();
+}
+
+// Update Previous Truck Remove Buttons Visibility
+function updateAddPreviousTruckRemoveButtons() {
+    const container = document.getElementById('addPreviousTrucksContainer');
+    const truckGroups = container.querySelectorAll('.previous-truck-group');
+    const removeButtons = container.querySelectorAll('.btn-remove-truck');
+    
+    if (truckGroups.length > 1) {
+        removeButtons.forEach(btn => btn.style.display = 'inline-block');
+    } else {
+        removeButtons.forEach(btn => btn.style.display = 'none');
+    }
+}
+
+// Get contacts from Add Driver form
+function getAddDriverContactsFromForm() {
+    const container = document.getElementById('addDriverContactsContainer');
+    const contactGroups = container.querySelectorAll('.contact-input-group');
+    
+    const contacts = [];
+    contactGroups.forEach(group => {
+        const phoneInput = group.querySelector('.contact-input');
+        if (phoneInput.value.trim()) {
+            contacts.push({
+                phone: phoneInput.value.trim()
+            });
+        }
+    });
+    
+    return contacts;
+}
+
+// Get previous trucks from Add Driver form
+function getAddPreviousTrucksFromForm() {
+    const container = document.getElementById('addPreviousTrucksContainer');
+    const truckGroups = container.querySelectorAll('.previous-truck-group');
+    
+    const previousTrucks = [];
+    truckGroups.forEach(group => {
+        const truckInput = group.querySelector('.previous-truck-input');
+        if (truckInput.value.trim()) {
+            previousTrucks.push(truckInput.value.trim());
+        }
+    });
+    
+    return previousTrucks;
+}
+
+// Handle Add Driver Form Submit
+async function handleAddDriverSubmit(event) {
+    event.preventDefault();
+    console.log('Add Driver form submitted');
+    
+    if (!validateAddDriverForm()) {
+        alert('Please fill all required fields');
+        return;
+    }
+    
+    const driverName = document.getElementById('addDriverNameOnly').value.trim();
+    const driverLicense = document.getElementById('addDriverLicenseOnly').value.trim();
+    const driverLicenseUrl = document.getElementById('addDriverLicenseUrlOnly').value.trim();
+    
+    // Get contacts from form
+    const contacts = getAddDriverContactsFromForm();
+    
+    // Get previous trucks from form
+    const previousTrucks = getAddPreviousTrucksFromForm();
+    
+    const submitBtn = document.getElementById('addDriverSubmitBtn');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = '⏳ Adding...';
+    submitBtn.disabled = true;
+    
+    try {
+        let driverImageUrl = null;
+        
+        // Upload driver image
+        if (driverImageFile) {
+            const fileExt = driverImageFile.name.split('.').pop();
+            const fileName = `driver-${Date.now()}.${fileExt}`;
+            
+            const { error: uploadError } = await supabase.storage
+                .from('driver-images')
+                .upload(fileName, driverImageFile, {
+                    upsert: true,
+                    cacheControl: '3600'
+                });
+            
+            if (uploadError) throw uploadError;
+            
+            const { data: urlData } = supabase.storage
+                .from('driver-images')
+                .getPublicUrl(fileName);
+            
+            driverImageUrl = urlData.publicUrl;
+        }
+        
+        // Generate a unique truck number for the driver without truck
+        const timestamp = Date.now();
+        const uniqueTruckNumber = `NO-TRUCK-${timestamp}`;
+        
+        console.log('Creating driver with data:', {
+            driverName,
+            driverLicense,
+            contactsCount: contacts.length,
+            previousTrucksCount: previousTrucks.length,
+            hasImage: !!driverImageUrl
+        });
+        
+        // Create new driver record
+        const { data: newDriver, error: insertError } = await supabase
+            .from('trucks')
+            .insert({
+                truck_number: uniqueTruckNumber,
+                driver_name: driverName,
+                driver_license: driverLicense,
+                driver_license_url: driverLicenseUrl || null,
+                driver_image_url: driverImageUrl,
+                previous_trucks: previousTrucks.length > 0 ? previousTrucks.join(', ') : null,
+                status: 'no_truck',
+                // Clear truck specifications since this is just a driver
+                truck_type: null,
+                truck_body: null,
+                truck_make: null,
+                truck_tons: null,
+                truck_image_url: null,
+                comesa: 'NO',
+                c28: 'NO',
+                comesa_expiry: null,
+                c28_expiry: null
+            })
+            .select()
+            .single();
+        
+        if (insertError) {
+            console.error('Supabase insert error:', insertError);
+            throw insertError;
+        }
+        
+        console.log('Driver created successfully:', newDriver);
+        
+        // Insert contacts
+        if (contacts.length > 0) {
+            const contactsToInsert = contacts.map(contact => ({
+                truck_id: newDriver.id,
+                phone_number: contact.phone,
+                contact_type: 'mobile'
+            }));
+            
+            const { error: contactsError } = await supabase
+                .from('driver_contacts')
+                .insert(contactsToInsert);
+            
+            if (contactsError) {
+                console.error('Contacts insert error:', contactsError);
+                throw contactsError;
+            }
+        }
+        
+        showSuccessModal('Driver added successfully to "Drivers with No Trucks" section!');
+        
+        // Close the modal
+        closeAddDriverModal();
+        
+        // UPDATE LAST UPDATED DATE
+        await updateLastUpdatedDate('truck-list');
+        
+        // Reload the no-truck section to show the new driver
+        await loadTrucksByAdminStatus('no-truck');
+        
+    } catch (error) {
+        console.error('Error adding driver:', error);
+        showErrorModal('Error adding driver: ' + error.message);
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = true; // Keep disabled until form is filled again
+    }
+}
+
+let editDriverImageFile = null;
+
+
+
+
+
+
+
+
+
+
+// Validate Edit Driver Form
+function validateEditDriverForm() {
+    const driverName = document.getElementById('editDriverNameOnly').value.trim();
+    const driverLicense = document.getElementById('editDriverLicenseOnly').value.trim();
+    
+    // Check contacts
+    const contacts = getEditDriverContactsFromForm();
+    const hasValidContacts = contacts.length > 0;
+    
+    // All required fields must be filled
+    const isValid = driverName && driverLicense && hasValidContacts;
+    
+    return isValid;
+}
+
+// Update Edit Driver Save Button State
+function updateEditDriverSaveButtonState() {
+    const isValid = validateEditDriverForm();
+    const submitBtn = document.getElementById('editDriverSubmitBtn');
+    if (submitBtn) {
+        submitBtn.disabled = !isValid;
+    }
+}
+
+// Get Edit Driver Contacts from Form
+function getEditDriverContactsFromForm() {
+    const container = document.getElementById('editDriverContactsContainer');
+    const contactGroups = container.querySelectorAll('.contact-input-group');
+    
+    const contacts = [];
+    contactGroups.forEach(group => {
+        const phoneInput = group.querySelector('.contact-input');
+        const contactId = group.getAttribute('data-contact-id');
+        
+        if (phoneInput.value.trim()) {
+            contacts.push({
+                id: contactId,
+                phone: phoneInput.value.trim()
+            });
+        }
+    });
+    
+    return contacts;
+}
+
+// Get Edit Previous Trucks from Form
+function getEditPreviousTrucksFromForm() {
+    const container = document.getElementById('editPreviousTrucksContainer');
+    const truckGroups = container.querySelectorAll('.previous-truck-group');
+    
+    const previousTrucks = [];
+    truckGroups.forEach(group => {
+        const truckInput = group.querySelector('.previous-truck-input');
+        if (truckInput.value.trim()) {
+            previousTrucks.push(truckInput.value.trim());
+        }
+    });
+    
+    return previousTrucks;
+}
+
+// Update Driver Contacts (this should already exist, but adding for completeness)
+async function updateDriverContacts(truckId, contacts) {
+    try {
+        // Delete contacts marked for removal
+        if (window.driverContactsToDelete && window.driverContactsToDelete.length > 0) {
+            const { error: deleteError } = await supabase
+                .from('driver_contacts')
+                .delete()
+                .in('id', window.driverContactsToDelete);
+            
+            if (deleteError) throw deleteError;
+            window.driverContactsToDelete = [];
+        }
+        
+        // Update or insert contacts
+        for (const contact of contacts) {
+            if (contact.id && !contact.id.startsWith('new_')) {
+                // Update existing contact
+                const { error: updateError } = await supabase
+                    .from('driver_contacts')
+                    .update({
+                        phone_number: contact.phone,
+                        contact_type: 'mobile'
+                    })
+                    .eq('id', contact.id);
+                
+                if (updateError) throw updateError;
+            } else {
+                // Insert new contact
+                const { error: insertError } = await supabase
+                    .from('driver_contacts')
+                    .insert({
+                        truck_id: truckId,
+                        phone_number: contact.phone,
+                        contact_type: 'mobile'
+                    });
+                
+                if (insertError) throw insertError;
+            }
+        }
+    } catch (error) {
+        console.error('Error updating contacts:', error);
+        throw error;
+    }
+}
+
+// Enhanced Load Driver Contacts for Edit Modal
+async function loadDriverContactsForEdit(truckId) {
+    const container = document.getElementById('editDriverContactsContainer');
+    container.innerHTML = '';
+    
+    try {
+        const { data: contacts, error } = await supabase
+            .from('driver_contacts')
+            .select('*')
+            .eq('truck_id', truckId)
+            .order('created_at');
+        
+        if (error) throw error;
+        
+        if (contacts && contacts.length > 0) {
+            contacts.forEach(contact => {
+                addEditDriverContactField(contact.phone_number, contact.id);
+            });
+        } else {
+            // Add one empty contact field
+            addEditDriverContactField();
+        }
+        
+        updateEditDriverContactRemoveButtons();
+        updateEditDriverSaveButtonState();
+        
+    } catch (error) {
+        console.error('Error loading contacts:', error);
+        // Add one empty contact field as fallback
+        addEditDriverContactField();
+        updateEditDriverContactRemoveButtons();
+        updateEditDriverSaveButtonState();
+    }
+}
+
+// Enhanced Load Previous Trucks for Edit Modal
+async function loadPreviousTrucks(truckId) {
+    const container = document.getElementById('editPreviousTrucksContainer');
+    container.innerHTML = '';
+    
+    try {
+        const { data: truck, error } = await supabase
+            .from('trucks')
+            .select('previous_trucks')
+            .eq('id', truckId)
+            .single();
+        
+        if (error) throw error;
+        
+        if (truck.previous_trucks) {
+            const trucksArray = truck.previous_trucks.split(', ').filter(t => t.trim() !== '');
+            trucksArray.forEach((truckNum, index) => {
+                addEditPreviousTruckField(truckNum);
+            });
+        } else {
+            // Add one empty field if no previous trucks
+            addEditPreviousTruckField();
+        }
+        
+        updateEditPreviousTruckRemoveButtons();
+    } catch (error) {
+        console.error('Error loading previous trucks:', error);
+        // Add one empty field as fallback
+        addEditPreviousTruckField();
+        updateEditPreviousTruckRemoveButtons();
+    }
+}
+
+// Add Edit Driver Contact Field
+function addEditDriverContactField(phone = '', contactId = null) {
+    const container = document.getElementById('editDriverContactsContainer');
+    
+    const contactGroup = document.createElement('div');
+    contactGroup.className = 'contact-input-group';
+    if (contactId) {
+        contactGroup.setAttribute('data-contact-id', contactId);
+    } else {
+        contactGroup.setAttribute('data-contact-id', `new_${Date.now()}`);
+    }
+    
+    contactGroup.innerHTML = `
+        <input type="text" class="contact-input" placeholder="Phone number" value="${phone}" required oninput="updateEditDriverSaveButtonState()">
+        <button type="button" class="btn-remove-contact" onclick="removeEditDriverContactField(this)">🗑️</button>
+    `;
+    
+    container.appendChild(contactGroup);
+    updateEditDriverContactRemoveButtons();
+    updateEditDriverSaveButtonState();
+}
+
+// Remove Edit Driver Contact Field
+function removeEditDriverContactField(button) {
+    const contactGroup = button.closest('.contact-input-group');
+    const container = contactGroup.parentElement;
+    const contactGroups = container.querySelectorAll('.contact-input-group');
+    
+    const contactId = contactGroup.getAttribute('data-contact-id');
+    
+    // If it's an existing contact (not new), mark it for deletion
+    if (contactId && !contactId.startsWith('new_')) {
+        if (!window.driverContactsToDelete) {
+            window.driverContactsToDelete = [];
+        }
+        window.driverContactsToDelete.push(contactId);
+    }
+    
+    if (contactGroups.length > 1) {
+        contactGroup.remove();
+    } else {
+        const contactInput = contactGroup.querySelector('.contact-input');
+        contactInput.value = '';
+        contactInput.focus();
+    }
+    
+    updateEditDriverContactRemoveButtons();
+    updateEditDriverSaveButtonState();
+}
+
+// Update Edit Driver Contact Remove Buttons Visibility
+function updateEditDriverContactRemoveButtons() {
+    const container = document.getElementById('editDriverContactsContainer');
+    const contactGroups = container.querySelectorAll('.contact-input-group');
+    const removeButtons = container.querySelectorAll('.btn-remove-contact');
+    
+    if (contactGroups.length > 1) {
+        removeButtons.forEach(btn => btn.style.display = 'inline-block');
+    } else {
+        removeButtons.forEach(btn => btn.style.display = 'none');
+    }
+}
+
+// Add Edit Previous Truck Field
+function addEditPreviousTruckField(truckNumber = '') {
+    const container = document.getElementById('editPreviousTrucksContainer');
+    
+    const truckGroup = document.createElement('div');
+    truckGroup.className = 'previous-truck-group';
+    truckGroup.setAttribute('data-truck-index', `new_${Date.now()}`);
+    
+    truckGroup.innerHTML = `
+        <input type="text" class="previous-truck-input" placeholder="Truck Number" value="${truckNumber}">
+        <button type="button" class="btn-remove-truck" onclick="removeEditPreviousTruckField(this)">🗑️</button>
+    `;
+    
+    container.appendChild(truckGroup);
+    updateEditPreviousTruckRemoveButtons();
+}
+
+// Remove Edit Previous Truck Field
+function removeEditPreviousTruckField(button) {
+    const truckGroup = button.closest('.previous-truck-group');
+    const container = truckGroup.parentElement;
+    const truckGroups = container.querySelectorAll('.previous-truck-group');
+    
+    if (truckGroups.length > 1) {
+        truckGroup.remove();
+    } else {
+        const truckInput = truckGroup.querySelector('.previous-truck-input');
+        truckInput.value = '';
+        truckInput.focus();
+    }
+    
+    updateEditPreviousTruckRemoveButtons();
+}
+
+// Update Edit Previous Truck Remove Buttons Visibility
+function updateEditPreviousTruckRemoveButtons() {
+    const container = document.getElementById('editPreviousTrucksContainer');
+    const truckGroups = container.querySelectorAll('.previous-truck-group');
+    const removeButtons = container.querySelectorAll('.btn-remove-truck');
+    
+    if (truckGroups.length > 1) {
+        removeButtons.forEach(btn => btn.style.display = 'inline-block');
+    } else {
+        removeButtons.forEach(btn => btn.style.display = 'none');
+    }
+}
+
+// Enhanced Preview Edit Driver Image - replaces old image with new preview
+function previewEditDriverImage(input) {
+    const currentImage = document.getElementById('currentDriverImageOnly');
+    const file = input.files[0];
+    
+    if (file) {
+        editDriverImageFile = file;
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            // Replace the current image with the new preview
+            currentImage.src = e.target.result;
+            currentImage.style.display = 'block';
+        }
+        
+        reader.readAsDataURL(file);
+    } else {
+        // If no file selected, keep the original image
+        editDriverImageFile = null;
+    }
+    
+    updateEditDriverSaveButtonState();
+}
+
+// Enhanced Handle Edit Driver Form Submit with Image Replacement
+async function handleEditDriverSubmit(event) {
+    event.preventDefault();
+    
+    if (!validateEditDriverForm()) {
+        alert('Please fill all required fields');
+        return;
+    }
+    
+    const driverId = document.getElementById('editDriverId').value;
+    const driverName = document.getElementById('editDriverNameOnly').value;
+    const driverLicense = document.getElementById('editDriverLicenseOnly').value;
+    const driverLicenseUrl = document.getElementById('editDriverLicenseUrlOnly').value;
+    
+    // Get contacts from form
+    const contacts = getEditDriverContactsFromForm();
+    
+    // Get previous trucks from form
+    const previousTrucks = getEditPreviousTrucksFromForm();
+    
+    const submitBtn = document.getElementById('editDriverSubmitBtn');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = '⏳ Saving...';
+    submitBtn.disabled = true;
+    
+    try {
+        let driverImageUrl = null;
+        
+        // Get current image URL to preserve if no new file is uploaded
+        const currentDriverImage = document.getElementById('currentDriverImageOnly');
+        
+        // If new image was uploaded, upload it and get new URL
+        if (editDriverImageFile) {
+            const fileExt = editDriverImageFile.name.split('.').pop();
+            const fileName = `driver-${Date.now()}.${fileExt}`;
+            
+            const { error: uploadError } = await supabase.storage
+                .from('driver-images')
+                .upload(fileName, editDriverImageFile, {
+                    upsert: true,
+                    cacheControl: '3600'
+                });
+            
+            if (uploadError) throw uploadError;
+            
+            const { data: urlData } = supabase.storage
+                .from('driver-images')
+                .getPublicUrl(fileName);
+            
+            driverImageUrl = urlData.publicUrl;
+        } else if (currentDriverImage.style.display !== 'none') {
+            // Keep the current image if no new file was uploaded
+            driverImageUrl = currentDriverImage.src;
+        }
+        
+        // Update driver record
+        const updateData = {
+            driver_name: driverName,
+            driver_license: driverLicense,
+            driver_license_url: driverLicenseUrl || null,
+            previous_trucks: previousTrucks.length > 0 ? previousTrucks.join(', ') : null,
+            driver_image_url: driverImageUrl
+        };
+        
+        const { error: updateError } = await supabase
+            .from('trucks')
+            .update(updateData)
+            .eq('id', driverId);
+        
+        if (updateError) throw updateError;
+        
+        // Update contacts
+        await updateDriverContacts(driverId, contacts);
+        
+        showSuccessModal('Driver details updated successfully!');
+        document.getElementById('editDriverModal').style.display = 'none';
+        
+        // Reset edit image file
+        editDriverImageFile = null;
+        
+        // UPDATE LAST UPDATED DATE
+        await updateLastUpdatedDate('truck-list');
+        
+        // Reload the appropriate tab
+        const activeAdminTab = document.querySelector('.admin-tab-content.active').id;
+        loadTrucksByAdminStatus(activeAdminTab);
+        
+    } catch (error) {
+        console.error('Error updating driver details:', error);
+        showErrorModal('Error updating driver details: ' + error.message);
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+}
