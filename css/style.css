@@ -98,7 +98,7 @@ h2 {
 .btn-back {
     background: linear-gradient(135deg, #6c757d, #5a6268);
     color: white;
-    padding: 8px 16px;
+    padding: 10px 20px;
     font-size: 0.9rem;
     min-width: auto;
 }
@@ -1882,29 +1882,64 @@ h2 {
     }
 }
 
-/* Compact Back Button for Small Screens */
+/* Compact Header for Small Screens */
 @media (max-width: 768px) {
-    .btn-back {
-        padding: 10px 15px !important;
-        font-size: 0.85rem !important;
-        width: auto !important;
-        min-width: 80px !important; /* Fixed width */
-        max-width: 100px !important;
-        flex-shrink: 0 !important;
-        margin-left: 10px !important;
-    }
-
     header {
         flex-direction: row !important;
         justify-content: space-between !important;
         align-items: center !important;
-        gap: 10px;
+        gap: 8px;
+        min-height: auto !important;
+        padding: 10px 0 !important;
     }
 
     header h1 {
-        font-size: 1.5rem !important;
+        font-size: 1.2rem !important; /* Smaller font size */
         margin-bottom: 0 !important;
         flex: 1;
-        min-width: 0; /* Allow text truncation if needed */
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        text-align: left !important;
+        line-height: 1.2 !important;
+        padding: 0 !important;
+    }
+
+    .btn-back {
+       padding: 9px 9px !important;
+        font-size: 0.85rem !important;
+        width: auto !important;
+        min-width: 70px !important;
+        flex-shrink: 0 !important;
+        margin-left: 5px !important;
+        white-space: nowrap !important;
+        line-height: 1.2 !important;
+        height: auto !important;
+    }
+}
+
+/* Even more compact for very small screens */
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.3rem !important; /* Even smaller */
+    }
+    
+    .btn-back {
+        padding: 9px 9px !important;
+        font-size: 0.85rem !important;
+        min-width: 60px !important;
+    }
+}
+
+/* For extremely small screens */
+@media (max-width: 360px) {
+    header h1 {
+        font-size: 1.3rem !important; /* Smallest readable size */
+    }
+    
+    .btn-back {
+        padding: 9px 9px !important;
+        font-size: 0.85rem !important;
+        min-width: 55px !important;
     }
 }
