@@ -439,12 +439,15 @@ h2 {
     display: block;
 }
 
+
+
+
 /* Enhanced Compact Search Bar */
 .search-container {
     margin-bottom: 20px;
     position: relative;
-    display: inline-block;
     width: 100%;
+    display: block; /* CHANGED from inline-block to block */
 }
 
 .search-input {
@@ -459,6 +462,7 @@ h2 {
     height: 50px;
     box-sizing: border-box;
     font-family: inherit;
+    display: block; /* ADD this */
 }
 
 .search-input:focus {
@@ -471,12 +475,13 @@ h2 {
 .search-icon {
     position: absolute;
     left: 18px;
-    top: 44%;
+    top: 50%;
     transform: translateY(-50%);
     color: #667eea;
     font-size: 1.1rem;
     pointer-events: none;
     z-index: 2;
+    line-height: 1;
 }
 
 .search-results-count {
@@ -484,8 +489,13 @@ h2 {
     color: #666;
     font-size: 0.85rem;
     text-align: center;
+    position: absolute; /* ADD this - makes it float above */
+    bottom: -25px; /* ADD this - positions below input */
+    left: 0;
+    right: 0;
+    background: transparent; /* ADD this */
+    padding: 2px 0; /* ADD this */
 }
-
 /* Enhanced Compact Filter Styles */
 .filter-container {
     background: white;
