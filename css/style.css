@@ -2069,3 +2069,13 @@ body.modal-open {
     width: 100%;
     height: 100%;
 }
+
+/* Force uppercase for all text inputs */
+input[type="text"] {
+    text-transform: uppercase;
+}
+
+/* Specific styling for phone number fields */
+.contact-input {
+    text-transform: none; /* Don't uppercase phone numbers */
+}
