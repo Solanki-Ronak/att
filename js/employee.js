@@ -1060,39 +1060,23 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
         // Generate license actions HTML
         const licenseActionsHtml = hasLicenseDoc ? 
             `<div class="license-actions">
-                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View </button>
+                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">📄 View License Document</button>
              </div>` :
             '<span style="color: #666;">No license document uploaded</span>';
         
         // Generate contacts HTML for details modal
         const contactsHtml = generateDetailsContactsHtml(truck.driver_contacts);
         
-        // Create previous trucks list with numbers
+        // SIMPLE previous trucks list
         let previousTrucksHtml = '<div class="no-results">No previous trucks</div>';
         if (truck.previous_trucks) {
             const trucksArray = truck.previous_trucks.split(', ').filter(t => t.trim() !== '');
             if (trucksArray.length > 0) {
                 previousTrucksHtml = trucksArray.map((truckNum, index) => 
-                    `<div class="detail-item">
-                         <span class="detail-label">${index + 1}:</span>
-                         <span class="detail-value">${truckNum}</span>
-                     </div>`
+                    `<div>${index + 1}. ${truckNum}</div>`
                 ).join('');
             }
         }
-        
-        // Generate COMESA/C28 expiry sections conditionally
-        const comesaExpiryHtml = truck.comesa === 'YES' ? 
-            `<div class="detail-item">
-                <span class="detail-label">COMESA Expiry:</span>
-                <span class="detail-value">${truck.comesa_expiry ? formatDate(truck.comesa_expiry) : 'Not set'}</span>
-            </div>` : '';
-        
-        const c28ExpiryHtml = truck.c28 === 'YES' ? 
-            `<div class="detail-item">
-                <span class="detail-label">C28 Expiry:</span>
-                <span class="detail-value">${truck.c28_expiry ? formatDate(truck.c28_expiry) : 'Not set'}</span>
-            </div>` : '';
 
         const statusTitle = truck.status === 'no_truck' ? 'No Truck Assigned' : 'Left Company';
         
@@ -1123,18 +1107,10 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
                     <div class="detail-section no-image">
                         <h3>Additional Information</h3>
                         <div class="detail-item">
-                            <span class="detail-label">COMESA:</span>
-                            <span class="detail-value">${truck.comesa || 'NO'}</span>
-                        </div>
-                        ${comesaExpiryHtml}
-                        <div class="detail-item">
-                            <span class="detail-label">C28:</span>
-                            <span class="detail-value">${truck.c28 || 'NO'}</span>
-                        </div>
-                        ${c28ExpiryHtml}
-                        <div class="detail-item">
                             <span class="detail-label">Previous Trucks:</span>
-                            <div class="previous-trucks-list">${previousTrucksHtml}</div>
+                            <div class="detail-value">
+                                ${previousTrucksHtml}
+                            </div>
                         </div>
                     </div>
                 </div>

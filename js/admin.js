@@ -159,39 +159,23 @@ async function openDriverLeftDetailsModal(truckId) {
         // Generate license actions HTML
         const licenseActionsHtml = hasLicenseDoc ? 
             `<div class="license-actions">
-                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View</button>
+                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">👁️ View Document</button>
              </div>` :
             '<span style="color: #666;">No license document uploaded</span>';
         
         // Generate contacts HTML for details modal
         const contactsHtml = generateDetailsContactsHtml(truck.driver_contacts);
         
-        // Create previous trucks list with numbers
+        // SIMPLE previous trucks list
         let previousTrucksHtml = '<div class="no-results">No previous trucks</div>';
         if (truck.previous_trucks) {
             const trucksArray = truck.previous_trucks.split(', ').filter(t => t.trim() !== '');
             if (trucksArray.length > 0) {
                 previousTrucksHtml = trucksArray.map((truckNum, index) => 
-                    `<div class="detail-item">
-                         <span class="detail-label">${index + 1}:</span>
-                         <span class="detail-value">${truckNum}</span>
-                     </div>`
+                    `<div>${index + 1}. ${truckNum}</div>`
                 ).join('');
             }
         }
-        
-        // Generate COMESA/C28 expiry sections conditionally
-        const comesaExpiryHtml = truck.comesa === 'YES' ? 
-            `<div class="detail-item">
-                <span class="detail-label">COMESA Expiry:</span>
-                <span class="detail-value">${truck.comesa_expiry ? formatDate(truck.comesa_expiry) : 'Not set'}</span>
-            </div>` : '';
-        
-        const c28ExpiryHtml = truck.c28 === 'YES' ? 
-            `<div class="detail-item">
-                <span class="detail-label">C28 Expiry:</span>
-                <span class="detail-value">${truck.c28_expiry ? formatDate(truck.c28_expiry) : 'Not set'}</span>
-            </div>` : '';
 
         modal.innerHTML = `
             <div class="modal-content modal-large">
@@ -220,18 +204,8 @@ async function openDriverLeftDetailsModal(truckId) {
                     <div class="detail-section no-image">
                         <h3>Additional Information</h3>
                         <div class="detail-item">
-                            <span class="detail-label">COMESA:</span>
-                            <span class="detail-value">${truck.comesa || 'NO'}</span>
-                        </div>
-                        ${comesaExpiryHtml}
-                        <div class="detail-item">
-                            <span class="detail-label">C28:</span>
-                            <span class="detail-value">${truck.c28 || 'NO'}</span>
-                        </div>
-                        ${c28ExpiryHtml}
-                        <div class="detail-item">
                             <span class="detail-label">Previous Trucks:</span>
-                            <div class="previous-trucks-list" style="max-height: 300px; overflow-y: auto;">
+                            <div class="detail-value">
                                 ${previousTrucksHtml}
                             </div>
                         </div>
@@ -406,27 +380,24 @@ async function openDriverNoTruckDetailsModal(truckId) {
         // Generate license actions HTML
         const licenseActionsHtml = hasLicenseDoc ? 
             `<div class="license-actions">
-                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View</button>
+                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">👁️ View Document</button>
              </div>` :
             '<span style="color: #666;">No license document uploaded</span>';
         
         // Generate contacts HTML for details modal
         const contactsHtml = generateDetailsContactsHtml(truck.driver_contacts);
         
-        // Create previous trucks list with numbers - FIXED LAYOUT
+        // SIMPLE previous trucks list
         let previousTrucksHtml = '<div class="no-results">No previous trucks</div>';
         if (truck.previous_trucks) {
             const trucksArray = truck.previous_trucks.split(', ').filter(t => t.trim() !== '');
             if (trucksArray.length > 0) {
                 previousTrucksHtml = trucksArray.map((truckNum, index) => 
-                    `<div class="detail-item">
-                         <span class="detail-label">${index + 1}:</span>
-                         <span class="detail-value">${truckNum}</span>
-                     </div>`
+                    `<div>${index + 1}. ${truckNum}</div>`
                 ).join('');
             }
         }
-        
+
         modal.innerHTML = `
             <div class="modal-content modal-large">
                 <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
@@ -452,9 +423,12 @@ async function openDriverNoTruckDetailsModal(truckId) {
                     </div>
                     
                     <div class="detail-section no-image">
-                        <h3>Previous Trucks</h3>
-                        <div class="previous-trucks-list" style="max-height: 300px; overflow-y: auto;">
-                            ${previousTrucksHtml}
+                        <h3>Additional Information</h3>
+                        <div class="detail-item">
+                            <span class="detail-label">Previous Trucks:</span>
+                            <div class="detail-value">
+                                ${previousTrucksHtml}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2682,6 +2656,8 @@ function createDriverNoTruckCard(truck, index) {
                 <span class="info-label">Previous Truck:</span>
                 <span class="info-value">${previousTrucksText}</span>
             </div>
+            
+            <!-- REMOVE THIS COMESA/C28 SECTION -->
         </div>
         
         <div class="admin-card-actions">
@@ -2690,13 +2666,13 @@ function createDriverNoTruckCard(truck, index) {
             <button class="btn btn-details" onclick="openDriverNoTruckDetailsModal('${truck.id}')">ℹ️ View Details</button>
             <button class="btn btn-primary" onclick="openAssignTruckModal('${truck.id}')">🚛 Assign Truck</button>
             <button class="btn btn-danger" onclick="confirmMoveToLeft('${truck.id}')">👋 Driver Left</button>
-            <!-- NEW: Delete Button -->
             <button class="btn btn-delete" onclick="confirmDeleteTruck('${truck.id}', 'NO ASSIGNED TRUCK', '${truck.driver_name}')">🗑️ Delete</button>
         </div>
     `;
     
     return card;
 }
+
 function createDriverLeftCard(truck, index) {
     const card = document.createElement('div');
     card.className = 'truck-card admin-card driver-left-card';
@@ -2740,6 +2716,8 @@ function createDriverLeftCard(truck, index) {
                 <span class="info-label">Previous Truck:</span>
                 <span class="info-value">${previousTrucksText}</span>
             </div>
+            
+            <!-- REMOVE THIS COMESA/C28 SECTION -->
         </div>
         
         <div class="admin-card-actions">
@@ -2747,14 +2725,12 @@ function createDriverLeftCard(truck, index) {
             <button class="btn btn-edit" onclick="openEditDriverModal('${truck.id}')">✏️ Edit Details</button>
             <button class="btn btn-details" onclick="openDriverLeftDetailsModal('${truck.id}')">ℹ️ View Details</button>
             <button class="btn btn-primary" onclick="openReactivateModal('${truck.id}', '${truck.driver_name}')">↩️ Reactivate Driver</button>
-            <!-- NEW: Delete Button -->
             <button class="btn btn-delete" onclick="confirmDeleteTruck('${truck.id}', 'LEFT COMPANY', '${truck.driver_name}')">🗑️ Delete</button>
         </div>
     `;
     
     return card;
 }
-
 // NEW FUNCTION: Confirm truck deletion
 function confirmDeleteTruck(truckId, truckNumber, driverName) {
     currentTruckId = truckId;
