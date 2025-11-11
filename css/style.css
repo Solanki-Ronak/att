@@ -841,7 +841,7 @@ h2 {
     color: #555;
     min-width: 75px;
     flex-shrink: 0;
-    font-size: 0.85rem;
+    font-size: 1.1rem;
 }
 
 .info-value {
@@ -852,7 +852,7 @@ h2 {
     overflow-wrap: break-word;
     min-width: 0;
     margin: 0 8px;
-    font-size: 0.85rem;
+    font-size: 1.1rem;
 }
 
 .copy-call-buttons {
@@ -1829,11 +1829,11 @@ h2 {
     
     .info-label {
         min-width: 65px;
-        font-size: 0.8rem;
+        font-size: 1.0rem;
     }
     
     .info-value {
-        font-size: 0.8rem;
+        font-size: 1.0rem;
     }
     
     .copy-call-buttons .btn {

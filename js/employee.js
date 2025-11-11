@@ -976,7 +976,7 @@ async function openEmployeeNoDriverDetails(truckId) {
                             <span class="detail-value empty-field">-</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">Driving License Document:</span>
+                            <span class="detail-label">Driving License :</span>
                             <span class="detail-value empty-field">-</span>
                         </div>
                         <div class="detail-item">
@@ -1060,7 +1060,7 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
         // Generate license actions HTML
         const licenseActionsHtml = hasLicenseDoc ? 
             `<div class="license-actions">
-                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">📄 View License Document</button>
+                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View </button>
              </div>` :
             '<span style="color: #666;">No license document uploaded</span>';
         
@@ -1095,7 +1095,6 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
             </div>` : '';
 
         const statusTitle = truck.status === 'no_truck' ? 'No Truck Assigned' : 'Left Company';
-        const statusClass = truck.status === 'no_truck' ? 'no-assigned-truck' : 'left-company';
         
         modal.innerHTML = `
             <div class="modal-content modal-large">
@@ -1107,10 +1106,6 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
                         ${driverImageHtml}
                         
                         <div class="detail-item">
-                            <span class="detail-label">Status:</span>
-                            <span class="detail-value ${statusClass}">${truck.truck_number}</span>
-                        </div>
-                        <div class="detail-item">
                             <span class="detail-label">Driver Name:</span>
                             <span class="detail-value">${truck.driver_name}</span>
                         </div>
@@ -1119,7 +1114,7 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
                             <span class="detail-value">${truck.driver_license}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">Driving License Document:</span>
+                            <span class="detail-label">Driving License :</span>
                             <span class="detail-value">${licenseActionsHtml}</span>
                         </div>
                         ${contactsHtml}
@@ -1320,7 +1315,7 @@ async function openDetailsModal(truckId) {
         // Generate license actions HTML
         const licenseActionsHtml = hasLicenseDoc ? 
             `<div class="license-actions">
-                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">📄 View License Document</button>
+                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View</button>
              </div>` :
             '<span style="color: #666;">No license document uploaded</span>';
         
@@ -1359,7 +1354,7 @@ async function openDetailsModal(truckId) {
                         <span class="detail-value">${truck.driver_license}</span>
                     </div>
                     <div class="detail-item">
-                        <span class="detail-label">Driving License Document:</span>
+                        <span class="detail-label">Driving License :</span>
                         <span class="detail-value">${licenseActionsHtml}</span>
                     </div>
                     ${contactsHtml}

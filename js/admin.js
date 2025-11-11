@@ -106,7 +106,7 @@ function displayTrucksInAdminContainer(trucks, containerId) {
     }
     
     if (!trucks || trucks.length === 0) {
-        container.innerHTML = '<div class="no-results">No trucks found.</div>';
+        container.innerHTML = '<div class="no-results">No results found.</div>';
         return;
     }
     
@@ -159,7 +159,7 @@ async function openDriverLeftDetailsModal(truckId) {
         // Generate license actions HTML
         const licenseActionsHtml = hasLicenseDoc ? 
             `<div class="license-actions">
-                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">👁️ View Document</button>
+                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View</button>
              </div>` :
             '<span style="color: #666;">No license document uploaded</span>';
         
@@ -211,7 +211,7 @@ async function openDriverLeftDetailsModal(truckId) {
                             <span class="detail-value">${truck.driver_license}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">Driving License Document:</span>
+                            <span class="detail-label">Driving License :</span>
                             <span class="detail-value">${licenseActionsHtml}</span>
                         </div>
                         ${contactsHtml}
@@ -231,7 +231,9 @@ async function openDriverLeftDetailsModal(truckId) {
                         ${c28ExpiryHtml}
                         <div class="detail-item">
                             <span class="detail-label">Previous Trucks:</span>
-                            <span class="detail-value">${previousTrucksHtml}</span>
+                            <div class="previous-trucks-list" style="max-height: 300px; overflow-y: auto;">
+                                ${previousTrucksHtml}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -320,7 +322,7 @@ async function openNoDriverDetailsModal(truckId) {
                             <span class="detail-value empty-field">-</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">Driving License Document:</span>
+                            <span class="detail-label">Driving License :</span>
                             <span class="detail-value empty-field">-</span>
                         </div>
                         <div class="detail-item">
@@ -378,7 +380,6 @@ async function openNoDriverDetailsModal(truckId) {
         alert('Error loading truck details');
     }
 }
-// Fixed View Details for Drivers with No Trucks
 async function openDriverNoTruckDetailsModal(truckId) {
     try {
         const { data: truck, error } = await supabase
@@ -405,7 +406,7 @@ async function openDriverNoTruckDetailsModal(truckId) {
         // Generate license actions HTML
         const licenseActionsHtml = hasLicenseDoc ? 
             `<div class="license-actions">
-                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">👁️ View Document</button>
+                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View</button>
              </div>` :
             '<span style="color: #666;">No license document uploaded</span>';
         
@@ -425,23 +426,16 @@ async function openDriverNoTruckDetailsModal(truckId) {
                 ).join('');
             }
         }
-
-        const statusTitle = 'No Truck Assigned';
-        const statusClass = 'no-assigned-truck';
         
         modal.innerHTML = `
             <div class="modal-content modal-large">
                 <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
-                <h2>👨‍💼 Driver Details - ${statusTitle}</h2>
+                <h2>👨‍💼 Driver Details - No Truck Assigned</h2>
                 <div class="details-grid">
                     <div class="detail-section ${!hasDriverImage ? 'no-image' : ''}">
                         <h3>Driver Information</h3>
                         ${driverImageHtml}
                         
-                        <div class="detail-item">
-                            <span class="detail-label">Status:</span>
-                            <span class="detail-value ${statusClass}">${truck.truck_number}</span>
-                        </div>
                         <div class="detail-item">
                             <span class="detail-label">Driver Name:</span>
                             <span class="detail-value">${truck.driver_name}</span>
@@ -451,7 +445,7 @@ async function openDriverNoTruckDetailsModal(truckId) {
                             <span class="detail-value">${truck.driver_license}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">Driving License Document:</span>
+                            <span class="detail-label">Driving License :</span>
                             <span class="detail-value">${licenseActionsHtml}</span>
                         </div>
                         ${contactsHtml}
@@ -1227,7 +1221,7 @@ function displayTrucks(trucks) {
     const trucksList = document.getElementById('trucks-list');
     
     if (trucks.length === 0) {
-        trucksList.innerHTML = '<div class="no-results">No trucks found matching your search.</div>';
+        trucksList.innerHTML = '<div class="no-results">No results found matching your search.</div>';
         return;
     }
 
@@ -1705,7 +1699,7 @@ async function openAdminDetailsModal(truckId) {
         // Generate license actions HTML
         const licenseActionsHtml = hasLicenseDoc ? 
             `<div class="license-actions">
-                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">👁️ View Document</button>
+                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View</button>
              </div>` :
             '<span style="color: #666;">No license document uploaded</span>';
         
@@ -1747,7 +1741,7 @@ async function openAdminDetailsModal(truckId) {
                             <span class="detail-value">${truck.driver_license}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">Driving License Document:</span>
+                            <span class="detail-label">Driving License :</span>
                             <span class="detail-value">${licenseActionsHtml}</span>
                         </div>
                         ${contactsHtml}
