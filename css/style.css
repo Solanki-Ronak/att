@@ -45,7 +45,7 @@ h1 {
 
 h2 {
     color: #34495e;
-    margin-bottom: 0px;
+    margin-bottom: 15px;
     font-size: 1.7rem;
     font-weight: 600;
 }
@@ -1082,12 +1082,11 @@ h2 {
 
 /* Enhanced Last Updated Container */
 .last-updated-container {
-    margin-bottom: 10px;
-    padding: 12px;
-    margin-left: -1%;
-    
-   
-    
+    position: absolute;
+    top: -20px;
+    right: 0px;
+    text-align: right;
+    z-index: 100;
 }
 
 .last-updated-text {
@@ -1095,8 +1094,51 @@ h2 {
     font-size: 0.65rem;
     font-style: italic;
     font-weight: 500;
+    margin: 0;
+    padding: 4px 8px;
+   
+    border-radius: 4px;
 }
 
+/* Make sure the tab content has relative positioning */
+.tab-content {
+    position: relative;
+    padding-top: 40px; /* Add space for the last updated text */
+}
+
+/* For smaller screens */
+@media (max-width: 768px) {
+    .last-updated-container {
+        top: -20px;
+    right: 0px;
+    }
+    
+    .last-updated-text {
+        font-size: 0.6rem;
+        padding: 3px 6px;
+    }
+    
+    .tab-content {
+        padding-top: 35px;
+    }
+}
+
+/* For very small screens */
+@media (max-width: 480px) {
+    .last-updated-container {
+        top: -20px;
+    right: 0px;
+    }
+    
+    .last-updated-text {
+        font-size: 0.55rem;
+        padding: 2px 4px;
+    }
+    
+    .tab-content {
+        padding-top: 30px;
+    }
+}
 /* Enhanced Utility Classes */
 .loading {
     text-align: center;
@@ -2147,3 +2189,4 @@ input[type="text"] {
     color: #6c757d;
     font-style: italic;
 }
+
