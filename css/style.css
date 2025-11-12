@@ -1272,11 +1272,7 @@ h2 {
 /* === Import Modern Font === */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-body {
-    font-family: "Inter", "Segoe UI", sans-serif;
-    color: #1e293b;
-    background: #f8fafc;
-}
+
 
 /* === Modal Backdrop === */
 .modal {
