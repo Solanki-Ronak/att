@@ -2652,10 +2652,10 @@ function createDriverNoTruckCard(truck, index) {
             
             ${contactsHtml}
             
-            <div class="info-row">
-                <span class="info-label">Previous Truck:</span>
-                <span class="info-value">${previousTrucksText}</span>
-            </div>
+             <div class="info-row">
+        <span class="info-label">Previous Truck:</span>
+        <span class="info-value previous-trucks-value">${previousTrucksText}</span>
+    </div>
             
             <!-- REMOVE THIS COMESA/C28 SECTION -->
         </div>
@@ -2713,9 +2713,9 @@ function createDriverLeftCard(truck, index) {
             ${contactsHtml}
             
             <div class="info-row">
-                <span class="info-label">Previous Truck:</span>
-                <span class="info-value">${previousTrucksText}</span>
-            </div>
+        <span class="info-label">Previous Truck:</span>
+        <span class="info-value previous-trucks-value">${previousTrucksText}</span>
+    </div>
             
             <!-- REMOVE THIS COMESA/C28 SECTION -->
         </div>
