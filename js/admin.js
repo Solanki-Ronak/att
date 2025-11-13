@@ -3287,21 +3287,71 @@ let adminActiveFilters = {
     c28: false
 };
 
-// Toggle admin dropdown
+
+let adminFilterTimeout;
+
+// Toggle dropdown with auto-close timer - ADMIN SIDE
 function toggleAdminFilterDropdown() {
     const dropdown = document.querySelector('#adminFilterContainer .filter-dropdown');
-    dropdown.classList.toggle('active');
+    const isActive = dropdown.classList.contains('active');
+    
+    // Clear any existing timeout
+    if (adminFilterTimeout) {
+        clearTimeout(adminFilterTimeout);
+        adminFilterTimeout = null;
+    }
+    
+    if (isActive) {
+        // If already active, close it
+        dropdown.classList.remove('active');
+    } else {
+        // If not active, open it and set auto-close timer
+        dropdown.classList.add('active');
+        
+        // Set timeout to auto-close after 8 seconds
+        adminFilterTimeout = setTimeout(() => {
+            dropdown.classList.remove('active');
+            adminFilterTimeout = null;
+        }, 8000); // 8000 milliseconds = 8 seconds
+    }
 }
 
-// Close admin dropdown when clicking outside
+// Close dropdown when clicking outside - ADMIN SIDE
 document.addEventListener('click', function(event) {
     const filterContainer = document.getElementById('adminFilterContainer');
     const dropdown = document.querySelector('#adminFilterContainer .filter-dropdown');
     
     if (filterContainer && filterContainer.style.display !== 'none' && 
         !filterContainer.contains(event.target) && 
-        dropdown.classList.contains('active')) {
+        dropdown && dropdown.classList.contains('active')) {
+        
         dropdown.classList.remove('active');
+        
+        // Clear the auto-close timeout when manually closed
+        if (adminFilterTimeout) {
+            clearTimeout(adminFilterTimeout);
+            adminFilterTimeout = null;
+        }
+    }
+});
+
+// Reset timer when user interacts with filter options - ADMIN SIDE
+document.addEventListener('click', function(event) {
+    const dropdown = document.querySelector('#adminFilterContainer .filter-dropdown');
+    
+    // If dropdown is active and user clicks on a filter option
+    if (dropdown && dropdown.classList.contains('active') && 
+        event.target.closest('.filter-option')) {
+        
+        // Reset the 8-second timer
+        if (adminFilterTimeout) {
+            clearTimeout(adminFilterTimeout);
+        }
+        
+        adminFilterTimeout = setTimeout(() => {
+            dropdown.classList.remove('active');
+            adminFilterTimeout = null;
+        }, 5000);
     }
 });
 

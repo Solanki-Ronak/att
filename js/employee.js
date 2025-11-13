@@ -1496,21 +1496,35 @@ function applyFiltersToData(trucks, containerId) {
 }
 
 
+let filterTimeout;
 
-// Toggle dropdown - Updated for icon version
+// Toggle dropdown with auto-close timer
 function toggleFilterDropdown() {
     const dropdown = document.querySelector('.filter-dropdown');
-    dropdown.classList.toggle('active');
+    const isActive = dropdown.classList.contains('active');
     
-    // Close other dropdowns if any
-    document.querySelectorAll('.filter-dropdown').forEach(otherDropdown => {
-        if (otherDropdown !== dropdown && otherDropdown.classList.contains('active')) {
-            otherDropdown.classList.remove('active');
-        }
-    });
+    // Clear any existing timeout
+    if (filterTimeout) {
+        clearTimeout(filterTimeout);
+        filterTimeout = null;
+    }
+    
+    if (isActive) {
+        // If already active, close it
+        dropdown.classList.remove('active');
+    } else {
+        // If not active, open it and set auto-close timer
+        dropdown.classList.add('active');
+        
+        // Set timeout to auto-close after 8 seconds
+        filterTimeout = setTimeout(() => {
+            dropdown.classList.remove('active');
+            filterTimeout = null;
+        }, 8000); // 8000 milliseconds = 8 seconds
+    }
 }
 
-// Close dropdown when clicking outside - Updated for icon version
+// Close dropdown when clicking outside
 document.addEventListener('click', function(event) {
     const filterContainer = document.getElementById('filterContainer');
     const dropdown = document.querySelector('.filter-dropdown');
@@ -1518,7 +1532,34 @@ document.addEventListener('click', function(event) {
     if (filterContainer && filterContainer.style.display !== 'none' && 
         !filterContainer.contains(event.target) && 
         dropdown && dropdown.classList.contains('active')) {
+        
         dropdown.classList.remove('active');
+        
+        // Clear the auto-close timeout when manually closed
+        if (filterTimeout) {
+            clearTimeout(filterTimeout);
+            filterTimeout = null;
+        }
+    }
+});
+
+// Reset timer when user interacts with filter options
+document.addEventListener('click', function(event) {
+    const dropdown = document.querySelector('.filter-dropdown');
+    
+    // If dropdown is active and user clicks on a filter option
+    if (dropdown && dropdown.classList.contains('active') && 
+        event.target.closest('.filter-option')) {
+        
+        // Reset the 8-second timer
+        if (filterTimeout) {
+            clearTimeout(filterTimeout);
+        }
+        
+        filterTimeout = setTimeout(() => {
+            dropdown.classList.remove('active');
+            filterTimeout = null;
+        }, 5000);
     }
 });
 // Toggle individual filter
