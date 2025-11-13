@@ -1497,24 +1497,30 @@ function applyFiltersToData(trucks, containerId) {
 
 
 
-// Toggle dropdown
+// Toggle dropdown - Updated for icon version
 function toggleFilterDropdown() {
     const dropdown = document.querySelector('.filter-dropdown');
     dropdown.classList.toggle('active');
+    
+    // Close other dropdowns if any
+    document.querySelectorAll('.filter-dropdown').forEach(otherDropdown => {
+        if (otherDropdown !== dropdown && otherDropdown.classList.contains('active')) {
+            otherDropdown.classList.remove('active');
+        }
+    });
 }
 
-// Close dropdown when clicking outside
+// Close dropdown when clicking outside - Updated for icon version
 document.addEventListener('click', function(event) {
     const filterContainer = document.getElementById('filterContainer');
     const dropdown = document.querySelector('.filter-dropdown');
     
-    if (filterContainer.style.display !== 'none' && 
+    if (filterContainer && filterContainer.style.display !== 'none' && 
         !filterContainer.contains(event.target) && 
-        dropdown.classList.contains('active')) {
+        dropdown && dropdown.classList.contains('active')) {
         dropdown.classList.remove('active');
     }
 });
-
 // Toggle individual filter
 function toggleFilter(filterType) {
     activeFilters[filterType] = !activeFilters[filterType];
@@ -1529,27 +1535,15 @@ function toggleFilter(filterType) {
         option.classList.remove('active');
     }
 }
-
-// Update filter UI
+// Update filter UI - Simplified for icon version
 function updateFilterUI() {
     const activeCount = Object.values(activeFilters).filter(Boolean).length;
     const activeFilterCount = document.getElementById('activeFilterCount');
-    const filterStatus = document.getElementById('filterStatus');
     
     if (activeFilterCount) {
         activeFilterCount.textContent = activeCount;
-    }
-    
-    if (filterStatus) {
-        if (activeCount === 0) {
-            filterStatus.textContent = 'All';
-        } else if (activeCount === 1) {
-            // Show which single filter is active
-            const activeFilter = Object.keys(activeFilters).find(key => activeFilters[key]);
-            filterStatus.textContent = getFilterDisplayName(activeFilter);
-        } else {
-            filterStatus.textContent = `${activeCount} active`;
-        }
+        // Hide the badge if no filters are active
+        activeFilterCount.style.display = activeCount > 0 ? 'flex' : 'none';
     }
     
     // Update individual option states
@@ -1564,7 +1558,6 @@ function updateFilterUI() {
         }
     });
 }
-
 // Get display name for filters
 function getFilterDisplayName(filterType) {
     const names = {
@@ -1633,7 +1626,7 @@ async function loadTrucksByStatus(statusTab) {
         }
     }
 }
-// Clear all filters
+// Clear all filters - Updated for icon version
 function clearAllFilters() {
     activeFilters = {
         no_driver: false,
@@ -1650,9 +1643,11 @@ function clearAllFilters() {
     applyFiltersToCurrentTab();
     
     // Close dropdown after clearing
-    document.querySelector('.filter-dropdown').classList.remove('active');
+    const dropdown = document.querySelector('.filter-dropdown');
+    if (dropdown) {
+        dropdown.classList.remove('active');
+    }
 }
-
 
 
 // NEW FUNCTION: Restore active employee sub-tab

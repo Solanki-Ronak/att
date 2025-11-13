@@ -38,58 +38,55 @@
         <button class="nav-tab secondary-tab" onclick="openAdminTab('left')">Drivers Who Left</button>
     </div>
     
-
-    <!-- Dropdown Filter Container - ADMIN -->
-<div class="filter-container" id="adminFilterContainer" style="display: none;">
-    <div class="filter-dropdown" onclick="toggleAdminFilterDropdown()">
-        <div class="filter-label">
-            <span class="filter-icon">🔧</span>
-            Filters: 
-            <span id="adminFilterStatus">All</span>
-            <span class="filter-count" id="adminActiveFilterCount">0</span>
-        </div>
-        <span class="dropdown-arrow">▼</span>
-    </div>
-    
-    <div class="filter-menu">
-        <button class="filter-option" onclick="toggleAdminFilter('no_driver')">
-            <div class="option-checkbox"></div>
-            <span class="option-label">
-                <span>🚫</span>
-                No Driver
-            </span>
-        </button>
-        
-        <button class="filter-option" onclick="toggleAdminFilter('comesa')">
-            <div class="option-checkbox"></div>
-            <span class="option-label">
-                <span>🌍</span>
-                COMESA
-            </span>
-        </button>
-        
-        <button class="filter-option" onclick="toggleAdminFilter('c28')">
-            <div class="option-checkbox"></div>
-            <span class="option-label">
-                <span>📋</span>
-                C28
-            </span>
-        </button>
-        
-        <div class="filter-actions">
-            <button class="btn-clear-filters" onclick="clearAllAdminFilters()">
-                🗑️ Clear All Filters
-            </button>
-        </div>
-    </div>
-</div>
-
+<!-- Replace your current search and filter section with this: -->
+<div class="search-filter-container">
     <!-- Search Bar -->
     <div class="search-container">
         <div class="search-icon">🔍</div>
         <input type="text" id="searchInput" class="search-input" placeholder="Search..." style="border-color: #667eea; border-width: 3px;">
         <div id="searchResultsCount" class="search-results-count"></div>
     </div>
+
+    <!-- Small Filter Icon - Always on Right Side -->
+    <div class="filter-container" id="adminFilterContainer" style="display: none;">
+        <div class="filter-dropdown" onclick="toggleAdminFilterDropdown()">
+            <div class="filter-icon">🔧</div>
+            <span class="filter-count" id="adminActiveFilterCount">0</span>
+        </div>
+        
+        <div class="filter-menu">
+            <button class="filter-option" onclick="toggleAdminFilter('no_driver')">
+                <div class="option-checkbox"></div>
+                <span class="option-label">
+                    <span>🚫</span>
+                    No Driver
+                </span>
+            </button>
+            
+            <button class="filter-option" onclick="toggleAdminFilter('comesa')">
+                <div class="option-checkbox"></div>
+                <span class="option-label">
+                    <span>🌍</span>
+                    COMESA
+                </span>
+            </button>
+            
+            <button class="filter-option" onclick="toggleAdminFilter('c28')">
+                <div class="option-checkbox"></div>
+                <span class="option-label">
+                    <span>📋</span>
+                    C28
+                </span>
+            </button>
+            
+            <div class="filter-actions">
+                <button class="btn-clear-filters" onclick="clearAllAdminFilters()">
+                    🗑️ Clear All
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
     <!-- Content for each sub-tab -->
     <div id="all-trucks" class="admin-tab-content active">
         <div id="trucks-list" class="trucks-grid">
