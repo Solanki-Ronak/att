@@ -159,7 +159,7 @@ async function openDriverLeftDetailsModal(truckId) {
         // Generate license actions HTML
         const licenseActionsHtml = hasLicenseDoc ? 
             `<div class="license-actions">
-                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">👁️ View Document</button>
+                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View</button>
              </div>` :
             '<span style="color: #666;">No license document uploaded</span>';
         
@@ -380,7 +380,7 @@ async function openDriverNoTruckDetailsModal(truckId) {
         // Generate license actions HTML
         const licenseActionsHtml = hasLicenseDoc ? 
             `<div class="license-actions">
-                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">👁️ View Document</button>
+                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View</button>
              </div>` :
             '<span style="color: #666;">No license document uploaded</span>';
         
