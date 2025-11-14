@@ -1520,7 +1520,7 @@ function toggleFilterDropdown() {
         filterTimeout = setTimeout(() => {
             dropdown.classList.remove('active');
             filterTimeout = null;
-        }, 8000); // 8000 milliseconds = 8 seconds
+        }, 4000); // 8000 milliseconds = 8 seconds
     }
 }
 
@@ -1559,7 +1559,7 @@ document.addEventListener('click', function(event) {
         filterTimeout = setTimeout(() => {
             dropdown.classList.remove('active');
             filterTimeout = null;
-        }, 5000);
+        }, 4000);
     }
 });
 // Toggle individual filter

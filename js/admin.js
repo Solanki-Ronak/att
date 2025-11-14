@@ -3312,7 +3312,7 @@ function toggleAdminFilterDropdown() {
         adminFilterTimeout = setTimeout(() => {
             dropdown.classList.remove('active');
             adminFilterTimeout = null;
-        }, 8000); // 8000 milliseconds = 8 seconds
+        }, 4000); // 8000 milliseconds = 8 seconds
     }
 }
 
@@ -3351,7 +3351,7 @@ document.addEventListener('click', function(event) {
         adminFilterTimeout = setTimeout(() => {
             dropdown.classList.remove('active');
             adminFilterTimeout = null;
-        }, 5000);
+        }, 1000);
     }
 });
 
