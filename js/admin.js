@@ -161,7 +161,7 @@ async function openDriverLeftDetailsModal(truckId) {
             `<div class="license-actions">
                 <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View</button>
              </div>` :
-            '<span style="color: #666;">No license document uploaded</span>';
+            '<span >-</span>';
         
         // Generate contacts HTML for details modal
         const contactsHtml = generateDetailsContactsHtml(truck.driver_contacts);
@@ -203,12 +203,12 @@ async function openDriverLeftDetailsModal(truckId) {
                     
                     <div class="detail-section no-image">
                         <h3>Additional Information</h3>
-                        <div class="detail-item">
-                            <span class="detail-label">Previous Trucks:</span>
-                            <div class="detail-value">
-                                ${previousTrucksHtml}
-                            </div>
-                        </div>
+                        <div class="detail-item full-width">
+    <div class="previous-trucks-heading">Previous Trucks</div>
+    <div class="previous-trucks-list">
+        ${formatPreviousTrucksForDetails(truck.previous_trucks)}
+    </div>
+</div>
                     </div>
                 </div>
             </div>
@@ -382,7 +382,7 @@ async function openDriverNoTruckDetailsModal(truckId) {
             `<div class="license-actions">
                 <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View</button>
              </div>` :
-            '<span style="color: #666;">No license document uploaded</span>';
+            '<span >-</span>';
         
         // Generate contacts HTML for details modal
         const contactsHtml = generateDetailsContactsHtml(truck.driver_contacts);
@@ -424,12 +424,12 @@ async function openDriverNoTruckDetailsModal(truckId) {
                     
                     <div class="detail-section no-image">
                         <h3>Additional Information</h3>
-                        <div class="detail-item">
-                            <span class="detail-label">Previous Trucks:</span>
-                            <div class="detail-value">
-                                ${previousTrucksHtml}
-                            </div>
-                        </div>
+                        <div class="detail-item full-width">
+    <div class="previous-trucks-heading">Previous Trucks</div>
+    <div class="previous-trucks-list">
+        ${formatPreviousTrucksForDetails(truck.previous_trucks)}
+    </div>
+</div>  
                     </div>
                 </div>
             </div>
@@ -1675,7 +1675,7 @@ async function openAdminDetailsModal(truckId) {
             `<div class="license-actions">
                 <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View</button>
              </div>` :
-            '<span style="color: #666;">No license document uploaded</span>';
+            '<span >-</span>';
         
         // Generate contacts HTML for details modal
         const contactsHtml = generateDetailsContactsHtml(truck.driver_contacts);
@@ -6433,3 +6433,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, 100);
 });
+
+
+// Helper function to format previous trucks for details modal
+function formatPreviousTrucksForDetails(previousTrucks) {
+    if (!previousTrucks) {
+        return '<div class="no-previous-trucks">No previous trucks</div>';
+    }
+    
+    const trucksArray = previousTrucks.split(', ').filter(t => t.trim() !== '');
+    
+    if (trucksArray.length === 0) {
+        return '<div class="no-previous-trucks">No previous trucks</div>';
+    }
+    
+    return trucksArray.map((truckNum, index) => 
+        `<div class="previous-truck-item">${index + 1}. ${truckNum}</div>`
+    ).join('');
+}

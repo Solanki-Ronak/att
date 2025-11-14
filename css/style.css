@@ -2077,15 +2077,18 @@ input[type="text"] {
 
 .detail-section h3 {
     font-size: 1.2rem;
+    border-bottom: 2px solid #000000;
     color: #1f2937;
     font-weight: 600;
     margin-bottom: 18px;
     display: flex;
+    justify-content: center;
     align-items: center;
     gap: 8px;
+    width: fit-content; /* Add this */
+    margin-left: auto; /* Add this */
+    margin-right: auto; /* Add this */
 }
-
-
 
 
 /* === Detail Items === */
@@ -2415,5 +2418,75 @@ input[type="text"] {
     
     .search-container {
         min-width: 100px;
+    }
+}
+
+/* Previous Trucks Styling for Details Modal */
+.detail-item.full-width {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    text-align: center;
+}
+
+.previous-trucks-heading {
+    text-align: left;
+    
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    
+    width: 100%;
+}
+
+.previous-trucks-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    text-align: center;
+}
+
+.previous-truck-item {
+    padding: 6px 0;
+    font-size: 1rem;
+    color: #555;
+    text-align: center;
+    width: 100%;
+}
+
+.previous-truck-item:not(:last-child) {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.no-previous-trucks {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 10px 0;
+    width: 100%;
+}
+@media (max-width: 768px) {
+    .detail-item.full-width {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 0 10px;
+    }
+    
+    .previous-trucks-heading {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+    
+    .previous-trucks-list {
+        width: 100%;
+    }
+    
+    .previous-truck-item {
+        font-size: 0.95rem;
+        word-break: break-word;
     }
 }

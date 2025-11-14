@@ -1106,12 +1106,12 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
                     
                     <div class="detail-section no-image">
                         <h3>Additional Information</h3>
-                        <div class="detail-item">
-                            <span class="detail-label">Previous Trucks:</span>
-                            <div class="detail-value">
-                                ${previousTrucksHtml}
-                            </div>
-                        </div>
+                        <div class="detail-item full-width">
+    <div class="previous-trucks-heading">Previous Trucks</div>
+    <div class="previous-trucks-list">
+        ${formatPreviousTrucksForDetails(truck.previous_trucks)}
+    </div>
+</div>
                     </div>
                 </div>
             </div>
@@ -1928,4 +1928,21 @@ function viewLicenseDocumentFromUrl(licenseUrl) {
         return;
     }
     window.open(licenseUrl, '_blank');
+}
+
+// Helper function to format previous trucks for details modal
+function formatPreviousTrucksForDetails(previousTrucks) {
+    if (!previousTrucks) {
+        return '<div class="no-previous-trucks">No previous trucks</div>';
+    }
+    
+    const trucksArray = previousTrucks.split(', ').filter(t => t.trim() !== '');
+    
+    if (trucksArray.length === 0) {
+        return '<div class="no-previous-trucks">No previous trucks</div>';
+    }
+    
+    return trucksArray.map((truckNum, index) => 
+        `<div class="previous-truck-item">${index + 1}. ${truckNum}</div>`
+    ).join('');
 }
