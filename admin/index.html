@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Portal - Truck Management</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase.js"></script>
 </head>
@@ -187,18 +189,19 @@
                     <input type="text" id="editTruckNumber" required>
                 </div>
                 <div class="form-group">
-                    <label id="label-driver-name">Driver Name:</label>
-                    <input type="text" id="editDriverName" required>
-                </div>
-            </div>
-            <!-- Add this to Edit Truck modal after Driver Contacts section -->
-<div class="form-group">
     <label>Click on the No Driver button if there is no Driver:</label>
     <button type="button" id="editNoDriverBtn" class="btn btn-warning" onclick="toggleEditNoDriverMode()" style="margin-top: 10px;">
         🚫 No Driver
     </button>
     
 </div>
+                <div class="form-group">
+                    <label id="label-driver-name">Driver Name:</label>
+                    <input type="text" id="editDriverName" required>
+                </div>
+            </div>
+            <!-- Add this to Edit Truck modal after Driver Contacts section -->
+
             
             <div class="form-row">
                 <div class="form-group">
@@ -978,7 +981,31 @@
         </form>
     </div>
 </div>
-
+<!-- Image Cropping Modal -->
+<div id="cropModal" class="modal">
+    <div class="modal-content" style="max-width: 800px;">
+        <span class="close" onclick="closeCropModal()">&times;</span>
+        <h2>✂️ Crop Image</h2>
+        <div class="crop-container">
+            <img id="cropImage" src="" alt="Image to crop" style="max-width: 100%;">
+        </div>
+        <div class="crop-controls">
+            <label>Aspect Ratio:</label>
+            <select id="aspectRatio">
+                <option value="1.5">Driver Image (3:2)</option>
+                <option value="1.33">Truck Image (4:3)</option>
+                <option value="0">Free Ratio</option>
+            </select>
+            <button class="btn btn-secondary" onclick="rotateImage(-90)">↺ Rotate Left</button>
+            <button class="btn btn-secondary" onclick="rotateImage(90)">↻ Rotate Right</button>
+            <button class="btn btn-secondary" onclick="resetCrop()">🔄 Reset</button>
+        </div>
+        <div class="crop-actions">
+            <button class="btn btn-primary" onclick="applyCrop()">✅ Apply Crop</button>
+            <button class="btn btn-back" onclick="closeCropModal()">❌ Cancel</button>
+        </div>
+    </div>
+</div>
     <script src="../js/admin.js"></script>
 </body>
 </html>

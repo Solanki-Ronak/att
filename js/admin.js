@@ -1963,48 +1963,6 @@ function addNewField() {
     toggleAddFieldSection();
 }
 
-// Add additional image
-async function addAdditionalImage() {
-    const description = document.getElementById('newImageDescription').value;
-    const imageFile = document.getElementById('newAdditionalImage').files[0];
-    
-    if (!imageFile) {
-        alert('Please select an image file');
-        return;
-    }
-    
-    try {
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `additional-${Date.now()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-            .from('driver-images')
-            .upload(fileName, imageFile, {
-                upsert: true,
-                cacheControl: '3600'
-            });
-        
-        if (uploadError) throw uploadError;
-        
-        const { data: urlData } = supabase.storage
-            .from('driver-images')
-            .getPublicUrl(fileName);
-        
-        // Add to form
-        addAdditionalImageToForm(`new_${Date.now()}`, urlData.publicUrl, description);
-        
-        // Clear inputs
-        document.getElementById('newImageDescription').value = '';
-        document.getElementById('newAdditionalImage').value = '';
-        
-        // Hide section
-        toggleAddImageSection();
-        
-    } catch (error) {
-        console.error('Error uploading image:', error);
-        alert('Error uploading image');
-    }
-}
 
 async function handleEditFormSubmit(event) {
     event.preventDefault();
@@ -3020,181 +2978,7 @@ function setupModals() {
     setupReactivateModal();
     setupAssignTruckModals();
 }
-async function handleAddFormSubmit(event) {
-    event.preventDefault();
-    
-    // Check if No Driver mode is active
-    const noDriverMode = document.getElementById('noDriverBtn').classList.contains('active');
-    
-    // Validate form
-    const validationErrors = validateTruckForm('add', noDriverMode);
-    if (validationErrors.length > 0) {
-        alert('❌ Please fix the following errors:\n\n' + validationErrors.join('\n'));
-        return;
-    }
-    
-    const truckNumber = document.getElementById('addTruckNumber').value;
-    const driverName = noDriverMode ? 'NO DRIVER' : document.getElementById('addDriverName').value;
-    const driverLicense = noDriverMode ? '' : document.getElementById('addDriverLicense').value;
-    const driverLicenseUrl = noDriverMode ? '' : document.getElementById('addDriverLicenseUrl').value;
-    const truckType = document.getElementById('addTruckType').value;
-    const truckBody = document.getElementById('addTruckBody').value;
-    const truckMake = document.getElementById('addTruckMake').value;
-    const truckTons = document.getElementById('addTruckTons').value;
-    const comesa = document.getElementById('addComesa').value;
-    const c28 = document.getElementById('addC28').value;
-    const addComesaExpiryInput = document.getElementById('addComesaExpiry');
-    const addC28ExpiryInput = document.getElementById('addC28Expiry');
-    const comesaExpiry = addComesaExpiryInput ? addComesaExpiryInput.value || null : null;
-    const c28Expiry = addC28ExpiryInput ? addC28ExpiryInput.value || null : null;
-    const driverImageFile = noDriverMode ? null : document.getElementById('addDriverImage').files[0];
-    const truckImageFile = document.getElementById('addTruckImage').files[0];
-    
-    // Get contacts from add form (empty array in No Driver mode)
-    const contacts = noDriverMode ? [] : getContactsFromForm('add');
-    if (!noDriverMode && contacts.length === 0) {
-        alert('Please add at least one contact number');
-        return;
-    }
-    
-    const submitBtn = event.target.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = '⏳ Adding...';
-    submitBtn.disabled = true;
-    
-    try {
-        let driverImageUrl = null;
-        let truckImageUrl = null;
-        
-        // Upload driver image if selected and not in No Driver mode
-        if (driverImageFile && !noDriverMode) {
-            const fileExt = driverImageFile.name.split('.').pop();
-            const fileName = `driver-${Date.now()}.${fileExt}`;
-            
-            const { error: uploadError } = await supabase.storage
-                .from('driver-images')
-                .upload(fileName, driverImageFile, {
-                    upsert: true,
-                    cacheControl: '3600'
-                });
-            
-            if (uploadError) throw uploadError;
-            
-            const { data: urlData } = supabase.storage
-                .from('driver-images')
-                .getPublicUrl(fileName);
-            
-            driverImageUrl = urlData.publicUrl;
-        }
-        
-        // Upload truck image
-        if (truckImageFile) {
-            const fileExt = truckImageFile.name.split('.').pop();
-            const fileName = `truck-${Date.now()}.${fileExt}`;
-            
-            const { error: uploadError } = await supabase.storage
-                .from('driver-images')
-                .upload(fileName, truckImageFile, {
-                    upsert: true,
-                    cacheControl: '3600'
-                });
-            
-            if (uploadError) throw uploadError;
-            
-            const { data: urlData } = supabase.storage
-                .from('driver-images')
-                .getPublicUrl(fileName);
-            
-            truckImageUrl = urlData.publicUrl;
-        }
-        
-        // Get dynamic fields data
-        const dynamicFieldsData = {};
-        const fieldElements = document.querySelectorAll('#addDynamicFieldsContainer .dynamic-field-item');
-        fieldElements.forEach(element => {
-            const fieldKey = element.getAttribute('data-field-key');
-            const valueInput = element.querySelector('input[placeholder="Field Value"]');
-            if (valueInput && valueInput.value) {
-                dynamicFieldsData[fieldKey] = valueInput.value;
-            }
-        });
-        
-        // Insert new truck record with dynamic fields
-        const truckData = {
-            truck_number: truckNumber,
-            driver_name: driverName,
-            driver_license: driverLicense,
-            driver_license_url: driverLicenseUrl,
-            driver_image_url: driverImageUrl,
-            truck_type: truckType,
-            truck_body: truckBody,
-            truck_make: truckMake,
-            truck_tons: truckTons,
-            comesa: comesa,
-            c28: c28,
-            comesa_expiry: comesaExpiry,
-            c28_expiry: c28Expiry,
-            truck_image_url: truckImageUrl,
-            ...dynamicFieldsData
-        };
-        
-        const { data: newTruck, error: insertError } = await supabase
-            .from('trucks')
-            .insert(truckData)
-            .select()
-            .single();
-        
-        if (insertError) throw insertError;
-        
-        // Insert contacts only if not in No Driver mode
-        if (!noDriverMode && contacts.length > 0) {
-            const contactsToInsert = contacts.map(contact => ({
-                truck_id: newTruck.id,
-                phone_number: contact.phone,
-                contact_type: contact.type
-            }));
-            
-            const { error: contactsError } = await supabase
-                .from('driver_contacts')
-                .insert(contactsToInsert);
-            
-            if (contactsError) throw contactsError;
-        }
-        
-        // Save additional images for add modal
-        await saveAdditionalImages('add', newTruck.id);
-        
-        showSuccessModal('Truck added successfully!');
-        document.getElementById('addModal').style.display = 'none';
-        document.getElementById('addForm').reset();
-        resetFileInputs('add');
-        resetModalState('add');
-        
-        // Reset No Driver mode
-        const noDriverBtn = document.getElementById('noDriverBtn');
-        if (noDriverBtn.classList.contains('active')) {
-            noDriverBtn.classList.remove('active');
-            noDriverBtn.innerHTML = '🚫 No Driver';
-            enableDriverFields();
-        }
-        
-        // Reset contacts container
-        document.getElementById('addContactsContainer').innerHTML = '';
-        if (!noDriverMode) {
-            addContactField('add'); // Add one empty contact field
-        }
-        
-        await updateLastUpdatedDate('truck-list');
-        loadTrucks();
-        
-    } catch (error) {
-        console.error('Error adding truck:', error);
-        showErrorModal('Error adding truck: ' + error.message);
-    } finally {
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-    }
-}
+
 // UPDATED: Save additional images to handle both modals
 async function saveAdditionalImages(modalType, truckId) {
     try {
@@ -3312,7 +3096,7 @@ function toggleAdminFilterDropdown() {
         adminFilterTimeout = setTimeout(() => {
             dropdown.classList.remove('active');
             adminFilterTimeout = null;
-        }, 4000); // 8000 milliseconds = 8 seconds
+        }, 4000); 
     }
 }
 
@@ -4205,67 +3989,6 @@ function removeAdditionalImage(modalType, imageId) {
     }
 }
 
-// UPDATED: Reset modal state when closing
-function resetModalState(modalType) {
-    // Reset section states
-    modalStates[modalType].fieldSectionOpen = false;
-    modalStates[modalType].imageSectionOpen = false;
-    
-    // Hide sections
-    const fieldSection = document.getElementById(`${modalType}FieldSection`);
-    const imageSection = document.getElementById(`${modalType}ImageSection`);
-    
-    if (fieldSection) fieldSection.style.display = 'none';
-    if (imageSection) imageSection.style.display = 'none';
-    
-    // Clear input fields
-    const fieldLabel = document.getElementById(`${modalType}NewFieldLabel`);
-    const fieldValue = document.getElementById(`${modalType}NewFieldValue`);
-    const imageDesc = document.getElementById(`${modalType}NewImageDescription`);
-    const imageFile = document.getElementById(`${modalType}NewAdditionalImage`);
-    
-    if (fieldLabel) fieldLabel.value = '';
-    if (fieldValue) fieldValue.value = '';
-    if (imageDesc) imageDesc.value = '';
-    if (imageFile) imageFile.value = '';
-    
-    // Reset No Driver mode for both modals
-    if (modalType === 'add') {
-        const noDriverBtn = document.getElementById('noDriverBtn');
-        if (noDriverBtn && noDriverBtn.classList.contains('active')) {
-            noDriverBtn.classList.remove('active');
-            noDriverBtn.innerHTML = '🚫 No Driver';
-            noDriverBtn.style.backgroundColor = '#ffc107';
-        }
-        enableDriverFields(); // Ensure fields are enabled when modal reopens
-        
-        // Reset contacts to one empty field with visible dustbin
-        const contactsContainer = document.getElementById('addContactsContainer');
-        contactsContainer.innerHTML = `
-            <div class="contact-input-group">
-                <input type="text" class="contact-input" placeholder="Phone number" required>
-                <button type="button" class="btn-remove-contact" onclick="removeContactField(this)">🗑️</button>
-            </div>
-        `;
-        updateContactRemoveButtons('addContactsContainer');
-    }
-    
-    if (modalType === 'edit') {
-        // For edit modal, we don't reset No Driver mode here
-        // It should be determined by the actual truck data when opening
-        // Just ensure fields are enabled (the actual state will be set in openEditModal)
-        enableEditDriverFields();
-    }
-    
-    // Clear dynamic containers for add modal
-    if (modalType === 'add') {
-        const dynamicContainer = document.getElementById(`${modalType}DynamicFieldsContainer`);
-        const imagesContainer = document.getElementById(`${modalType}AdditionalImagesContainer`);
-        
-        if (dynamicContainer) dynamicContainer.innerHTML = '';
-        if (imagesContainer) imagesContainer.innerHTML = '';
-    }
-}
 // Enhanced Edit Driver Modal for No Trucks Section
 async function openEditDriverModal(truckId) {
     currentTruckId = truckId;
@@ -6450,4 +6173,628 @@ function formatPreviousTrucksForDetails(previousTrucks) {
     return trucksArray.map((truckNum, index) => 
         `<div class="previous-truck-item">${index + 1}. ${truckNum}</div>`
     ).join('');
+}
+
+
+
+
+// Global variables for cropping
+let cropper = null;
+let currentCropCallback = null;
+let currentImageType = null;
+let currentImageFile = null;
+
+// NEW FUNCTION: Open cropping modal
+function openCropModal(file, imageType, callback) {
+    console.log('Opening crop modal for:', imageType);
+    
+    if (!file) {
+        alert('No image file selected');
+        return;
+    }
+
+    currentImageFile = file;
+    currentImageType = imageType;
+    currentCropCallback = callback;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const cropImage = document.getElementById('cropImage');
+        const cropModal = document.getElementById('cropModal');
+        
+        cropImage.src = e.target.result;
+        cropModal.style.display = 'block';
+
+        // Initialize cropper after image loads
+        cropImage.onload = function() {
+            if (cropper) {
+                cropper.destroy();
+            }
+
+            // Set aspect ratio based on image type
+            let aspectRatio = 1.5; // Default 3:2 for driver images
+            if (imageType === 'truck') {
+                aspectRatio = 1.33; // 4:3 for truck images
+            } else if (imageType === 'additional') {
+                aspectRatio = 1.5; // 3:2 for additional images
+            }
+
+            // Set the aspect ratio in dropdown
+            document.getElementById('aspectRatio').value = aspectRatio;
+
+            cropper = new Cropper(cropImage, {
+                aspectRatio: aspectRatio,
+                viewMode: 1,
+                guides: true,
+                background: false,
+                autoCropArea: 0.8,
+                responsive: true,
+                restore: true,
+                checkCrossOrigin: false,
+                checkOrientation: false
+            });
+        };
+    };
+    reader.readAsDataURL(file);
+}
+
+// NEW FUNCTION: Close cropping modal
+function closeCropModal() {
+    const cropModal = document.getElementById('cropModal');
+    cropModal.style.display = 'none';
+    
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    
+    currentCropCallback = null;
+    currentImageType = null;
+    currentImageFile = null;
+}
+
+// NEW FUNCTION: Apply crop and update preview
+function applyCrop() {
+    if (!cropper) {
+        alert('No image to crop');
+        return;
+    }
+
+    // Get cropped canvas
+    const canvas = cropper.getCroppedCanvas({
+        width: 800,
+        height: 600,
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high'
+    });
+
+    if (!canvas) {
+        alert('Could not crop image');
+        return;
+    }
+
+    // Convert canvas to blob
+    canvas.toBlob(function(blob) {
+        if (!blob) {
+            alert('Error creating cropped image');
+            return;
+        }
+
+        // Create a new file from the blob
+        const croppedFile = new File([blob], currentImageFile.name, {
+            type: 'image/jpeg',
+            lastModified: Date.now()
+        });
+
+        // Update preview with cropped image
+        const croppedUrl = URL.createObjectURL(blob);
+        
+        // Call the callback function with cropped file and URL
+        if (currentCropCallback) {
+            currentCropCallback(croppedFile, croppedUrl);
+        }
+
+        // Close modal
+        closeCropModal();
+
+    }, 'image/jpeg', 0.9); // 90% quality
+}
+
+// NEW FUNCTION: Rotate image
+function rotateImage(degrees) {
+    if (cropper) {
+        cropper.rotate(degrees);
+    }
+}
+
+// NEW FUNCTION: Reset crop
+function resetCrop() {
+    if (cropper) {
+        cropper.reset();
+    }
+}
+
+// NEW FUNCTION: Change aspect ratio
+document.getElementById('aspectRatio').addEventListener('change', function() {
+    if (cropper) {
+        const ratio = parseFloat(this.value);
+        if (ratio === 0) {
+            cropper.setAspectRatio(NaN); // Free ratio
+        } else {
+            cropper.setAspectRatio(ratio);
+        }
+    }
+});
+
+// MODIFIED FUNCTION: Handle driver image selection with cropping
+function handleDriverImageInput(input, modalType) {
+    const file = input.files[0];
+    if (!file) return;
+
+    // Check if file is an image
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        input.value = '';
+        return;
+    }
+
+    // Open cropping modal for driver image
+    openCropModal(file, 'driver', function(croppedFile, croppedUrl) {
+        // Update the file input with cropped file (this is tricky, so we'll store it separately)
+        const imageKey = `${modalType}_driver_cropped_image`;
+        window[imageKey] = croppedFile;
+        
+        // Update preview
+        const previewId = modalType === 'add' ? 'driverImagePreview' : 'currentDriverImageOnly';
+        const preview = document.getElementById(previewId);
+        if (preview) {
+            preview.src = croppedUrl;
+            preview.style.display = 'block';
+        }
+
+        // For edit modal, also update the main driver image preview
+        if (modalType === 'edit') {
+            const mainPreview = document.getElementById('currentDriverImage');
+            if (mainPreview) {
+                mainPreview.src = croppedUrl;
+                mainPreview.style.display = 'block';
+            }
+        }
+
+        // Update validation state
+        if (modalType === 'add') {
+            validateAddDriverForm();
+        } else {
+            updateEditDriverSaveButtonState();
+        }
+    });
+}
+
+// MODIFIED FUNCTION: Handle truck image selection with cropping
+function handleTruckImageInput(input, modalType) {
+    const file = input.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        input.value = '';
+        return;
+    }
+
+    openCropModal(file, 'truck', function(croppedFile, croppedUrl) {
+        const imageKey = `${modalType}_truck_cropped_image`;
+        window[imageKey] = croppedFile;
+        
+        // Update preview
+        const previewId = modalType === 'add' ? 'truckImagePreview' : 'currentTruckImage';
+        const preview = document.getElementById(previewId);
+        if (preview) {
+            preview.src = croppedUrl;
+            preview.style.display = 'block';
+        }
+
+        // Update validation state
+        if (modalType === 'add') {
+            updateSaveButtonState();
+        } else {
+            updateEditSaveButtonState();
+        }
+    });
+}
+
+// MODIFIED FUNCTION: Handle additional image selection with cropping
+function handleAdditionalImageInput(input, modalType) {
+    const file = input.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        input.value = '';
+        return;
+    }
+
+    openCropModal(file, 'additional', function(croppedFile, croppedUrl) {
+        // For additional images, we'll store in a temporary variable
+        const tempKey = `${modalType}_additional_cropped`;
+        window[tempKey] = {
+            file: croppedFile,
+            url: croppedUrl,
+            description: document.getElementById(`${modalType}NewImageDescription`).value || 'Additional Image'
+        };
+        
+        // Show preview but don't add to form until user confirms
+        alert('Image cropped successfully! Click "Add Image" to add it to the form.');
+    });
+}
+
+// MODIFIED FUNCTION: Update the addAdditionalImage function to use cropped images
+function addAdditionalImage(modalType) {
+    const tempKey = `${modalType}_additional_cropped`;
+    const croppedData = window[tempKey];
+    
+    if (!croppedData) {
+        alert('Please select and crop an image first');
+        return;
+    }
+
+    const description = document.getElementById(`${modalType}NewImageDescription`).value || 'Additional Image';
+    
+    // Add to form with the cropped image
+    addAdditionalImageToForm(modalType, `new_${Date.now()}`, croppedData.url, description);
+    
+    // Store the cropped file for later upload
+    const storageKey = `${modalType}_additional_files`;
+    if (!window[storageKey]) window[storageKey] = [];
+    window[storageKey].push({
+        id: `new_${Date.now()}`,
+        file: croppedData.file,
+        description: description
+    });
+
+    // Clear inputs and close section
+    document.getElementById(`${modalType}NewImageDescription`).value = '';
+    document.getElementById(`${modalType}NewAdditionalImage`).value = '';
+    toggleAddImageSection(modalType);
+    
+    // Clear temporary data
+    window[tempKey] = null;
+}
+
+// MODIFIED FUNCTION: Update form submission to use cropped images
+async function handleAddFormSubmit(event) {
+    event.preventDefault();
+    
+    // Check if No Driver mode is active
+    const noDriverMode = document.getElementById('noDriverBtn').classList.contains('active');
+    
+    // Validate form
+    const validationErrors = validateTruckForm('add', noDriverMode);
+    if (validationErrors.length > 0) {
+        alert('❌ Please fix the following errors:\n\n' + validationErrors.join('\n'));
+        return;
+    }
+    
+    const truckNumber = document.getElementById('addTruckNumber').value;
+    const driverName = noDriverMode ? 'NO DRIVER' : document.getElementById('addDriverName').value;
+    const driverLicense = noDriverMode ? '' : document.getElementById('addDriverLicense').value;
+    const driverLicenseUrl = noDriverMode ? '' : document.getElementById('addDriverLicenseUrl').value;
+    const truckType = document.getElementById('addTruckType').value;
+    const truckBody = document.getElementById('addTruckBody').value;
+    const truckMake = document.getElementById('addTruckMake').value;
+    const truckTons = document.getElementById('addTruckTons').value;
+    const comesa = document.getElementById('addComesa').value;
+    const c28 = document.getElementById('addC28').value;
+    const addComesaExpiryInput = document.getElementById('addComesaExpiry');
+    const addC28ExpiryInput = document.getElementById('addC28Expiry');
+    const comesaExpiry = addComesaExpiryInput ? addComesaExpiryInput.value || null : null;
+    const c28Expiry = addC28ExpiryInput ? addC28ExpiryInput.value || null : null;
+    
+    // Use cropped images if available, otherwise use original files
+    const driverImageFile = noDriverMode ? null : (window.add_driver_cropped_image || document.getElementById('addDriverImage').files[0]);
+    const truckImageFile = window.add_truck_cropped_image || document.getElementById('addTruckImage').files[0];
+    
+    // Get contacts from add form (empty array in No Driver mode)
+    const contacts = noDriverMode ? [] : getContactsFromForm('add');
+    if (!noDriverMode && contacts.length === 0) {
+        alert('Please add at least one contact number');
+        return;
+    }
+    
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = '⏳ Adding...';
+    submitBtn.disabled = true;
+    
+    try {
+        let driverImageUrl = null;
+        let truckImageUrl = null;
+        
+        // Upload driver image if selected and not in No Driver mode
+        if (driverImageFile && !noDriverMode) {
+            const fileExt = 'jpg'; // Always use jpg for cropped images
+            const fileName = `driver-${Date.now()}.${fileExt}`;
+            
+            const { error: uploadError } = await supabase.storage
+                .from('driver-images')
+                .upload(fileName, driverImageFile, {
+                    upsert: true,
+                    cacheControl: '3600'
+                });
+            
+            if (uploadError) throw uploadError;
+            
+            const { data: urlData } = supabase.storage
+                .from('driver-images')
+                .getPublicUrl(fileName);
+            
+            driverImageUrl = urlData.publicUrl;
+        }
+        
+        // Upload truck image
+        if (truckImageFile) {
+            const fileExt = 'jpg'; // Always use jpg for cropped images
+            const fileName = `truck-${Date.now()}.${fileExt}`;
+            
+            const { error: uploadError } = await supabase.storage
+                .from('driver-images')
+                .upload(fileName, truckImageFile, {
+                    upsert: true,
+                    cacheControl: '3600'
+                });
+            
+            if (uploadError) throw uploadError;
+            
+            const { data: urlData } = supabase.storage
+                .from('driver-images')
+                .getPublicUrl(fileName);
+            
+            truckImageUrl = urlData.publicUrl;
+        }
+        
+        // Get dynamic fields data
+        const dynamicFieldsData = {};
+        const fieldElements = document.querySelectorAll('#addDynamicFieldsContainer .dynamic-field-item');
+        fieldElements.forEach(element => {
+            const fieldKey = element.getAttribute('data-field-key');
+            const valueInput = element.querySelector('input[placeholder="Field Value"]');
+            if (valueInput && valueInput.value) {
+                dynamicFieldsData[fieldKey] = valueInput.value;
+            }
+        });
+        
+        // Insert new truck record with dynamic fields
+        const truckData = {
+            truck_number: truckNumber,
+            driver_name: driverName,
+            driver_license: driverLicense,
+            driver_license_url: driverLicenseUrl,
+            driver_image_url: driverImageUrl,
+            truck_type: truckType,
+            truck_body: truckBody,
+            truck_make: truckMake,
+            truck_tons: truckTons,
+            comesa: comesa,
+            c28: c28,
+            comesa_expiry: comesaExpiry,
+            c28_expiry: c28Expiry,
+            truck_image_url: truckImageUrl,
+            ...dynamicFieldsData
+        };
+        
+        const { data: newTruck, error: insertError } = await supabase
+            .from('trucks')
+            .insert(truckData)
+            .select()
+            .single();
+        
+        if (insertError) throw insertError;
+        
+        // Insert contacts only if not in No Driver mode
+        if (!noDriverMode && contacts.length > 0) {
+            const contactsToInsert = contacts.map(contact => ({
+                truck_id: newTruck.id,
+                phone_number: contact.phone,
+                contact_type: contact.type
+            }));
+            
+            const { error: contactsError } = await supabase
+                .from('driver_contacts')
+                .insert(contactsToInsert);
+            
+            if (contactsError) throw contactsError;
+        }
+        
+        // Upload additional images if any
+        if (window.add_additional_files && window.add_additional_files.length > 0) {
+            for (const additionalImage of window.add_additional_files) {
+                const fileExt = 'jpg';
+                const fileName = `additional-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+                
+                const { error: uploadError } = await supabase.storage
+                    .from('driver-images')
+                    .upload(fileName, additionalImage.file, {
+                        upsert: true,
+                        cacheControl: '3600'
+                    });
+                
+                if (uploadError) throw uploadError;
+                
+                const { data: urlData } = supabase.storage
+                    .from('driver-images')
+                    .getPublicUrl(fileName);
+                
+                // Insert additional image record
+                const { error: imageError } = await supabase
+                    .from('truck_additional_images')
+                    .insert({
+                        truck_id: newTruck.id,
+                        image_url: urlData.publicUrl,
+                        description: additionalImage.description
+                    });
+                
+                if (imageError) throw imageError;
+            }
+        }
+        
+        showSuccessModal('Truck added successfully!');
+        document.getElementById('addModal').style.display = 'none';
+        document.getElementById('addForm').reset();
+        resetFileInputs('add');
+        resetModalState('add');
+        
+        // Reset No Driver mode
+        const noDriverBtn = document.getElementById('noDriverBtn');
+        if (noDriverBtn.classList.contains('active')) {
+            noDriverBtn.classList.remove('active');
+            noDriverBtn.innerHTML = '🚫 No Driver';
+            enableDriverFields();
+        }
+        
+        // Reset contacts container
+        document.getElementById('addContactsContainer').innerHTML = '';
+        if (!noDriverMode) {
+            addContactField('add'); // Add one empty contact field
+        }
+        
+        // Clear cropped image data
+        window.add_driver_cropped_image = null;
+        window.add_truck_cropped_image = null;
+        window.add_additional_files = null;
+        
+        await updateLastUpdatedDate('truck-list');
+        loadTrucks();
+        
+    } catch (error) {
+        console.error('Error adding truck:', error);
+        showErrorModal('Error adding truck: ' + error.message);
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+}
+
+// MODIFIED FUNCTION: Update file input event listeners to use cropping
+document.addEventListener('DOMContentLoaded', function() {
+    // Driver image inputs
+    const addDriverImageInput = document.getElementById('addDriverImage');
+    const editDriverImageInput = document.getElementById('editDriverImage');
+    const editDriverImageOnlyInput = document.getElementById('editDriverImageOnly');
+    
+    if (addDriverImageInput) {
+        addDriverImageInput.addEventListener('change', function() {
+            handleDriverImageInput(this, 'add');
+        });
+    }
+    
+    if (editDriverImageInput) {
+        editDriverImageInput.addEventListener('change', function() {
+            handleDriverImageInput(this, 'edit');
+        });
+    }
+    
+    if (editDriverImageOnlyInput) {
+        editDriverImageOnlyInput.addEventListener('change', function() {
+            handleDriverImageInput(this, 'edit');
+        });
+    }
+    
+    // Truck image inputs
+    const addTruckImageInput = document.getElementById('addTruckImage');
+    const editTruckImageInput = document.getElementById('editTruckImage');
+    
+    if (addTruckImageInput) {
+        addTruckImageInput.addEventListener('change', function() {
+            handleTruckImageInput(this, 'add');
+        });
+    }
+    
+    if (editTruckImageInput) {
+        editTruckImageInput.addEventListener('change', function() {
+            handleTruckImageInput(this, 'edit');
+        });
+    }
+    
+    // Additional image inputs
+    const addAdditionalImageInput = document.getElementById('addNewAdditionalImage');
+    const editAdditionalImageInput = document.getElementById('editNewAdditionalImage');
+    
+    if (addAdditionalImageInput) {
+        addAdditionalImageInput.addEventListener('change', function() {
+            handleAdditionalImageInput(this, 'add');
+        });
+    }
+    
+    if (editAdditionalImageInput) {
+        editAdditionalImageInput.addEventListener('change', function() {
+            handleAdditionalImageInput(this, 'edit');
+        });
+    }
+});
+
+// MODIFIED FUNCTION: Reset cropped image data when modal closes
+function resetModalState(modalType) {
+    // Reset section states
+    modalStates[modalType].fieldSectionOpen = false;
+    modalStates[modalType].imageSectionOpen = false;
+    
+    // Hide sections
+    const fieldSection = document.getElementById(`${modalType}FieldSection`);
+    const imageSection = document.getElementById(`${modalType}ImageSection`);
+    
+    if (fieldSection) fieldSection.style.display = 'none';
+    if (imageSection) imageSection.style.display = 'none';
+    
+    // Clear input fields
+    const fieldLabel = document.getElementById(`${modalType}NewFieldLabel`);
+    const fieldValue = document.getElementById(`${modalType}NewFieldValue`);
+    const imageDesc = document.getElementById(`${modalType}NewImageDescription`);
+    const imageFile = document.getElementById(`${modalType}NewAdditionalImage`);
+    
+    if (fieldLabel) fieldLabel.value = '';
+    if (fieldValue) fieldValue.value = '';
+    if (imageDesc) imageDesc.value = '';
+    if (imageFile) imageFile.value = '';
+    
+    // Clear cropped image data
+    window[`${modalType}_driver_cropped_image`] = null;
+    window[`${modalType}_truck_cropped_image`] = null;
+    window[`${modalType}_additional_files`] = null;
+    window[`${modalType}_additional_cropped`] = null;
+    
+    // Reset No Driver mode for both modals
+    if (modalType === 'add') {
+        const noDriverBtn = document.getElementById('noDriverBtn');
+        if (noDriverBtn && noDriverBtn.classList.contains('active')) {
+            noDriverBtn.classList.remove('active');
+            noDriverBtn.innerHTML = '🚫 No Driver';
+            noDriverBtn.style.backgroundColor = '#ffc107';
+        }
+        enableDriverFields(); // Ensure fields are enabled when modal reopens
+        
+        // Reset contacts to one empty field with visible dustbin
+        const contactsContainer = document.getElementById('addContactsContainer');
+        contactsContainer.innerHTML = `
+            <div class="contact-input-group">
+                <input type="text" class="contact-input" placeholder="Phone number" required>
+                <button type="button" class="btn-remove-contact" onclick="removeContactField(this)">🗑️</button>
+            </div>
+        `;
+        updateContactRemoveButtons('addContactsContainer');
+    }
+    
+    if (modalType === 'edit') {
+        // For edit modal, we don't reset No Driver mode here
+        // It should be determined by the actual truck data when opening
+        // Just ensure fields are enabled (the actual state will be set in openEditModal)
+        enableEditDriverFields();
+    }
+    
+    // Clear dynamic containers for add modal
+    if (modalType === 'add') {
+        const dynamicContainer = document.getElementById(`${modalType}DynamicFieldsContainer`);
+        const imagesContainer = document.getElementById(`${modalType}AdditionalImagesContainer`);
+        
+        if (dynamicContainer) dynamicContainer.innerHTML = '';
+        if (imagesContainer) imagesContainer.innerHTML = '';
+    }
 }

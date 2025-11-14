@@ -1520,7 +1520,7 @@ function toggleFilterDropdown() {
         filterTimeout = setTimeout(() => {
             dropdown.classList.remove('active');
             filterTimeout = null;
-        }, 4000); // 8000 milliseconds = 8 seconds
+        }, 4000); 
     }
 }
 
