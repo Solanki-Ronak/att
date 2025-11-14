@@ -1576,15 +1576,28 @@ function toggleFilter(filterType) {
         option.classList.remove('active');
     }
 }
-// Update filter UI - Simplified for icon version
+// Update employee filter UI - Matching admin style
 function updateFilterUI() {
     const activeCount = Object.values(activeFilters).filter(Boolean).length;
     const activeFilterCount = document.getElementById('activeFilterCount');
+    const filterStatus = document.getElementById('filterStatus'); // You might need to add this element
     
+    // Update the filter count badge
     if (activeFilterCount) {
         activeFilterCount.textContent = activeCount;
-        // Hide the badge if no filters are active
-        activeFilterCount.style.display = activeCount > 0 ? 'flex' : 'none';
+    }
+    
+    // Update filter status text (if you have this element)
+    if (filterStatus) {
+        if (activeCount === 0) {
+            filterStatus.textContent = 'All';
+        } else if (activeCount === 1) {
+            // Show which single filter is active
+            const activeFilter = Object.keys(activeFilters).find(key => activeFilters[key]);
+            filterStatus.textContent = getFilterDisplayName(activeFilter);
+        } else {
+            filterStatus.textContent = `${activeCount} active`;
+        }
     }
     
     // Update individual option states
@@ -1599,6 +1612,8 @@ function updateFilterUI() {
         }
     });
 }
+
+
 // Get display name for filters
 function getFilterDisplayName(filterType) {
     const names = {
@@ -1875,8 +1890,8 @@ function handleEmployeeSearch(event) {
         resultsCount.textContent = `Found ${filteredTrucks.length} of ${currentData.length} items`;
     }
 }
-// Update DOMContentLoaded to set initial filter visibility
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize currentEmployeeTrucksData if not exists
     if (!window.currentEmployeeTrucksData) {
         window.currentEmployeeTrucksData = {
             'all-trucks': [],
@@ -1885,12 +1900,19 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
     
-    initializeFilters();
+    // Initialize active filters
+    activeFilters = {
+        no_driver: false,
+        comesa: false,
+        c28: false
+    };
     
-    // Set initial filter visibility - show on All Drivers/Trucks tab by default
+    // Initialize filter UI
+    updateFilterUI();
+    
+    // Set initial filter visibility
     const filterContainer = document.getElementById('filterContainer');
     if (filterContainer) {
-        // Check if we're currently on the All Drivers/Trucks tab
         const allTrucksTab = document.getElementById('all-trucks');
         if (allTrucksTab && allTrucksTab.classList.contains('active')) {
             filterContainer.style.display = 'block';
@@ -1899,7 +1921,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-     displayLastUpdatedDate('truck-list');
+    // Load initial data
+    displayLastUpdatedDate('truck-list');
     displayLastUpdatedDate('allowances');
     displayLastUpdatedDate('distance');
     displayLastUpdatedDate('diesel');
@@ -1908,6 +1931,8 @@ document.addEventListener('DOMContentLoaded', function() {
     loadAllowances();
     setupSearch();
     setupAllowanceSearch();
+    
+    console.log('Employee portal initialized with filters');
 });
 
 // Date formatting function
