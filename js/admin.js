@@ -1995,8 +1995,9 @@ async function handleEditFormSubmit(event) {
     const comesaExpiry = comesaExpiryInput ? comesaExpiryInput.value || null : null;
     const c28Expiry = c28ExpiryInput ? c28ExpiryInput.value || null : null;
     
-    const driverImageFile = noDriverMode ? null : document.getElementById('editDriverImage').files[0];
-    const truckImageFile = document.getElementById('editTruckImage').files[0];
+    // USE CROPPED IMAGES INSTEAD OF ORIGINAL FILES
+    const driverImageFile = noDriverMode ? null : (window.edit_driver_cropped_image || document.getElementById('editDriverImage').files[0]);
+    const truckImageFile = window.edit_truck_cropped_image || document.getElementById('editTruckImage').files[0];
     
     // Get contacts from edit form (empty array in No Driver mode)
     const contacts = noDriverMode ? [] : getContactsFromForm('edit');
@@ -2024,9 +2025,9 @@ async function handleEditFormSubmit(event) {
                 driverImageUrl = currentDriverImage.src;
             }
             
-            // Upload new driver image if selected
+            // Upload new driver image if selected - USE CROPPED IMAGE
             if (driverImageFile) {
-                const fileExt = driverImageFile.name.split('.').pop();
+                const fileExt = 'jpg'; // Always use jpg for cropped images
                 const fileName = `driver-${Date.now()}.${fileExt}`;
                 
                 const { error: uploadError } = await supabase.storage
@@ -2049,14 +2050,14 @@ async function handleEditFormSubmit(event) {
             driverImageUrl = null;
         }
         
-        // Handle truck image (always required)
+        // Handle truck image (always required) - USE CROPPED IMAGE
         if (!truckImageFile && currentTruckImage.style.display !== 'none') {
             truckImageUrl = currentTruckImage.src;
         }
         
         // Upload new truck image if selected
         if (truckImageFile) {
-            const fileExt = truckImageFile.name.split('.').pop();
+            const fileExt = 'jpg'; // Always use jpg for cropped images
             const fileName = `truck-${Date.now()}.${fileExt}`;
             
             const { error: uploadError } = await supabase.storage
@@ -2127,6 +2128,11 @@ async function handleEditFormSubmit(event) {
         // Save additional fields and images
         await saveAdditionalFields();
         await saveAdditionalImages();
+        
+        // CLEAR CROPPED IMAGE DATA AFTER SUCCESSFUL UPLOAD
+        window.edit_driver_cropped_image = null;
+        window.edit_truck_cropped_image = null;
+        window.edit_additional_files = null;
         
         showSuccessModal('Truck updated successfully!');
         document.getElementById('editModal').style.display = 'none';
@@ -2979,46 +2985,52 @@ function setupModals() {
     setupAssignTruckModals();
 }
 
-// UPDATED: Save additional images to handle both modals
+// UPDATED: Save additional images to handle both modals and use cropped images
 async function saveAdditionalImages(modalType, truckId) {
     try {
-        const imageElements = document.querySelectorAll(`#${modalType}AdditionalImagesContainer .additional-image-item`);
+        const storageKey = `${modalType}_additional_files`;
+        const additionalFiles = window[storageKey] || [];
         
-        if (imageElements.length === 0) return;
+        if (additionalFiles.length === 0) return;
         
-        // Insert new additional images
-        const imagesToInsert = [];
-        
-        imageElements.forEach(element => {
-            const imageId = element.getAttribute('data-image-id');
-            const descriptionElement = element.querySelector('.additional-image-info p');
-            const description = descriptionElement ? descriptionElement.textContent.replace('Description: ', '') : '';
-            const imageUrl = element.querySelector('.additional-image-preview').src;
+        // Upload and save cropped additional images
+        for (const additionalImage of additionalFiles) {
+            const fileExt = 'jpg'; // Always use jpg for cropped images
+            const fileName = `additional-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
             
-            // Only save new images
-            if (imageId.startsWith('new_')) {
-                imagesToInsert.push({
-                    truck_id: truckId,
-                    image_url: imageUrl,
-                    description: description
+            const { error: uploadError } = await supabase.storage
+                .from('driver-images')
+                .upload(fileName, additionalImage.file, {
+                    upsert: true,
+                    cacheControl: '3600'
                 });
-            }
-        });
-        
-        if (imagesToInsert.length > 0) {
-            const { error: insertError } = await supabase
-                .from('truck_additional_images')
-                .insert(imagesToInsert);
             
-            if (insertError) throw insertError;
+            if (uploadError) throw uploadError;
+            
+            const { data: urlData } = supabase.storage
+                .from('driver-images')
+                .getPublicUrl(fileName);
+            
+            // Insert additional image record
+            const { error: imageError } = await supabase
+                .from('truck_additional_images')
+                .insert({
+                    truck_id: truckId,
+                    image_url: urlData.publicUrl,
+                    description: additionalImage.description
+                });
+            
+            if (imageError) throw imageError;
         }
+        
+        // Clear the stored files after successful upload
+        window[storageKey] = null;
         
     } catch (error) {
         console.error('Error saving additional images:', error);
         throw error;
     }
 }
-
 // Update field label
 function updateFieldLabel(fieldId, newLabel) {
     const fieldElement = document.querySelector(`[data-field-id="${fieldId}"]`);
@@ -4134,38 +4146,76 @@ function updatePreviousTruckRemoveButtons() {
     }
 }
 
-// NEW: Handle edit driver form submit
+// Enhanced Handle Edit Driver Form Submit with Image Replacement
 async function handleEditDriverSubmit(event) {
     event.preventDefault();
+    
+    if (!validateEditDriverForm()) {
+        alert('Please fill all required fields');
+        return;
+    }
     
     const driverId = document.getElementById('editDriverId').value;
     const driverName = document.getElementById('editDriverNameOnly').value;
     const driverLicense = document.getElementById('editDriverLicenseOnly').value;
+    const driverLicenseUrl = document.getElementById('editDriverLicenseUrlOnly').value;
     
     // Get contacts from form
-    const contacts = getDriverContactsFromForm();
-    if (contacts.length === 0) {
-        alert('Please add at least one contact number');
-        return;
-    }
+    const contacts = getEditDriverContactsFromForm();
     
     // Get previous trucks from form
-    const previousTrucks = getPreviousTrucksFromForm();
+    const previousTrucks = getEditPreviousTrucksFromForm();
     
-    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const submitBtn = document.getElementById('editDriverSubmitBtn');
     const originalText = submitBtn.textContent;
     submitBtn.textContent = '⏳ Saving...';
     submitBtn.disabled = true;
     
     try {
+        let driverImageUrl = null;
+        
+        // Get current image URL to preserve if no new file is uploaded
+        const currentDriverImage = document.getElementById('currentDriverImageOnly');
+        
+        // USE CROPPED IMAGE IF AVAILABLE
+        const driverImageFile = window.edit_driver_cropped_image || editDriverImageFile;
+        
+        // If new image was uploaded, upload it and get new URL
+        if (driverImageFile) {
+            const fileExt = 'jpg'; // Always use jpg for cropped images
+            const fileName = `driver-${Date.now()}.${fileExt}`;
+            
+            const { error: uploadError } = await supabase.storage
+                .from('driver-images')
+                .upload(fileName, driverImageFile, {
+                    upsert: true,
+                    cacheControl: '3600'
+                });
+            
+            if (uploadError) throw uploadError;
+            
+            const { data: urlData } = supabase.storage
+                .from('driver-images')
+                .getPublicUrl(fileName);
+            
+            driverImageUrl = urlData.publicUrl;
+        } else if (currentDriverImage.style.display !== 'none') {
+            // Keep the current image if no new file was uploaded
+            driverImageUrl = currentDriverImage.src;
+        }
+        
         // Update driver record
+        const updateData = {
+            driver_name: driverName,
+            driver_license: driverLicense,
+            driver_license_url: driverLicenseUrl || null,
+            previous_trucks: previousTrucks.length > 0 ? previousTrucks.join(', ') : null,
+            driver_image_url: driverImageUrl
+        };
+        
         const { error: updateError } = await supabase
             .from('trucks')
-            .update({
-                driver_name: driverName,
-                driver_license: driverLicense,
-                previous_trucks: previousTrucks.join(', ')
-            })
+            .update(updateData)
             .eq('id', driverId);
         
         if (updateError) throw updateError;
@@ -4173,8 +4223,15 @@ async function handleEditDriverSubmit(event) {
         // Update contacts
         await updateDriverContacts(driverId, contacts);
         
-        alert('✅ Driver details updated successfully!');
+        // CLEAR CROPPED IMAGE DATA AFTER SUCCESSFUL UPLOAD
+        window.edit_driver_cropped_image = null;
+        editDriverImageFile = null;
+        
+        showSuccessModal('Driver details updated successfully!');
         document.getElementById('editDriverModal').style.display = 'none';
+        
+        // UPDATE LAST UPDATED DATE
+        await updateLastUpdatedDate('truck-list');
         
         // Reload the appropriate tab
         const activeAdminTab = document.querySelector('.admin-tab-content.active').id;
@@ -4182,13 +4239,12 @@ async function handleEditDriverSubmit(event) {
         
     } catch (error) {
         console.error('Error updating driver details:', error);
-        alert('❌ Error updating driver details: ' + error.message);
+        showErrorModal('Error updating driver details: ' + error.message);
     } finally {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
     }
 }
-
 // NEW: Get driver contacts from form
 function getDriverContactsFromForm() {
     const container = document.getElementById('editDriverContactsContainer');
@@ -6340,7 +6396,7 @@ function handleDriverImageInput(input, modalType) {
 
     // Open cropping modal for driver image
     openCropModal(file, 'driver', function(croppedFile, croppedUrl) {
-        // Update the file input with cropped file (this is tricky, so we'll store it separately)
+        // Store the cropped file in a global variable for later upload
         const imageKey = `${modalType}_driver_cropped_image`;
         window[imageKey] = croppedFile;
         
@@ -6369,7 +6425,6 @@ function handleDriverImageInput(input, modalType) {
         }
     });
 }
-
 // MODIFIED FUNCTION: Handle truck image selection with cropping
 function handleTruckImageInput(input, modalType) {
     const file = input.files[0];
@@ -6382,6 +6437,7 @@ function handleTruckImageInput(input, modalType) {
     }
 
     openCropModal(file, 'truck', function(croppedFile, croppedUrl) {
+        // Store the cropped file for later upload
         const imageKey = `${modalType}_truck_cropped_image`;
         window[imageKey] = croppedFile;
         
@@ -6401,7 +6457,6 @@ function handleTruckImageInput(input, modalType) {
         }
     });
 }
-
 // MODIFIED FUNCTION: Handle additional image selection with cropping
 function handleAdditionalImageInput(input, modalType) {
     const file = input.files[0];
@@ -6414,10 +6469,10 @@ function handleAdditionalImageInput(input, modalType) {
     }
 
     openCropModal(file, 'additional', function(croppedFile, croppedUrl) {
-        // For additional images, we'll store in a temporary variable
+        // Store the cropped file and description
         const tempKey = `${modalType}_additional_cropped`;
         window[tempKey] = {
-            file: croppedFile,
+            file: croppedFile, // Store the actual cropped file
             url: croppedUrl,
             description: document.getElementById(`${modalType}NewImageDescription`).value || 'Additional Image'
         };
@@ -6426,7 +6481,6 @@ function handleAdditionalImageInput(input, modalType) {
         alert('Image cropped successfully! Click "Add Image" to add it to the form.');
     });
 }
-
 // MODIFIED FUNCTION: Update the addAdditionalImage function to use cropped images
 function addAdditionalImage(modalType) {
     const tempKey = `${modalType}_additional_cropped`;
@@ -6447,7 +6501,7 @@ function addAdditionalImage(modalType) {
     if (!window[storageKey]) window[storageKey] = [];
     window[storageKey].push({
         id: `new_${Date.now()}`,
-        file: croppedData.file,
+        file: croppedData.file, // This is the actual cropped file
         description: description
     });
 
@@ -6459,7 +6513,6 @@ function addAdditionalImage(modalType) {
     // Clear temporary data
     window[tempKey] = null;
 }
-
 // MODIFIED FUNCTION: Update form submission to use cropped images
 async function handleAddFormSubmit(event) {
     event.preventDefault();

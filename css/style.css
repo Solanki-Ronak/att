@@ -1116,24 +1116,7 @@ h2 {
 }
 
 /* Image Previews */
-.image-preview1 {
-    display: block;
-    max-width: 100%;
-    height: 400px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-top: 8px;
-    border: 2px solid #ddd;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.image-preview1-wrapper {
-    position: relative;
-    display: inline-block;
-}
-
-/* Image Previews */
-.image-preview2 {
+.image-preview {
     display: block;
     max-width: 100%;
     height: 180px;
@@ -1144,10 +1127,13 @@ h2 {
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.image-preview2-wrapper {
+.image-preview-wrapper {
     position: relative;
     display: inline-block;
 }
+
+/* Image Previews */
+
 
 .btn-crop {
     position: absolute;
