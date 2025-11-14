@@ -1675,7 +1675,7 @@ async function openAdminDetailsModal(truckId) {
             `<div class="license-actions">
                 <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View</button>
              </div>` :
-            '<span >-</span>';
+            '<span class="empty-field">-</span>';
         
         // Generate contacts HTML for details modal
         const contactsHtml = generateDetailsContactsHtml(truck.driver_contacts);
@@ -1715,7 +1715,7 @@ async function openAdminDetailsModal(truckId) {
                             <span class="detail-value">${truck.driver_license}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">Driving License :</span>
+                            <span class="detail-label">Driving License:</span>
                             <span class="detail-value">${licenseActionsHtml}</span>
                         </div>
                         ${contactsHtml}
@@ -1769,6 +1769,36 @@ async function openAdminDetailsModal(truckId) {
         console.error('Error loading truck details:', error);
         alert('Error loading truck details');
     }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure all images use the correct classes
+    initializeImageClasses();
+});
+
+function initializeImageClasses() {
+    // Apply correct classes to all modal preview images
+    const driverPreviews = document.querySelectorAll('#currentDriverImage, #currentDriverImageOnly, #driverImagePreview, #addDriverPreview');
+    driverPreviews.forEach(img => {
+        if (!img.classList.contains('driver-image')) {
+            img.classList.add('driver-image');
+        }
+    });
+    
+    const truckPreviews = document.querySelectorAll('#currentTruckImage, #addTruckPreview');
+    truckPreviews.forEach(img => {
+        if (!img.classList.contains('truck-image')) {
+            img.classList.add('truck-image');
+        }
+    });
+    
+    // Ensure additional images use truck-image class
+    const additionalImages = document.querySelectorAll('.additional-image-preview');
+    additionalImages.forEach(img => {
+        if (!img.classList.contains('truck-image')) {
+            img.classList.add('truck-image');
+        }
+    });
 }
 // UPDATED: Open add truck modal with proper contact initialization
 function openAddTruckModal() {
@@ -1908,19 +1938,13 @@ function addDynamicFieldToForm(modalType, fieldKey, fieldLabel, fieldValue, fiel
     
     container.insertAdjacentHTML('beforeend', fieldHtml);
 }
-// UPDATED: Add additional image to form for both modals (safer version)
+// MODIFIED: Add additional image to form with consistent styling
 function addAdditionalImageToForm(modalType, imageId, imageUrl, description = '') {
     const container = document.getElementById(`${modalType}AdditionalImagesContainer`);
     
-    // Check if container exists
-    if (!container) {
-        console.error(`Container with ID '${modalType}AdditionalImagesContainer' not found`);
-        return;
-    }
-    
     const imageHtml = `
         <div class="additional-image-item" data-image-id="${imageId}">
-            <img src="${imageUrl}" alt="Additional Image" class="additional-image-preview">
+            <img src="${imageUrl}" alt="Additional Image" class="truck-image"> <!-- Use truck-image class -->
             <div class="additional-image-info">
                 <p><strong>Description:</strong> ${description || 'No description'}</p>
             </div>
@@ -2495,11 +2519,11 @@ function createActiveDriverCard(truck, index) {
     
     const hasDriverImage = truck.driver_image_url && truck.driver_image_url !== '';
     
+    // Generate contacts HTML first
+    const contactsHtml = generateContactsHtml(truck.driver_contacts);
+    
     const imageHtml = hasDriverImage ? 
         `<img src="${truck.driver_image_url}" alt="${truck.driver_name}" class="driver-image">` : '';
-    
-    // Generate contacts HTML
-    const contactsHtml = generateContactsHtml(truck.driver_contacts);
     
     card.innerHTML = `
         <div class="card-number">${index + 1}</div>
@@ -2533,7 +2557,6 @@ function createActiveDriverCard(truck, index) {
             <button class="btn btn-details" onclick="openAdminDetailsModal('${truck.id}')">ℹ️ View Details</button>
             <button class="btn btn-warning" onclick="confirmChangeStatus('${truck.id}', 'no_truck')">🚫 No Driver</button>
             <button class="btn btn-danger" onclick="confirmChangeStatus('${truck.id}', 'left')">👋 Driver Left</button>
-            <!-- NEW: Delete Button -->
             <button class="btn btn-delete" onclick="confirmDeleteTruck('${truck.id}', '${truck.truck_number}', '${truck.driver_name}')">🗑️ Delete</button>
         </div>
     `;
@@ -6240,7 +6263,94 @@ let currentCropCallback = null;
 let currentImageType = null;
 let currentImageFile = null;
 
-// NEW FUNCTION: Open cropping modal
+// MODIFIED: Handle driver image selection with consistent styling
+function handleDriverImageInput(input, modalType) {
+    const file = input.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        input.value = '';
+        return;
+    }
+
+    // Use aspect ratio that matches your driver-image class (400px height)
+    openCropModal(file, 'driver', function(croppedFile, croppedUrl) {
+        const imageKey = `${modalType}_driver_cropped_image`;
+        window[imageKey] = croppedFile;
+        
+        // Update preview with your driver-image styling
+        let previewId;
+        if (modalType === 'add') {
+            previewId = 'driverImagePreview';
+        } else {
+            previewId = 'currentDriverImageOnly';
+            // Also update main driver image in edit truck modal
+            const mainPreview = document.getElementById('currentDriverImage');
+            if (mainPreview) {
+                mainPreview.src = croppedUrl;
+                mainPreview.style.display = 'block';
+                mainPreview.className = 'driver-image'; // Ensure consistent class
+            }
+        }
+        
+        const preview = document.getElementById(previewId);
+        if (preview) {
+            preview.src = croppedUrl;
+            preview.style.display = 'block';
+            preview.className = 'driver-image'; // Apply your driver-image class
+        }
+
+        // Update validation state
+        if (modalType === 'add') {
+            validateAddDriverForm();
+        } else {
+            updateEditDriverSaveButtonState();
+        }
+    });
+}
+
+// MODIFIED: Handle truck image selection with consistent styling
+function handleTruckImageInput(input, modalType) {
+    const file = input.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        input.value = '';
+        return;
+    }
+
+    // Use aspect ratio that matches your truck-image class (180px height)
+    openCropModal(file, 'truck', function(croppedFile, croppedUrl) {
+        const imageKey = `${modalType}_truck_cropped_image`;
+        window[imageKey] = croppedFile;
+        
+        // Update preview with your truck-image styling
+        let previewId;
+        if (modalType === 'add') {
+            previewId = 'addTruckPreview';
+        } else {
+            previewId = 'currentTruckImage';
+        }
+        
+        const preview = document.getElementById(previewId);
+        if (preview) {
+            preview.src = croppedUrl;
+            preview.style.display = 'block';
+            preview.className = 'truck-image'; // Apply your truck-image class
+        }
+
+        // Update validation state
+        if (modalType === 'add') {
+            updateSaveButtonState();
+        } else {
+            updateEditSaveButtonState();
+        }
+    });
+}
+
+// MODIFIED: Update the openCropModal function for your specific aspect ratios
 function openCropModal(file, imageType, callback) {
     console.log('Opening crop modal for:', imageType);
     
@@ -6267,12 +6377,20 @@ function openCropModal(file, imageType, callback) {
                 cropper.destroy();
             }
 
-            // Set aspect ratio based on image type
-            let aspectRatio = 1.5; // Default 3:2 for driver images
-            if (imageType === 'truck') {
-                aspectRatio = 1.33; // 4:3 for truck images
-            } else if (imageType === 'additional') {
-                aspectRatio = 1.5; // 3:2 for additional images
+            // SET ASPECT RATIOS THAT MATCH YOUR CSS CLASSES
+            let aspectRatio;
+            switch(imageType) {
+                case 'driver':
+                    aspectRatio = 3/2; // Matches 400px height in driver-image
+                    break;
+                case 'truck':
+                    aspectRatio = 4/3; // Matches 180px height in truck-image
+                    break;
+                case 'additional':
+                    aspectRatio = 4/3; // Use same as truck for additional images
+                    break;
+                default:
+                    aspectRatio = 1.5;
             }
 
             // Set the aspect ratio in dropdown
@@ -6382,81 +6500,8 @@ document.getElementById('aspectRatio').addEventListener('change', function() {
     }
 });
 
-// MODIFIED FUNCTION: Handle driver image selection with cropping
-function handleDriverImageInput(input, modalType) {
-    const file = input.files[0];
-    if (!file) return;
 
-    // Check if file is an image
-    if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        input.value = '';
-        return;
-    }
 
-    // Open cropping modal for driver image
-    openCropModal(file, 'driver', function(croppedFile, croppedUrl) {
-        // Store the cropped file in a global variable for later upload
-        const imageKey = `${modalType}_driver_cropped_image`;
-        window[imageKey] = croppedFile;
-        
-        // Update preview
-        const previewId = modalType === 'add' ? 'driverImagePreview' : 'currentDriverImageOnly';
-        const preview = document.getElementById(previewId);
-        if (preview) {
-            preview.src = croppedUrl;
-            preview.style.display = 'block';
-        }
-
-        // For edit modal, also update the main driver image preview
-        if (modalType === 'edit') {
-            const mainPreview = document.getElementById('currentDriverImage');
-            if (mainPreview) {
-                mainPreview.src = croppedUrl;
-                mainPreview.style.display = 'block';
-            }
-        }
-
-        // Update validation state
-        if (modalType === 'add') {
-            validateAddDriverForm();
-        } else {
-            updateEditDriverSaveButtonState();
-        }
-    });
-}
-// MODIFIED FUNCTION: Handle truck image selection with cropping
-function handleTruckImageInput(input, modalType) {
-    const file = input.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        input.value = '';
-        return;
-    }
-
-    openCropModal(file, 'truck', function(croppedFile, croppedUrl) {
-        // Store the cropped file for later upload
-        const imageKey = `${modalType}_truck_cropped_image`;
-        window[imageKey] = croppedFile;
-        
-        // Update preview
-        const previewId = modalType === 'add' ? 'truckImagePreview' : 'currentTruckImage';
-        const preview = document.getElementById(previewId);
-        if (preview) {
-            preview.src = croppedUrl;
-            preview.style.display = 'block';
-        }
-
-        // Update validation state
-        if (modalType === 'add') {
-            updateSaveButtonState();
-        } else {
-            updateEditSaveButtonState();
-        }
-    });
-}
 // MODIFIED FUNCTION: Handle additional image selection with cropping
 function handleAdditionalImageInput(input, modalType) {
     const file = input.files[0];

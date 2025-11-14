@@ -232,25 +232,24 @@
     </div>
 </div>
             
-            <!-- Images Section -->
-            <div class="images-section">
-                <h3>Images</h3>
-                
-                <!-- Driver Image -->
-                <div class="form-group">
-                    <label>Driver Image:</label>
-                    <input type="file" id="editDriverImage" accept="image/*">
-                    <img id="currentDriverImage" src="" alt="Current Driver Image" class="image-preview">
-                </div>
-                
-                <!-- Truck Image -->
-                <div class="form-group">
-                    <label>Truck Image:</label>
-                    <input type="file" id="editTruckImage" accept="image/*">
-                    <img id="currentTruckImage" src="" alt="Current Truck Image" class="image-preview">
-                </div>
-            </div>
-            
+<!-- Images Section -->
+<div class="images-section">
+    <h3>Images</h3>
+    
+    <!-- Driver Image -->
+    <div class="form-group">
+        <label>Driver Image:</label>
+        <input type="file" id="editDriverImage" accept="image/*">
+        <img id="currentDriverImage" src="" alt="Current Driver Image" class="driver-image" style="display: none;">
+    </div>
+    
+    <!-- Truck Image -->
+    <div class="form-group">
+        <label>Truck Image:</label>
+        <input type="file" id="editTruckImage" accept="image/*">
+        <img id="currentTruckImage" src="" alt="Current Truck Image" class="truck-image" style="display: none;">
+    </div>
+</div>
             <!-- Truck Specifications -->
             <div class="form-row">
                 <div class="form-group">
@@ -489,23 +488,24 @@
         <input type="date" id="addC28Expiry" style="display: none;" onchange="updateSaveButtonState()">
     </div>
 </div>
-            <!-- Images Section -->
-            <div class="images-section">
-                <h3>Images</h3>
-                
-                <!-- Driver Image -->
-                <div class="form-group">
-                    <label>Driver Image:</label>
-                    <input type="file" id="addDriverImage" accept="image/*">
-                </div>
-                
-                <!-- Truck Image -->
-                <div class="form-group">
-                    <label>Truck Image:</label>
-                    <input type="file" id="addTruckImage" accept="image/*">
-                </div>
-            </div>
-            
+<!-- Images Section -->
+<div class="images-section">
+    <h3>Images</h3>
+    
+    <!-- Driver Image -->
+    <div class="form-group">
+        <label>Driver Image:</label>
+        <input type="file" id="addDriverImage" accept="image/*">
+        <img id="addDriverPreview" src="" alt="Driver Image Preview" class="driver-image" style="display: none;">
+    </div>
+    
+    <!-- Truck Image -->
+    <div class="form-group">
+        <label>Truck Image:</label>
+        <input type="file" id="addTruckImage" accept="image/*">
+        <img id="addTruckPreview" src="" alt="Truck Image Preview" class="truck-image" style="display: none;">
+    </div>
+</div>
             <!-- Additional Fields and Images Section -->
             <div class="additional-section">
                 <h3>Additional Information</h3>
@@ -788,14 +788,12 @@
         <form id="editDriverForm">
             <input type="hidden" id="editDriverId">
             
-            <!-- Driver Image Section -->
-            <div class="form-group">
-                <label>Driver Picture:</label>
-                <input type="file" id="editDriverImageOnly" accept="image/*" onchange="previewEditDriverImage(this)">
-                <small style="color: #666; display: block; margin-top: 5px;">Update driver photo</small>
-                <img id="currentDriverImageOnly" src="" alt="Current Driver Image" class="image-preview" style="display: none; margin-top: 10px; max-height: 200px;">
-                <!-- REMOVED the separate preview - we'll use the same image element -->
-            </div>
+<!-- Driver Image Section -->
+<div class="form-group">
+    <label>Driver Picture:</label>
+    <input type="file" id="editDriverImageOnly" accept="image/*" onchange="previewEditDriverImage(this)">
+    <img id="currentDriverImageOnly" src="" alt="Current Driver Image" class="driver-image" style="display: none;">
+</div>
 
             <!-- Driver Information -->
             <div class="form-row">
@@ -926,13 +924,13 @@
         <h2>➕ Add Driver (No Truck)</h2>
         <form id="addDriverForm">
             <!-- Driver Image Section -->
-            <div class="form-group">
-                <label>Driver Picture (Required):</label>
-                <input type="file" id="addDriverImageOnly" accept="image/*" required onchange="previewDriverImage(this)">
-                <small style="color: #666; display: block; margin-top: 5px;">Please upload a clear photo of the driver</small>
-                <img id="driverImagePreview" src="" alt="Driver Image Preview" class="image-preview" style="display: none; margin-top: 10px; max-height: 200px;">
-            </div>
-
+            <<!-- Driver Image Section -->
+<!-- Driver Image Section -->
+<div class="form-group">
+    <label>Driver Picture (Required):</label>
+    <input type="file" id="addDriverImageOnly" accept="image/*" required onchange="previewDriverImage(this)">
+    <img id="driverImagePreview" src="" alt="Driver Image Preview" class="driver-image" style="display: none;">
+</div>
             <div class="form-row">
                 <div class="form-group">
                     <label>Driver Name:</label>
@@ -989,17 +987,19 @@
         <div class="crop-container">
             <img id="cropImage" src="" alt="Image to crop" style="max-width: 100%;">
         </div>
-        <div class="crop-controls">
-            <label>Aspect Ratio:</label>
-            <select id="aspectRatio">
-                <option value="1.5">Driver Image (3:2)</option>
-                <option value="1.33">Truck Image (4:3)</option>
-                <option value="0">Free Ratio</option>
-            </select>
-            <button class="btn btn-secondary" onclick="rotateImage(-90)">↺ Rotate Left</button>
-            <button class="btn btn-secondary" onclick="rotateImage(90)">↻ Rotate Right</button>
-            <button class="btn btn-secondary" onclick="resetCrop()">🔄 Reset</button>
-        </div>
+        <!-- In your crop modal, update the aspect ratio options -->
+
+<div class="crop-controls">
+    <label>Aspect Ratio:</label>
+    <select id="aspectRatio">
+        <option value="0.666">Driver Image (Your 400px height style)</option>
+        <option value="0.75">Truck Image (Your 180px height style)</option>
+        <option value="0">Free Ratio</option>
+    </select>
+    <button class="btn btn-secondary" onclick="rotateImage(-90)">↺ Rotate Left</button>
+    <button class="btn btn-secondary" onclick="rotateImage(90)">↻ Rotate Right</button>
+    <button class="btn btn-secondary" onclick="resetCrop()">🔄 Reset</button>
+</div>
         <div class="crop-actions">
             <button class="btn btn-primary" onclick="applyCrop()">✅ Apply Crop</button>
             <button class="btn btn-back" onclick="closeCropModal()">❌ Cancel</button>
