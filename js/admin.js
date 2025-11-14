@@ -5474,29 +5474,6 @@ function closeAddDriverModal() {
     document.getElementById('addDriverModal').style.display = 'none';
 }
 
-// Preview Driver Image
-function previewDriverImage(input) {
-    const preview = document.getElementById('driverImagePreview');
-    const file = input.files[0];
-    
-    if (file) {
-        driverImageFile = file;
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-        }
-        
-        reader.readAsDataURL(file);
-    } else {
-        preview.style.display = 'none';
-        preview.src = '';
-        driverImageFile = null;
-    }
-    
-    validateAddDriverForm();
-}
 
 // Validate Add Driver Form
 function validateAddDriverForm() {
@@ -6074,30 +6051,58 @@ function updateEditPreviousTruckRemoveButtons() {
     }
 }
 
-// Enhanced Preview Edit Driver Image - replaces old image with new preview
-function previewEditDriverImage(input) {
-    const currentImage = document.getElementById('currentDriverImageOnly');
+
+// MODIFIED: Preview driver image with file size validation (for Add Driver modal)
+function previewDriverImage(input) {
     const file = input.files[0];
+    if (!file) return;
+
+    // File size validation (5MB = 5 * 1024 * 1024 bytes)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+        showImageErrorModal('Image size must be less than 5MB. Please choose a smaller image.');
+        input.value = ''; // Clear the file input
+        return;
+    }
+
+    driverImageFile = file;
+    const reader = new FileReader();
     
-    if (file) {
-        editDriverImageFile = file;
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            // Replace the current image with the new preview
-            currentImage.src = e.target.result;
-            currentImage.style.display = 'block';
-        }
-        
-        reader.readAsDataURL(file);
-    } else {
-        // If no file selected, keep the original image
-        editDriverImageFile = null;
+    reader.onload = function(e) {
+        const preview = document.getElementById('driverImagePreview');
+        preview.src = e.target.result;
+        preview.style.display = 'block';
     }
     
-    updateEditDriverSaveButtonState();
+    reader.readAsDataURL(file);
+    validateAddDriverForm();
 }
 
+// MODIFIED: Preview edit driver image with file size validation (for Edit Driver modal)
+function previewEditDriverImage(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    // File size validation (5MB = 5 * 1024 * 1024 bytes)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+        showImageErrorModal('Image size must be less than 5MB. Please choose a smaller image.');
+        input.value = ''; // Clear the file input
+        return;
+    }
+
+    editDriverImageFile = file;
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        const currentImage = document.getElementById('currentDriverImageOnly');
+        currentImage.src = e.target.result;
+        currentImage.style.display = 'block';
+    }
+    
+    reader.readAsDataURL(file);
+    updateEditDriverSaveButtonState();
+}
 // Enhanced Handle Edit Driver Form Submit with Image Replacement
 async function handleEditDriverSubmit(event) {
     event.preventDefault();
@@ -6263,92 +6268,9 @@ let currentCropCallback = null;
 let currentImageType = null;
 let currentImageFile = null;
 
-// MODIFIED: Handle driver image selection with consistent styling
-function handleDriverImageInput(input, modalType) {
-    const file = input.files[0];
-    if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        input.value = '';
-        return;
-    }
 
-    // Use aspect ratio that matches your driver-image class (400px height)
-    openCropModal(file, 'driver', function(croppedFile, croppedUrl) {
-        const imageKey = `${modalType}_driver_cropped_image`;
-        window[imageKey] = croppedFile;
-        
-        // Update preview with your driver-image styling
-        let previewId;
-        if (modalType === 'add') {
-            previewId = 'driverImagePreview';
-        } else {
-            previewId = 'currentDriverImageOnly';
-            // Also update main driver image in edit truck modal
-            const mainPreview = document.getElementById('currentDriverImage');
-            if (mainPreview) {
-                mainPreview.src = croppedUrl;
-                mainPreview.style.display = 'block';
-                mainPreview.className = 'driver-image'; // Ensure consistent class
-            }
-        }
-        
-        const preview = document.getElementById(previewId);
-        if (preview) {
-            preview.src = croppedUrl;
-            preview.style.display = 'block';
-            preview.className = 'driver-image'; // Apply your driver-image class
-        }
 
-        // Update validation state
-        if (modalType === 'add') {
-            validateAddDriverForm();
-        } else {
-            updateEditDriverSaveButtonState();
-        }
-    });
-}
-
-// MODIFIED: Handle truck image selection with consistent styling
-function handleTruckImageInput(input, modalType) {
-    const file = input.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        input.value = '';
-        return;
-    }
-
-    // Use aspect ratio that matches your truck-image class (180px height)
-    openCropModal(file, 'truck', function(croppedFile, croppedUrl) {
-        const imageKey = `${modalType}_truck_cropped_image`;
-        window[imageKey] = croppedFile;
-        
-        // Update preview with your truck-image styling
-        let previewId;
-        if (modalType === 'add') {
-            previewId = 'addTruckPreview';
-        } else {
-            previewId = 'currentTruckImage';
-        }
-        
-        const preview = document.getElementById(previewId);
-        if (preview) {
-            preview.src = croppedUrl;
-            preview.style.display = 'block';
-            preview.className = 'truck-image'; // Apply your truck-image class
-        }
-
-        // Update validation state
-        if (modalType === 'add') {
-            updateSaveButtonState();
-        } else {
-            updateEditSaveButtonState();
-        }
-    });
-}
 
 // MODIFIED: Update the openCropModal function for your specific aspect ratios
 function openCropModal(file, imageType, callback) {
@@ -6502,13 +6424,124 @@ document.getElementById('aspectRatio').addEventListener('change', function() {
 
 
 
-// MODIFIED FUNCTION: Handle additional image selection with cropping
+// MODIFIED: Handle driver image selection with file size validation (using modal)
+function handleDriverImageInput(input, modalType) {
+    const file = input.files[0];
+    if (!file) return;
+
+    // File size validation (5MB = 5 * 1024 * 1024 bytes)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+        showImageErrorModal('Image size must be less than 5MB. Please choose a smaller image.');
+        input.value = ''; // Clear the file input
+        return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+        showImageErrorModal('Please select a valid image file (JPEG, PNG, etc.)');
+        input.value = '';
+        return;
+    }
+
+    // Use aspect ratio that matches your driver-image class (400px height)
+    openCropModal(file, 'driver', function(croppedFile, croppedUrl) {
+        const imageKey = `${modalType}_driver_cropped_image`;
+        window[imageKey] = croppedFile;
+        
+        // Update preview with your driver-image styling
+        let previewId;
+        if (modalType === 'add') {
+            previewId = 'driverImagePreview';
+        } else {
+            previewId = 'currentDriverImageOnly';
+            // Also update main driver image in edit truck modal
+            const mainPreview = document.getElementById('currentDriverImage');
+            if (mainPreview) {
+                mainPreview.src = croppedUrl;
+                mainPreview.style.display = 'block';
+                mainPreview.className = 'driver-image'; // Ensure consistent class
+            }
+        }
+        
+        const preview = document.getElementById(previewId);
+        if (preview) {
+            preview.src = croppedUrl;
+            preview.style.display = 'block';
+            preview.className = 'driver-image'; // Apply your driver-image class
+        }
+
+        // Update validation state
+        if (modalType === 'add') {
+            validateAddDriverForm();
+        } else {
+            updateEditDriverSaveButtonState();
+        }
+    });
+}
+
+// MODIFIED: Handle truck image selection with file size validation (using modal)
+function handleTruckImageInput(input, modalType) {
+    const file = input.files[0];
+    if (!file) return;
+
+    // File size validation (5MB = 5 * 1024 * 1024 bytes)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+        showImageErrorModal('Image size must be less than 5MB. Please choose a smaller image.');
+        input.value = ''; // Clear the file input
+        return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+        showImageErrorModal('Please select a valid image file (JPEG, PNG, etc.)');
+        input.value = '';
+        return;
+    }
+
+    // Use aspect ratio that matches your truck-image class (180px height)
+    openCropModal(file, 'truck', function(croppedFile, croppedUrl) {
+        const imageKey = `${modalType}_truck_cropped_image`;
+        window[imageKey] = croppedFile;
+        
+        // Update preview with your truck-image styling
+        let previewId;
+        if (modalType === 'add') {
+            previewId = 'addTruckPreview';
+        } else {
+            previewId = 'currentTruckImage';
+        }
+        
+        const preview = document.getElementById(previewId);
+        if (preview) {
+            preview.src = croppedUrl;
+            preview.style.display = 'block';
+            preview.className = 'truck-image'; // Apply your truck-image class
+        }
+
+        // Update validation state
+        if (modalType === 'add') {
+            updateSaveButtonState();
+        } else {
+            updateEditSaveButtonState();
+        }
+    });
+}
+
+// MODIFIED: Handle additional image selection with file size validation (using modal)
 function handleAdditionalImageInput(input, modalType) {
     const file = input.files[0];
     if (!file) return;
 
+    // File size validation (5MB = 5 * 1024 * 1024 bytes)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+        showImageErrorModal('Image size must be less than 5MB. Please choose a smaller image.');
+        input.value = ''; // Clear the file input
+        return;
+    }
+
     if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
+        showImageErrorModal('Please select a valid image file (JPEG, PNG, etc.)');
         input.value = '';
         return;
     }
@@ -6522,8 +6555,8 @@ function handleAdditionalImageInput(input, modalType) {
             description: document.getElementById(`${modalType}NewImageDescription`).value || 'Additional Image'
         };
         
-        // Show preview but don't add to form until user confirms
-        alert('Image cropped successfully! Click "Add Image" to add it to the form.');
+        // Show success message in modal instead of alert
+        showSuccessModal('Image cropped successfully! Click "Add Image" to add it to the form.', 'Image Ready');
     });
 }
 // MODIFIED FUNCTION: Update the addAdditionalImage function to use cropped images
@@ -6771,7 +6804,6 @@ async function handleAddFormSubmit(event) {
     }
 }
 
-// MODIFIED FUNCTION: Update file input event listeners to use cropping
 document.addEventListener('DOMContentLoaded', function() {
     // Driver image inputs
     const addDriverImageInput = document.getElementById('addDriverImage');
@@ -6896,3 +6928,28 @@ function resetModalState(modalType) {
         if (imagesContainer) imagesContainer.innerHTML = '';
     }
 }
+
+// Enhanced error modal function that can be used anywhere
+function showImageErrorModal(message) {
+    document.getElementById('errorTitle').textContent = 'Image Upload Error';
+    document.getElementById('errorMessage').textContent = message;
+    document.getElementById('errorModal').style.display = 'block';
+}
+
+// Specific image error modal functions
+function showImageErrorModal(message) {
+    document.getElementById('imageErrorMessage').textContent = message;
+    document.getElementById('imageErrorModal').style.display = 'block';
+}
+
+function closeImageErrorModal() {
+    document.getElementById('imageErrorModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const imageErrorModal = document.getElementById('imageErrorModal');
+    if (event.target === imageErrorModal) {
+        closeImageErrorModal();
+    }
+};

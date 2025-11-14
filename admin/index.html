@@ -1006,6 +1006,19 @@
         </div>
     </div>
 </div>
+
+<!-- Image Error Modal (Optional) -->
+<div id="imageErrorModal" class="modal">
+    <div class="modal-content confirm-modal">
+        <span class="close" onclick="closeImageErrorModal()">&times;</span>
+        <div class="modal-icon error">🖼️</div>
+        <h3>Image Upload Error</h3>
+        <p id="imageErrorMessage"></p>
+        <div class="confirm-buttons">
+            <button class="btn btn-primary" onclick="closeImageErrorModal()">OK</button>
+        </div>
+    </div>
+</div>
     <script src="../js/admin.js"></script>
 </body>
 </html>
