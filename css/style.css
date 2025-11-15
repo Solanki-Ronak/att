@@ -11,7 +11,7 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
-    padding: 20px;
+    padding: 10px;
     line-height: 1.6;
 }
 
@@ -2002,6 +2002,71 @@ input[type="text"] {
 
 
 
+/* ===== COMPREHENSIVE MODAL SCROLL LOCKING ===== */
+
+/* Lock body scroll when ANY modal is open */
+body:has(.modal[style*="display: block"]) {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Alternative for older browsers that don't support :has() */
+.modal[style*="display: block"] {
+    position: fixed;
+}
+
+/* Additional safety measures */
+.modal[style*="display: block"] ~ * {
+    overflow: hidden;
+}
+
+/* Touch device optimization */
+@media (hover: none) and (pointer: coarse) {
+    .modal {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    body:has(.modal[style*="display: block"]) {
+        position: fixed;
+        overflow: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Fallback for very old browsers */
+.modal-open-body {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Ensure the main container doesn't scroll when modal is open */
+.container:has(~ .modal[style*="display: block"]) {
+    overflow: hidden;
+}
+
+/* Prevent any background interactions */
+body:has(.modal[style*="display: block"]) * {
+    pointer-events: none;
+}
+
+body:has(.modal[style*="display: block"]) .modal,
+body:has(.modal[style*="display: block"]) .modal * {
+    pointer-events: auto;
+}
+
+/* === YOUR EXISTING MODAL CODE (UNCHANGED) === */
+
+/* Prevent body scroll when modal is open */
+body.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
 
 /* === Modal Backdrop === */
 .modal {
@@ -2011,6 +2076,7 @@ input[type="text"] {
     z-index: 2000;
     background: rgba(15, 23, 42, 0.55);
     backdrop-filter: blur(10px) saturate(160%);
+    overscroll-behavior: contain; /* Added for scroll locking */
 }
 
 /* === Modal Content (Instant Open) === */
@@ -2031,6 +2097,7 @@ input[type="text"] {
     max-width: 850px;
     max-height: 90vh;
     overflow-y: auto;
+    overscroll-behavior: contain; /* Added for scroll locking */
 }
 
 /* === Modal Header === */
@@ -2046,7 +2113,6 @@ input[type="text"] {
     border-bottom: 2px solid rgba(226, 232, 240, 0.8);
     padding-bottom: 10px;
 }
-
 /* === Close Button === */
 .close {
     color: #6b7280;
