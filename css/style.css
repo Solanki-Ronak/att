@@ -707,7 +707,7 @@ h2 {
 
 /* Enhanced Allowances Table */
 .allowances-table-container {
-    margin-top: 15px;
+    margin-top: 30px;
     overflow-x: auto;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -2710,3 +2710,8 @@ body.modal-open {
     max-height: 90vh;
     overflow-y: auto;
 }
+
+
+
+
+
