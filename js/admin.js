@@ -2,7 +2,132 @@ let currentTruckId = null;
 let allTrucks = []; // Store all trucks for filtering
 let allAllowances = [];
 let currentAllowanceId = null;
+// Back button functionality
+let currentModal = null;
 
+function setupBackButton() {
+    // Handle browser back button and phone back button
+    window.addEventListener('popstate', function(event) {
+        handleBackButton();
+    });
+    
+    // Also handle hardware back button on mobile
+    if (typeof document !== 'undefined' && document.addEventListener) {
+        document.addEventListener('backbutton', handleBackButton, false);
+    }
+    
+    // Add keyboard event for Escape key (desktop)
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            handleBackButton();
+        }
+    });
+}
+
+function handleBackButton() {
+    console.log('Back button pressed - Current modal:', currentModal);
+    
+    // Priority 1: Close any open modals
+    if (closeOpenModals()) {
+        return true;
+    }
+    
+    // Priority 2: Handle diesel navigation
+    if (handleDieselBackNavigation()) {
+        return true;
+    }
+    
+    // Priority 3: Handle admin sub-tabs
+    if (handleAdminSubTabBack()) {
+        return true;
+    }
+    
+    // Priority 4: Handle main tabs
+    return handleMainTabBack();
+}
+
+function closeOpenModals() {
+    const modals = [
+        'addModal', 'editModal', 'addAllowanceModal', 'editAllowanceModal',
+        'addDriverModal', 'editDriverModal', 'confirmModal', 'deleteConfirmModal',
+        'reactivateModal', 'assignTruckModal', 'assignConfirmModal',
+        'dieselTruckDataModal', 'cropModal', 'successModal', 'errorModal', 'imageErrorModal'
+    ];
+    
+    // Also check for dynamically created detail modals
+    const dynamicModals = document.querySelectorAll('.modal');
+    
+    for (const modal of dynamicModals) {
+        if (modal.style.display === 'block' && modal.id === '') {
+            modal.remove();
+            currentModal = null;
+            console.log('Closed dynamic modal');
+            return true;
+        }
+    }
+    
+    for (const modalId of modals) {
+        const modal = document.getElementById(modalId);
+        if (modal && modal.style.display === 'block') {
+            modal.style.display = 'none';
+            currentModal = null;
+            
+            // Reset modal states if needed
+            if (modalId === 'addModal' || modalId === 'editModal') {
+                resetFileInputs(modalId.replace('Modal', ''));
+                resetModalState(modalId.replace('Modal', ''));
+            }
+            
+            console.log('Closed modal:', modalId);
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+function handleDieselBackNavigation() {
+    const dieselTab = document.getElementById('diesel');
+    if (!dieselTab || !dieselTab.classList.contains('active')) {
+        return false;
+    }
+    
+    // Check if we're in diesel sub-navigation
+    const backButton = document.getElementById('dieselBackButton');
+    if (backButton && backButton.style.display !== 'none') {
+        goBackDieselLevel();
+        return true;
+    }
+    
+    return false;
+}
+
+function handleAdminSubTabBack() {
+    const truckListTab = document.getElementById('truck-list');
+    if (!truckListTab || !truckListTab.classList.contains('active')) {
+        return false;
+    }
+    
+    // If we're not on the default "all-trucks" sub-tab, go back to it
+    if (currentAdminTab !== 'all-trucks') {
+        openAdminTab('all-trucks');
+        return true;
+    }
+    
+    return false;
+}
+
+function handleMainTabBack() {
+    // If not on main truck-list tab, go back to it
+    const activeTab = document.querySelector('.tab-content.active');
+    if (activeTab && activeTab.id !== 'truck-list') {
+        openTab('truck-list');
+        return true;
+    }
+    
+    // If already on truck-list, let default browser behavior
+    return false;
+}
 document.addEventListener('DOMContentLoaded', function() {
     loadTrucks();
     setupModals();
@@ -26,6 +151,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // NEW: Setup assign truck modals
     setupAssignTruckModals();
     addValidationListeners();
+
+     setupBackButton();
 });
 
 
@@ -134,6 +261,7 @@ function displayTrucksInAdminContainer(trucks, containerId) {
     });
 }
 async function openDriverLeftDetailsModal(truckId) {
+     currentModal = 'driverLeftDetailsModal';
     try {
         const { data: truck, error } = await supabase
             .from('trucks')
@@ -236,6 +364,7 @@ function reactivateDriver(truckId) {
 
 // Confirm moving driver from "No Trucks" to "Left" section
 function confirmMoveToLeft(truckId) {
+    currentModal = 'confirmModal';
     currentTruckId = truckId;
     pendingAction = 'move_to_left';
     
@@ -244,6 +373,7 @@ function confirmMoveToLeft(truckId) {
     document.getElementById('confirmModal').style.display = 'block';
 }
 async function openNoDriverDetailsModal(truckId) {
+     currentModal = 'noDriverDetailsModal';
     try {
         const { data: truck, error } = await supabase
             .from('trucks')
@@ -355,6 +485,7 @@ async function openNoDriverDetailsModal(truckId) {
     }
 }
 async function openDriverNoTruckDetailsModal(truckId) {
+    currentModal = 'driverNoTruckDetailsModal';
     try {
         const { data: truck, error } = await supabase
             .from('trucks')
@@ -780,6 +911,7 @@ truckData.forEach(truck => {
 }
 // Open modal for adding new truck data
 function openAddDieselTruckDataModal() {
+    currentModal = 'dieselTruckDataModal';
     if (!currentRouteId) {
         alert('Please select a route first');
         return;
@@ -795,6 +927,7 @@ function openAddDieselTruckDataModal() {
 
 // Open modal for editing existing truck data
 async function editDieselTruckData(truckDataId) {
+    currentModal = 'dieselTruckDataModal';
     try {
         const { data: truckData, error } = await supabase
             .from('diesel_truck_data')
@@ -1031,6 +1164,7 @@ function showDieselSection(section) {
 // I'll provide the structure - you can implement the actual modals similarly
 
 function openAddDieselCategoryModal() {
+    currentModal = 'addDieselCategoryModal';
     // Similar to your existing modal functions
     console.log('Open add category modal');
 }
@@ -1290,10 +1424,12 @@ function formatCurrency(amount) {
 }
 
 function openAddAllowanceModal() {
+    currentModal = 'addAllowanceModal';
     document.getElementById('addAllowanceModal').style.display = 'block';
 }
 
 async function openEditAllowanceModal(allowanceId) {
+    currentModal = 'editAllowanceModal';
     currentAllowanceId = allowanceId;
     const modal = document.getElementById('editAllowanceModal');
     
@@ -1429,6 +1565,7 @@ function showNotification(message) {
 }
 
 async function openEditModal(truckId) {
+     currentModal = 'editModal';
     currentTruckId = truckId;
     const modal = document.getElementById('editModal');
     
@@ -1643,6 +1780,7 @@ function resetEditModalStatePreservingNoDriver() {
     // Note: We don't reset No Driver mode here - it's handled in openEditModal
 }
 async function openAdminDetailsModal(truckId) {
+    currentModal = 'adminDetailsModal';
     const modal = document.createElement('div');
     modal.className = 'modal';
     modal.style.display = 'block';
@@ -1802,6 +1940,7 @@ function initializeImageClasses() {
 }
 // UPDATED: Open add truck modal with proper contact initialization
 function openAddTruckModal() {
+    currentModal = 'addModal';
     // Reset the form first
     document.getElementById('addForm').reset();
     resetModalState('add');
@@ -2272,6 +2411,7 @@ function getStatusBadge(status) {
     return statusMap[status] || '';
 }
 async function confirmChangeStatus(truckId, newStatus) {
+    currentModal = 'confirmModal';
     currentTruckId = truckId;
     pendingAction = newStatus;
     
@@ -2737,6 +2877,7 @@ function createDriverLeftCard(truck, index) {
 }
 // NEW FUNCTION: Confirm truck deletion
 function confirmDeleteTruck(truckId, truckNumber, driverName) {
+    currentModal = 'deleteConfirmModal';
     currentTruckId = truckId;
     
     const modal = document.getElementById('deleteConfirmModal');
@@ -4043,6 +4184,7 @@ function removeAdditionalImage(modalType, imageId) {
 
 // Enhanced Edit Driver Modal for No Trucks Section
 async function openEditDriverModal(truckId) {
+    currentModal = 'editDriverModal';
     currentTruckId = truckId;
     const modal = document.getElementById('editDriverModal');
     
@@ -4327,6 +4469,7 @@ let driverToReactivate = null;
 
 // NEW: Open reactivate confirmation modal
 function openReactivateModal(truckId, driverName) {
+    currentModal = 'reactivateModal';
     driverToReactivate = truckId;
     
     const modal = document.getElementById('reactivateModal');
@@ -4418,6 +4561,7 @@ let selectedTruckForAssignment = null;
 
 // NEW: Open assign truck modal
 async function openAssignTruckModal(truckId) {
+    currentModal = 'assignTruckModal';
     driverToAssign = truckId;
     
     try {
@@ -4503,6 +4647,7 @@ function selectTruckForAssignment(truck) {
 
 // NEW: Open assignment confirmation modal
 async function openAssignConfirmationModal() {
+    currentModal = 'assignConfirmModal';
     if (!driverToAssign || !selectedTruckForAssignment) return;
     
     try {
@@ -5410,12 +5555,15 @@ function convertToDirectDownloadUrl(googleDriveUrl) {
 
 // Success/Error Modal Functions
 function showSuccessModal(message, title = 'Success') {
+     currentModal = 'successModal';
     document.getElementById('successTitle').textContent = title;
     document.getElementById('successMessage').textContent = message;
     document.getElementById('successModal').style.display = 'block';
 }
 
 function showErrorModal(message, title = 'Error') {
+    currentModal = 'imageErrorModal';
+    currentModal = 'errorModal';
     document.getElementById('errorTitle').textContent = title;
     document.getElementById('errorMessage').textContent = message;
     document.getElementById('errorModal').style.display = 'block';
@@ -5450,6 +5598,7 @@ let driverImageFile = null;
 
 // Open Add Driver Modal
 function openAddDriverModal() {
+    currentModal = 'addDriverModal';
     console.log('Opening Add Driver Modal');
     
     // Reset the form and state
@@ -6291,6 +6440,7 @@ let currentImageFile = null;
 
 // MODIFIED: Update the openCropModal function for your specific aspect ratios
 function openCropModal(file, imageType, callback) {
+    currentModal = 'cropModal';
     console.log('Opening crop modal for:', imageType);
     
     if (!file) {
@@ -6970,3 +7120,37 @@ window.onclick = function(event) {
         closeImageErrorModal();
     }
 };
+
+
+// NEW: Back button functionality
+function setupBackButton() {
+    // Handle browser back button and phone back button
+    window.addEventListener('popstate', function(event) {
+        handleBackButton();
+    });
+    
+    // Also handle hardware back button on mobile
+    document.addEventListener('backbutton', handleBackButton, false);
+}
+
+function handleBackButton() {
+    console.log('Back button pressed - Current state:', window.currentModal, window.dieselNavigationStack);
+    
+    // Priority 1: Close any open modals
+    if (closeOpenModals()) {
+        return true;
+    }
+    
+    // Priority 2: Handle diesel navigation
+    if (handleDieselBackNavigation()) {
+        return true;
+    }
+    
+    // Priority 3: Handle admin sub-tabs
+    if (handleAdminSubTabBack()) {
+        return true;
+    }
+    
+    // Priority 4: Handle main tabs
+    return handleMainTabBack();
+}
