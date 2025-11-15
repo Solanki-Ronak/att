@@ -654,7 +654,8 @@ function createTruckCard(truck, index) {
         const imageHtml = hasDriverImage ? 
             `<img src="${truck.driver_image_url}" alt="${truck.driver_name}" class="driver-image">` : '';
         
-        const previousTrucksText = truck.previous_trucks || 'No previous trucks';
+        // FORMAT PREVIOUS TRUCKS AS NUMBERED VERTICAL LIST
+        const previousTrucksHtml = formatPreviousTrucksForCards(truck.previous_trucks);
         
         // Generate contacts HTML
         const contactsHtml = generateContactsHtml(truck.driver_contacts || []);
@@ -687,9 +688,11 @@ function createTruckCard(truck, index) {
                 
                 ${contactsHtml}
                 
-                <div class="info-row">
-                    <span class="info-label">Previous Truck:</span>
-                    <span class="info-value">${previousTrucksText}</span>
+                <div class="info-row previous-trucks-row">
+                    <span class="info-label">Previous Trucks:</span>
+                    <div class="previous-trucks-vertical">
+                        ${previousTrucksHtml}
+                    </div>
                 </div>
             </div>
             
@@ -710,7 +713,8 @@ function createTruckCard(truck, index) {
         const imageHtml = hasDriverImage ? 
             `<img src="${truck.driver_image_url}" alt="${truck.driver_name}" class="driver-image">` : '';
         
-        const previousTrucksText = truck.previous_trucks || 'No previous trucks';
+        // FORMAT PREVIOUS TRUCKS AS NUMBERED VERTICAL LIST
+        const previousTrucksHtml = formatPreviousTrucksForCards(truck.previous_trucks);
         
         // Generate contacts HTML
         const contactsHtml = generateContactsHtml(truck.driver_contacts || []);
@@ -743,9 +747,11 @@ function createTruckCard(truck, index) {
                 
                 ${contactsHtml}
                 
-                <div class="info-row">
-                    <span class="info-label">Previous Truck:</span>
-                    <span class="info-value">${previousTrucksText}</span>
+                <div class="info-row previous-trucks-row">
+                    <span class="info-label">Previous Trucks:</span>
+                    <div class="previous-trucks-vertical">
+                        ${previousTrucksHtml}
+                    </div>
                 </div>
             </div>
             
@@ -760,6 +766,7 @@ function createTruckCard(truck, index) {
         `;
         
     } else {
+        // ... rest of your existing code for active drivers and NO DRIVER trucks remains the same
         // Active driver-truck pair OR truck with NO DRIVER
         const hasDriverImage = truck.driver_image_url && truck.driver_image_url !== '';
         
@@ -850,6 +857,22 @@ function createTruckCard(truck, index) {
     return card;
 }
 
+// NEW FUNCTION: Format previous trucks as numbered vertical list for cards
+function formatPreviousTrucksForCards(previousTrucks) {
+    if (!previousTrucks) {
+        return '<span class="no-previous-trucks">No previous trucks</span>';
+    }
+    
+    const trucksArray = previousTrucks.split(', ').filter(t => t.trim() !== '');
+    
+    if (trucksArray.length === 0) {
+        return '<span class="no-previous-trucks">No previous trucks</span>';
+    }
+    
+    return trucksArray.map((truckNum, index) => 
+        `<div class="previous-truck-item">${index + 1}. ${truckNum}</div>`
+    ).join('');
+}
 function generateContactsHtml(contacts) {
     if (!contacts || contacts.length === 0) {
         return `
@@ -1955,7 +1978,7 @@ function viewLicenseDocumentFromUrl(licenseUrl) {
     window.open(licenseUrl, '_blank');
 }
 
-// Helper function to format previous trucks for details modal
+// UPDATE THIS FUNCTION: Format previous trucks for details modal
 function formatPreviousTrucksForDetails(previousTrucks) {
     if (!previousTrucks) {
         return '<div class="no-previous-trucks">No previous trucks</div>';
