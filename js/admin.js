@@ -2599,7 +2599,6 @@ function createNoDriverCard(truck, index) {
     
     return card;
 }
-
 function createDriverNoTruckCard(truck, index) {
     const card = document.createElement('div');
     card.className = 'truck-card admin-card driver-no-truck-card';
@@ -2609,7 +2608,8 @@ function createDriverNoTruckCard(truck, index) {
     const imageHtml = hasDriverImage ? 
         `<img src="${truck.driver_image_url}" alt="${truck.driver_name}" class="driver-image">` : '';
     
-    const previousTrucksText = truck.previous_trucks || 'No previous trucks';
+    // FORMAT PREVIOUS TRUCKS AS NUMBERED VERTICAL LIST
+    const previousTrucksHtml = formatPreviousTrucksForCards(truck.previous_trucks);
     
     // Generate contacts HTML
     const contactsHtml = generateContactsHtml(truck.driver_contacts);
@@ -2639,12 +2639,12 @@ function createDriverNoTruckCard(truck, index) {
             
             ${contactsHtml}
             
-             <div class="info-row">
-        <span class="info-label">Previous Truck:</span>
-        <span class="info-value previous-trucks-value">${previousTrucksText}</span>
-    </div>
-            
-            <!-- REMOVE THIS COMESA/C28 SECTION -->
+            <div class="info-row previous-trucks-row">
+                <span class="info-label">Previous Trucks:</span>
+                <div class="previous-trucks-vertical">
+                    ${previousTrucksHtml}
+                </div>
+            </div>
         </div>
         
         <div class="admin-card-actions">
@@ -2660,6 +2660,22 @@ function createDriverNoTruckCard(truck, index) {
     return card;
 }
 
+// NEW FUNCTION: Format previous trucks as numbered vertical list for cards
+function formatPreviousTrucksForCards(previousTrucks) {
+    if (!previousTrucks) {
+        return '<div class="no-previous-trucks">No previous trucks</div>';
+    }
+    
+    const trucksArray = previousTrucks.split(', ').filter(t => t.trim() !== '');
+    
+    if (trucksArray.length === 0) {
+        return '<div class="no-previous-trucks">No previous trucks</div>';
+    }
+    
+    return trucksArray.map((truckNum, index) => 
+        `<div class="previous-truck-item">${index + 1}. ${truckNum}</div>`
+    ).join('');
+}
 function createDriverLeftCard(truck, index) {
     const card = document.createElement('div');
     card.className = 'truck-card admin-card driver-left-card';
@@ -2669,7 +2685,8 @@ function createDriverLeftCard(truck, index) {
     const imageHtml = hasDriverImage ? 
         `<img src="${truck.driver_image_url}" alt="${truck.driver_name}" class="driver-image">` : '';
     
-    const previousTrucksText = truck.previous_trucks || 'No previous trucks';
+    // FORMAT PREVIOUS TRUCKS AS NUMBERED VERTICAL LIST
+    const previousTrucksHtml = formatPreviousTrucksForCards(truck.previous_trucks);
     
     // Generate contacts HTML
     const contactsHtml = generateContactsHtml(truck.driver_contacts);
@@ -2699,12 +2716,12 @@ function createDriverLeftCard(truck, index) {
             
             ${contactsHtml}
             
-            <div class="info-row">
-        <span class="info-label">Previous Truck:</span>
-        <span class="info-value previous-trucks-value">${previousTrucksText}</span>
-    </div>
-            
-            <!-- REMOVE THIS COMESA/C28 SECTION -->
+            <div class="info-row previous-trucks-row">
+                <span class="info-label">Previous Trucks:</span>
+                <div class="previous-trucks-vertical">
+                    ${previousTrucksHtml}
+                </div>
+            </div>
         </div>
         
         <div class="admin-card-actions">

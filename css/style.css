@@ -2544,3 +2544,79 @@ input[type="text"] {
     flex: 1;
     max-width: 200px;
 }
+
+/* Previous Trucks Vertical Layout */
+.previous-trucks-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.previous-trucks-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 80px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.previous-truck-item {
+    white-space: nowrap;
+    padding: 3px 6px;
+ 
+    border-radius: 3px;
+   
+    font-size: 0.85em;
+    font-weight: 500;
+    
+    line-height: 1.3;
+}
+
+.no-previous-trucks {
+   
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+/* Scrollbar styling for vertical list */
+.previous-trucks-vertical::-webkit-scrollbar {
+    width: 4px;
+}
+
+.previous-trucks-vertical::-webkit-scrollbar-track {
+    
+    border-radius: 2px;
+}
+
+.previous-trucks-vertical::-webkit-scrollbar-thumb {
+   
+    border-radius: 2px;
+}
+
+
+
+/* Mobile responsiveness for screens below 360px */
+@media (max-width: 360px) {
+    .previous-truck-item {
+        font-size: 0.75em; /* Smaller font for very small screens */
+        padding: 2px 4px;  /* Smaller padding */
+    }
+    
+    .previous-trucks-vertical {
+        max-height: 70px; /* Slightly smaller max height */
+        gap: 3px;         /* Tighter gap between items */
+    }
+    
+    .no-previous-trucks {
+        font-size: 0.8em; /* Smaller font for "No previous trucks" text */
+    }
+    
+    .previous-trucks-row {
+        gap: 8px; /* Tighter gap between label and list */
+    }
+    
+    .previous-trucks-row .info-label {
+        font-size: 0.9em; /* Also make the label smaller */
+    }
+}
