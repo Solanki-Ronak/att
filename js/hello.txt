@@ -1605,7 +1605,7 @@ if (c28Select) {
         // Reset modal state (but preserve No Driver mode)
         resetEditModalStatePreservingNoDriver();
         
-        openModal('editModal');
+        modal.style.display = 'block';
         
         // Update save button state
         updateEditSaveButtonState();
@@ -1827,7 +1827,8 @@ function openAddTruckModal() {
     // Ensure the dustbin icon is visible
     updateContactRemoveButtons('addContactsContainer');
     
-    openModal('addModal');
+    // Show the modal
+    document.getElementById('addModal').style.display = 'block';
     
     // Update save button state
     updateSaveButtonState();
@@ -2281,7 +2282,7 @@ async function confirmChangeStatus(truckId, newStatus) {
     
     document.getElementById('confirmTitle').textContent = 'Confirm Status Change';
     document.getElementById('confirmMessage').textContent = messages[newStatus] || 'Are you sure?';
-   openModal('confirmModal');
+    document.getElementById('confirmModal').style.display = 'block';
 }
 
 
@@ -2749,7 +2750,7 @@ function confirmDeleteTruck(truckId, truckNumber, driverName) {
         This will remove all associated data including contacts and images from the database.
     `;
     
-    openModal('deleteConfirmModal');
+    modal.style.display = 'block';
 }
 
 // NEW FUNCTION: Handle truck deletion
@@ -2882,8 +2883,7 @@ function setupModals() {
     const editForm = document.getElementById('editForm');
 
     editCloseBtn.onclick = () => {
-        closeModal('editModal');
-
+        editModal.style.display = 'none';
         resetFileInputs('edit');
         resetModalState('edit');
     };
@@ -2896,7 +2896,7 @@ function setupModals() {
     const addForm = document.getElementById('addForm');
 
     addCloseBtn.onclick = () => {
-        closeModal('addModal');
+        addModal.style.display = 'none';
         resetFileInputs('add');
         resetModalState('add');
     };
@@ -2909,13 +2909,13 @@ function setupModals() {
     const confirmNoBtn = document.getElementById('confirmNo');
 
     confirmCloseBtn.onclick = () => {
-        closeModal('confirmModal');
+        confirmModal.style.display = 'none';
         currentTruckId = null;
         pendingAction = null;
     };
     
     confirmNoBtn.onclick = () => {
-        closeModal('confirmModal');
+        confirmModal.style.display = 'none';
         currentTruckId = null;
         pendingAction = null;
     };
@@ -2927,12 +2927,12 @@ function setupModals() {
         const deleteNoBtn = deleteModal.querySelector('.btn-back');
 
         deleteCloseBtn.onclick = () => {
-            closeModal('deleteConfirmModal');
+            deleteModal.style.display = 'none';
             currentTruckId = null;
         };
         
         deleteNoBtn.onclick = () => {
-            closeModal('deleteConfirmModal');
+            deleteModal.style.display = 'none';
             currentTruckId = null;
         };
     }
@@ -2960,26 +2960,26 @@ function setupModals() {
     // Close modals when clicking outside
     window.onclick = (event) => {
         if (event.target === editModal) {
-            closeModal('editModal');
+            editModal.style.display = 'none';
             resetFileInputs('edit');
             resetModalState('edit');
         }
         if (event.target === addModal) {
-            closeModal('addModal');
+            addModal.style.display = 'none';
             resetFileInputs('add');
             resetModalState('add');
         }
         if (event.target === confirmModal) {
-            closeModal('confirmModal');
+            confirmModal.style.display = 'none';
             currentTruckId = null;
             pendingAction = null;
         }
         if (deleteModal && event.target === deleteModal) {
-            closeModal('deleteConfirmModal');
+            deleteModal.style.display = 'none';
             currentTruckId = null;
         }
         if (reactivateModal && event.target === reactivateModal) {
-             closeModal('reactivateModal');
+            reactivateModal.style.display = 'none';
             driverToReactivate = null;
         }
     };
@@ -2990,7 +2990,7 @@ function setupModals() {
     const editDriverForm = document.getElementById('editDriverForm');
 
     editDriverCloseBtn.onclick = () => {
-        closeModal('editDriverModal');
+        editDriverModal.style.display = 'none';
     };
     
     editDriverForm.onsubmit = handleEditDriverSubmit;
@@ -2999,43 +2999,8 @@ function setupModals() {
     window.onclick = (event) => {
         // ... your existing code ...
         if (event.target === editDriverModal) {
-           closeModal('editDriverModal');
+            editDriverModal.style.display = 'none';
         }
-
-         if (addDriverModal && event.target === addDriverModal) {
-        closeModal('addDriverModal');
-    }
-
-    if (assignModal && event.target === assignModal) {
-        closeModal('assignTruckModal');
-        driverToAssign = null;
-    }
-    // Assign Confirm Modal
-    if (assignConfirmModal && event.target === assignConfirmModal) {
-        closeModal('assignConfirmModal');
-        driverToAssign = null;
-        selectedTruckForAssignment = null;
-    }
-    // Success Modal
-    const successModal = document.getElementById('successModal');
-    if (successModal && event.target === successModal) {
-        closeModal('successModal');
-    }
-    // Error Modal
-    const errorModal = document.getElementById('errorModal');
-    if (errorModal && event.target === errorModal) {
-        closeModal('errorModal');
-    }
-    // Image Error Modal
-    const imageErrorModal = document.getElementById('imageErrorModal');
-    if (imageErrorModal && event.target === imageErrorModal) {
-        closeModal('imageErrorModal');
-    }
-    // Crop Modal
-    const cropModal = document.getElementById('cropModal');
-    if (cropModal && event.target === cropModal) {
-        closeModal('cropModal');
-    }
     };
  const addDriverModal = document.getElementById('addDriverModal');
     if (addDriverModal) {
@@ -4121,7 +4086,7 @@ async function openEditDriverModal(truckId) {
         // Update save button state
         updateEditDriverSaveButtonState();
         
-        openModal('editDriverModal');
+        modal.style.display = 'block';
     } catch (error) {
         console.error('Error loading driver details:', error);
         alert('❌ Error loading driver details. Please check console.');
@@ -4368,7 +4333,7 @@ function openReactivateModal(truckId, driverName) {
     const message = document.getElementById('reactivateMessage');
     
     message.textContent = `Are you sure you want to reactivate ${driverName}? This will move the driver to "Drivers with No Trucks" section.`;
-    openModal('reactivateModal');
+    modal.style.display = 'block';
 }
 
 // NEW: Handle reactivate confirmation
@@ -4425,7 +4390,7 @@ function setupReactivateModal() {
     // No button - close modal
     if (reactivateNoBtn) {
         reactivateNoBtn.onclick = () => {
-            closeModal('reactivateModal');
+            reactivateModal.style.display = 'none';
             driverToReactivate = null;
         };
     }
@@ -4433,7 +4398,7 @@ function setupReactivateModal() {
     // Close button
     if (reactivateCloseBtn) {
         reactivateCloseBtn.onclick = () => {
-            closeModal('reactivateModal');
+            reactivateModal.style.display = 'none';
             driverToReactivate = null;
         };
     }
@@ -4469,7 +4434,7 @@ async function openAssignTruckModal(truckId) {
         await loadAvailableTrucks();
         
         const modal = document.getElementById('assignTruckModal');
-        openModal('assignTruckModal');
+        modal.style.display = 'block';
         
     } catch (error) {
         console.error('Error loading driver details:', error);
@@ -4662,7 +4627,7 @@ function setupAssignTruckModals() {
     const assignCloseBtn = assignModal.querySelector('.close');
     if (assignCloseBtn) {
         assignCloseBtn.onclick = () => {
-            closeModal('assignTruckModal');
+            assignModal.style.display = 'none';
             driverToAssign = null;
         };
     }
@@ -4678,7 +4643,7 @@ function setupAssignTruckModals() {
     
     if (assignConfirmNo) {
         assignConfirmNo.onclick = () => {
-            closeModal('assignConfirmModal');
+            assignConfirmModal.style.display = 'none';
             driverToAssign = null;
             selectedTruckForAssignment = null;
         };
@@ -4686,7 +4651,7 @@ function setupAssignTruckModals() {
     
     if (assignConfirmClose) {
         assignConfirmClose.onclick = () => {
-            closeModal('assignConfirmModal');
+            assignConfirmModal.style.display = 'none';
             driverToAssign = null;
             selectedTruckForAssignment = null;
         };
@@ -5447,21 +5412,21 @@ function convertToDirectDownloadUrl(googleDriveUrl) {
 function showSuccessModal(message, title = 'Success') {
     document.getElementById('successTitle').textContent = title;
     document.getElementById('successMessage').textContent = message;
-    openModal('successModal');
+    document.getElementById('successModal').style.display = 'block';
 }
 
 function showErrorModal(message, title = 'Error') {
     document.getElementById('errorTitle').textContent = title;
     document.getElementById('errorMessage').textContent = message;
-    openModal('errorModal');
+    document.getElementById('errorModal').style.display = 'block';
 }
 
 function closeSuccessModal() {
-    closeModal('successModal');
+    document.getElementById('successModal').style.display = 'none';
 }
 
 function closeErrorModal() {
-    closeModal('errorModal');
+    document.getElementById('errorModal').style.display = 'none';
 }
 
 // Close modals when clicking outside
@@ -5518,12 +5483,13 @@ function openAddDriverModal() {
     document.getElementById('addDriverSubmitBtn').disabled = true;
     
     // Show the modal
-    openModal('addDriverModal');
+    document.getElementById('addDriverModal').style.display = 'block';
 }
 
 // Close Add Driver Modal
 function closeAddDriverModal() {
-    closeModal('addDriverModal');}
+    document.getElementById('addDriverModal').style.display = 'none';
+}
 
 
 // Validate Add Driver Form
@@ -6342,7 +6308,7 @@ function openCropModal(file, imageType, callback) {
         const cropModal = document.getElementById('cropModal');
         
         cropImage.src = e.target.result;
-        openModal('cropModal');
+        cropModal.style.display = 'block';
 
         // Initialize cropper after image loads
         cropImage.onload = function() {
@@ -6388,7 +6354,7 @@ function openCropModal(file, imageType, callback) {
 // NEW FUNCTION: Close cropping modal
 function closeCropModal() {
     const cropModal = document.getElementById('cropModal');
-    closeModal('cropModal');
+    cropModal.style.display = 'none';
     
     if (cropper) {
         cropper.destroy();
@@ -6990,11 +6956,11 @@ function showImageErrorModal(message) {
 // Specific image error modal functions
 function showImageErrorModal(message) {
     document.getElementById('imageErrorMessage').textContent = message;
-    openModal('imageErrorModal');
+    document.getElementById('imageErrorModal').style.display = 'block';
 }
 
 function closeImageErrorModal() {
-    closeModal('imageErrorModal');
+    document.getElementById('imageErrorModal').style.display = 'none';
 }
 
 // Close modal when clicking outside
@@ -7004,47 +6970,3 @@ window.onclick = function(event) {
         closeImageErrorModal();
     }
 };
-
-
-// Global modal management
-let openModals = [];
-
-// Lock body scroll when modal opens
-function lockBodyScroll() {
-    if (openModals.length === 0) {
-        document.body.classList.add('modal-open');
-        // Store current scroll position
-        document.body.style.top = `-${window.scrollY}px`;
-    }
-    openModals.push(true);
-}
-
-// Unlock body scroll when modal closes
-function unlockBodyScroll() {
-    openModals.pop();
-    if (openModals.length === 0) {
-        document.body.classList.remove('modal-open');
-        // Restore scroll position
-        const scrollY = document.body.style.top;
-        document.body.style.top = '';
-        window.scrollTo(0, parseInt(scrollY || '0') * -1);
-    }
-}
-
-// Enhanced modal close function
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-        unlockBodyScroll();
-    }
-}
-
-// Enhanced modal open function
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'block';
-        lockBodyScroll();
-    }
-}

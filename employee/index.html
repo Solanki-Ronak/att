@@ -119,42 +119,15 @@
         <div id="distance" class="tab-content">
             <h2>Distance</h2>
             <div id="last-updated-distance" class="last-updated-container"></div>
-            <div class="loading">Distance tracking coming soon...</div>
+           <div class="loading">Distance data coming soon...</div>
         </div>
 
 
        <div id="diesel" class="tab-content">
     <h2>Diesel Data</h2>
     <div id="last-updated-diesel" class="last-updated-container"></div>
-    <!-- Main Tabs for Long/Short Haul -->
-    <div class="diesel-main-tabs">
-        <button class="diesel-main-tab active" onclick="openDieselType('long_haul')">
-            🚛 Long Haul
-        </button>
-        <button class="diesel-main-tab" onclick="openDieselType('short_haul')">
-            🚚 Short Haul
-        </button>
-    </div>
+ <div class="loading">Diesel data coming soon...</div>
 
-    <!-- Back Button - Right Aligned -->
-    <div id="dieselBackButton" style="display: none;">
-        <button class="btn btn-back" onclick="goBackDieselLevel()">← Back</button>
-    </div>
-
-    <!-- Add Button (Admin Only) -->
-    <div id="dieselAddButton" style="display: none;"></div>
-
-    <!-- Content Areas -->
-    <div id="dieselCategories" class="diesel-level-grid"></div>
-    <div id="dieselRoutes" class="diesel-level-grid" style="display: none;"></div>
-    <div id="dieselTruckData" style="display: none;"></div>
-    
-    <!-- Coming Soon for Short Haul -->
-    <div id="dieselComingSoon" class="diesel-coming-soon" style="display: none;">
-        <h3>🚧 Coming Soon</h3>
-        <p>Short haul diesel data will be available soon.</p>
-    </div>
-</div>
     </div>
     
 
@@ -168,7 +141,7 @@
             </div>
         </div>
     </div>
-
+<script src="../js/dieselemployee.js"></script>
     <script src="../js/employee.js"></script>
 </body>
 </html>
