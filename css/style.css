@@ -2438,17 +2438,24 @@ body.modal-open {
     background-color: #f8f9fa;
 }
 
-.diesel-actions {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-}
-
 .diesel-actions .btn {
-    padding: 5px 10px;
+    padding: 8px 16px;
     font-size: 0.75rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
 }
 
+.diesel-actions .btn:hover {
+    background: linear-gradient(135deg, #5a6fd8, #6a4190);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+}
 /* Diesel Modal Styling */
 .diesel-modal-header {
     text-align: center;

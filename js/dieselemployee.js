@@ -103,7 +103,7 @@ function displayDieselData(dieselData) {
                 <td>${item.destination}</td>
                 <td>${item.load}</td>
                 <td>
-                    <div class="allowance-actions">
+                    <div class="diesel-actions">
                         <button class="btn btn-view" onclick="openDieselDetailsModal('${item.id}')">View</button>
                     </div>
                 </td>
