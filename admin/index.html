@@ -136,14 +136,14 @@
     <h2>Distance</h2>
     <div id="last-updated-distance" class="last-updated-container"></div>
     <div class="loading">Distance data coming soon...</div>
-</div>
+</div>  
 
       <div id="diesel" class="tab-content">
     <h2>Diesel Data</h2>
     <div id="last-updated-diesel" class="last-updated-container"></div>
-     <div class="loading">Diesel data coming soon...</div>
+    <div class="loading">Diesel data coming soon...</div>
     
-    
+</div>
     </div>
     
 
@@ -624,7 +624,134 @@
         </div>
     </div>
 
-   
+    <!-- Add Diesel Category Modal -->
+<div id="addDieselCategoryModal" class="modal">
+    <div class="modal-content diesel-modal-content">
+        <span class="close">&times;</span>
+        <h2>➕ Add Diesel Category</h2>
+        <form id="addDieselCategoryForm">
+            <div class="diesel-form-grid">
+                <div class="diesel-form-group">
+                    <label for="addCategoryName">Category Name:</label>
+                    <input type="text" id="addCategoryName" required>
+                </div>
+                <div class="diesel-form-group">
+                    <label for="addCategoryType">Type:</label>
+                    <select id="addCategoryType" required>
+                        <option value="long_haul">Long Haul</option>
+                        <option value="short_haul">Short Haul</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                ➕ Add Category
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Add/Edit Diesel Truck Data Modal -->
+<div id="dieselTruckDataModal" class="modal">
+    <div class="modal-content diesel-modal-content">
+        <span class="close">&times;</span>
+        <h2 id="dieselTruckDataModalTitle">➕ Add Truck Data</h2>
+        <form id="dieselTruckDataForm">
+            <input type="hidden" id="editTruckDataId">
+            <input type="hidden" id="editTruckDataRouteId" value="${currentRouteId}">
+            
+            <div class="diesel-form-grid">
+                <div class="diesel-form-group">
+                    <label for="truckDataType">Truck Type:</label>
+                    <select id="truckDataType" required>
+                        <option value="">Select Truck Type</option>
+                        <option value="Howo Truck">Howo Truck</option>
+                        <option value="Shacman Truck">Shacman Truck</option>
+                        <option value="Semi Truck">Semi Truck</option>
+                        <option value="P360 Truck">P360 Truck</option>
+                        <option value="Howo Old">Howo (Old)</option>
+                        <option value="Howo New">Howo (New)</option>
+                        <option value="Semi Scania Body">Semi Scania (Body)</option>
+                        <option value="Semi Scania Flat Bed">Semi Scania (Flat Bed)</option>
+                        <option value="Semi Howo Body">Semi Howo (Body)</option>
+                        <option value="Semi Howo Flat Bed">Semi Howo (Flat Bed)</option>
+                        <option value="Semi Shacman Body">Semi Shacman (Body)</option>
+                        <option value="Semi Shacman Flat Bed">Semi Shacman (Flat Bed)</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="diesel-form-group">
+                        <label for="distance113">113:</label>
+                        <input type="number" id="distance113" step="1">
+                    </div>
+                    <div class="diesel-form-group">
+                        <label for="distance114">114:</label>
+                        <input type="number" id="distance114" step="1">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="diesel-form-group">
+                        <label for="p360">P360:</label>
+                        <input type="number" id="p360" step="0.1">
+                    </div>
+                    <div class="diesel-form-group">
+                        <label for="shacman">Shacman:</label>
+                        <input type="number" id="shacman" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="diesel-form-group">
+                        <label for="howoOld">Howo (Old):</label>
+                        <input type="number" id="howoOld" step="0.1">
+                    </div>
+                    <div class="diesel-form-group">
+                        <label for="howoNew">Howo (New):</label>
+                        <input type="number" id="howoNew" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="diesel-form-group">
+                        <label for="semiScaniaBody">Semi Scania (Body):</label>
+                        <input type="number" id="semiScaniaBody" step="0.1">
+                    </div>
+                    <div class="diesel-form-group">
+                        <label for="semiScaniaFlatBed">Semi Scania (Flat Bed):</label>
+                        <input type="number" id="semiScaniaFlatBed" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="diesel-form-group">
+                        <label for="semiHowoBody">Semi Howo (Body):</label>
+                        <input type="number" id="semiHowoBody" step="0.1">
+                    </div>
+                    <div class="diesel-form-group">
+                        <label for="semiHowoFlatBed">Semi Howo (Flat Bed):</label>
+                        <input type="number" id="semiHowoFlatBed" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="diesel-form-group">
+                        <label for="semiShacmanBody">Semi Shacman (Body):</label>
+                        <input type="number" id="semiShacmanBody" step="0.1">
+                    </div>
+                    <div class="diesel-form-group">
+                        <label for="semiShacmanFlatBed">Semi Shacman (Flat Bed):</label>
+                        <input type="number" id="semiShacmanFlatBed" step="0.1">
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                💾 Save Truck Data
+            </button>
+        </form>
+    </div>
+</div>
 
 <!-- Enhanced Edit Driver Modal -->
 <div id="editDriverModal" class="modal">
