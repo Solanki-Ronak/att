@@ -673,16 +673,6 @@ h2 {
     background-color: #f8f9fa;
 }
 
-.allowance-actions {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-}
-
-.allowance-actions .btn {
-    padding: 5px 10px;
-    font-size: 0.75rem;
-}
 
 .amount-cell {
     text-align: center;
@@ -2621,11 +2611,15 @@ body.modal-open {
     align-items: center;
 }
 
-.diesel-actions .btn {
-    padding: 6px 12px;
-    font-size: 12px;
-    min-width: 60px;
-    margin: 0;
+.allowance-actions {
+    font-size: 0.75rem;
+    display: flex; 
+    justify-content: center;
+}
+
+.allowance-actions .btn {
+    padding: 8px 16px;
+    font-size: 0.75rem;
 }
 
 
@@ -2640,40 +2634,20 @@ body.modal-open {
     cursor: pointer;
 }
 
+.diesel-actions .btn-delete {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+
 .btn-edit:hover {
     background: linear-gradient(135deg, #f57c00, #e65100);
     transform: translateY(-2px);
 }
 
-/* Ensure table has enough space for buttons */
-.diesel-table {
-    width: 100%;
-    border-collapse: collapse;
-}
 
-.diesel-table th:nth-child(4),
-.diesel-table td:nth-child(4) {
-    width: 140px;
-    min-width: 140px;
-    text-align: center;
-}
-
-/* Responsive design for mobile */
-@media (max-width: 768px) {
-    .diesel-actions {
-        flex-direction: column;
-        gap: 4px;
-    }
-    
-    .diesel-actions .btn {
-        width: 100%;
-        font-size: 11px;
-        padding: 4px 8px;
-    }
-    
-    .diesel-table th:nth-child(4),
-    .diesel-table td:nth-child(4) {
-        width: 120px;
-        min-width: 120px;
-    }
-}

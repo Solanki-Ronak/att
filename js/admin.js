@@ -646,7 +646,6 @@ async function loadAllowances() {
         allowancesList.innerHTML = '<div class="error">Error loading allowances: ' + error.message + '</div>';
     }
 }
-
 function displayAllowances(allowances) {
     const allowancesList = document.getElementById('allowances-list');
     
@@ -664,7 +663,7 @@ function displayAllowances(allowances) {
                     <th>Driver's Posho</th>
                     <th>T/Boy's Posho</th>
                     <th>Comments</th>
-                    <th>Actions</th>
+                    <th style="width: 140px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -680,7 +679,8 @@ function displayAllowances(allowances) {
                 <td class="comments-cell" title="${allowance.comments || 'None'}">${allowance.comments || 'None'}</td>
                 <td>
                     <div class="allowance-actions">
-                        <button class="btn btn-edit" onclick="openEditAllowanceModal('${allowance.id}')">✏️ Edit</button>
+                        <button class="btn btn-edit" onclick="openEditAllowanceModal('${allowance.id}')">Edit</button>
+                        <button class="btn btn-delete" onclick="confirmDeleteAllowance('${allowance.id}', '${allowance.source}', '${allowance.destination}')">Delete</button>
                     </div>
                 </td>
             </tr>
@@ -694,7 +694,6 @@ function displayAllowances(allowances) {
 
     allowancesList.innerHTML = tableHTML;
 }
-
 function formatCurrency(amount) {
     return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -6380,3 +6379,61 @@ window.onclick = function(event) {
         closeImageErrorModal();
     }
 };
+
+// Delete Allowance Functions
+function confirmDeleteAllowance(allowanceId, source, destination) {
+    currentAllowanceId = allowanceId;
+    
+    const modal = document.getElementById('deleteConfirmModal');
+    const message = document.getElementById('deleteConfirmMessage');
+    
+    message.innerHTML = `
+        <strong>🚨 WARNING: This action cannot be undone!</strong><br><br>
+        Are you sure you want to permanently delete this allowance?<br>
+        <strong>Route:</strong> ${source} to ${destination}<br><br>
+        This will remove all associated data from the database.
+    `;
+    
+    // Update the confirm button to call delete allowance function
+    const confirmBtn = document.getElementById('deleteConfirmYes');
+    confirmBtn.onclick = handleDeleteAllowance;
+    
+    modal.style.display = 'block';
+}
+
+async function handleDeleteAllowance() {
+    if (!currentAllowanceId) return;
+    
+    const submitBtn = document.getElementById('deleteConfirmYes');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = '⏳ Deleting...';
+    submitBtn.disabled = true;
+    
+    try {
+        const { error } = await supabase
+            .from('allowances')
+            .delete()
+            .eq('id', currentAllowanceId);
+        
+        if (error) throw error;
+        
+        showSuccessModal('Allowance deleted successfully!');
+        document.getElementById('deleteConfirmModal').style.display = 'none';
+        
+        // Update last updated date and reload data
+        await updateLastUpdatedDate('allowances');
+        loadAllowances();
+        
+    } catch (error) {
+        console.error('Error deleting allowance:', error);
+        showErrorModal('Error deleting allowance: ' + error.message);
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+        currentAllowanceId = null;
+        
+        // Reset the confirm button back to truck deletion
+        const confirmBtn = document.getElementById('deleteConfirmYes');
+        confirmBtn.onclick = handleDeleteTruck;
+    }
+}

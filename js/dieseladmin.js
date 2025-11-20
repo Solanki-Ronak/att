@@ -79,8 +79,6 @@ async function loadDieselData() {
         dieselList.innerHTML = '<div class="error">Error loading diesel data: ' + error.message + '</div>';
     }
 }
-
-// Display diesel data in table format with edit buttons
 function displayDieselData(dieselData) {
     const dieselList = document.getElementById('diesel-list');
     
@@ -96,7 +94,7 @@ function displayDieselData(dieselData) {
                     <th>Source</th>
                     <th>Destination</th>
                     <th>Load</th>
-                    <th style="width: 120px;">Actions</th>
+                    <th style="width: 160px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -112,6 +110,7 @@ function displayDieselData(dieselData) {
                     <div class="diesel-actions">
                         <button class="btn btn-view" onclick="openDieselDetailsModal('${item.id}')">View</button>
                         <button class="btn btn-edit" onclick="openEditDieselModal('${item.id}')">Edit</button>
+                        <button class="btn btn-delete" onclick="confirmDeleteDiesel('${item.id}', '${item.source}', '${item.destination}')">Delete</button>
                     </div>
                 </td>
             </tr>
@@ -125,7 +124,6 @@ function displayDieselData(dieselData) {
 
     dieselList.innerHTML = tableHTML;
 }
-
 // Setup diesel modals
 function setupDieselModals() {
     const modals = ['dieselDetailsModal', 'editDieselModal', 'addDieselModal'];
@@ -484,3 +482,61 @@ function updateLastUpdatedDate(tabName) {
 document.addEventListener('DOMContentLoaded', function() {
     setupDieselModals();
 });
+
+// Delete Diesel Functions
+function confirmDeleteDiesel(dieselId, source, destination) {
+    currentDieselId = dieselId;
+    
+    const modal = document.getElementById('deleteConfirmModal');
+    const message = document.getElementById('deleteConfirmMessage');
+    
+    message.innerHTML = `
+        <strong>🚨 WARNING: This action cannot be undone!</strong><br><br>
+        Are you sure you want to permanently delete this diesel data?<br>
+        <strong>Route:</strong> ${source} to ${destination}<br><br>
+        This will remove all associated data from the database.
+    `;
+    
+    // Update the confirm button to call delete diesel function
+    const confirmBtn = document.getElementById('deleteConfirmYes');
+    confirmBtn.onclick = handleDeleteDiesel;
+    
+    modal.style.display = 'block';
+}
+
+async function handleDeleteDiesel() {
+    if (!currentDieselId) return;
+    
+    const submitBtn = document.getElementById('deleteConfirmYes');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = '⏳ Deleting...';
+    submitBtn.disabled = true;
+    
+    try {
+        const { error } = await supabase
+            .from('diesel_data')
+            .delete()
+            .eq('id', currentDieselId);
+        
+        if (error) throw error;
+        
+        showSuccessModal('Diesel data deleted successfully!');
+        document.getElementById('deleteConfirmModal').style.display = 'none';
+        
+        // Update last updated date and reload data
+        await updateLastUpdatedDate('diesel');
+        loadDieselData();
+        
+    } catch (error) {
+        console.error('Error deleting diesel data:', error);
+        showErrorModal('Error deleting diesel data: ' + error.message);
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+        currentDieselId = null;
+        
+        // Reset the confirm button back to truck deletion
+        const confirmBtn = document.getElementById('deleteConfirmYes');
+        confirmBtn.onclick = handleDeleteTruck;
+    }
+}
