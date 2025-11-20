@@ -20,8 +20,9 @@
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="openTab('truck-list')">🚛 Truck List</button>
             <button class="nav-tab" onclick="openTab('allowances')">💰 Allowances</button>
+             <button class="nav-tab" onclick="openTab('diesel')">⛽ Diesel</button>
             <button class="nav-tab" onclick="openTab('distance')">📏 Distance</button>
-            <button class="nav-tab" onclick="openTab('diesel')">⛽ Diesel</button>
+           
         </div>
 
   <div id="truck-list" class="tab-content active">
@@ -138,11 +139,23 @@
     <div class="loading">Distance data coming soon...</div>
 </div>  
 
-      <div id="diesel" class="tab-content">
-    <h2>Diesel Data</h2>
+<div id="diesel" class="tab-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Diesel Data</h2>
+        <button class="btn btn-primary" onclick="openAddDieselModal()">➕ Add New Diesel Data</button>
+    </div>
     <div id="last-updated-diesel" class="last-updated-container"></div>
-    <div class="loading">Diesel data coming soon...</div>
     
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="search-icon">🔍</div>
+        <input type="text" id="dieselSearchInput" class="search-input" placeholder="Search...">
+        <div id="dieselSearchResultsCount" class="search-results-count"></div>
+    </div>
+    
+    <div id="diesel-list" class="diesel-table-container">
+        <div class="loading">Loading diesel data...</div>
+    </div>
 </div>
     </div>
     
@@ -989,6 +1002,107 @@
         <p id="imageErrorMessage"></p>
         <div class="confirm-buttons">
             <button class="btn btn-primary" onclick="closeImageErrorModal()">OK</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Add Diesel Modal -->
+<div id="addDieselModal" class="modal">
+    <div class="modal-content modal-large">
+        <span class="close">&times;</span>
+        <h2>➕ Add New Diesel Data</h2>
+        <form id="addDieselForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="addSource">Source:</label>
+                    <input type="text" id="addSource" required>
+                </div>
+                <div class="form-group">
+                    <label for="addDestination">Destination:</label>
+                    <input type="text" id="addDestination" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="addLoad">Load:</label>
+                    <input type="text" id="addLoad" required>
+                </div>
+                <div class="form-group">
+                    <label for="addKm">KM:</label>
+                    <input type="number" id="addKm" step="1" placeholder="Kilometers">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="addKmComment">KM Comment:</label>
+                <input type="text" id="addKmComment" placeholder="Optional comment for KM">
+            </div>
+            
+            <h3>Truck Type Values</h3>
+            <div id="addTruckFieldsContainer">
+                <!-- Truck fields will be populated dynamically -->
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                ➕ Add Diesel Data
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Diesel Modal -->
+<div id="editDieselModal" class="modal">
+    <div class="modal-content modal-large">
+        <span class="close">&times;</span>
+        <h2>✏️ Edit Diesel Data</h2>
+        <form id="editDieselForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="editSource1">Source:</label>
+                    <input type="text" id="editSource1" required>
+                </div>
+                <div class="form-group">
+                    <label for="editDestination1">Destination:</label>
+                    <input type="text" id="editDestination1" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="editLoad">Load:</label>
+                    <input type="text" id="editLoad" required>
+                </div>
+                <div class="form-group">
+                    <label for="editKm">KM:</label>
+                    <input type="number" id="editKm" step="1" placeholder="Kilometers">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="editKmComment">KM Comment:</label>
+                <input type="text" id="editKmComment" placeholder="Optional comment for KM">
+            </div>
+            
+            <h3>Truck Type Values</h3>
+            <div id="editTruckFieldsContainer">
+                <!-- Truck fields will be populated dynamically -->
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                💾 Save Changes
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Diesel Details Modal for Admin -->
+<div id="dieselDetailsModal" class="modal">
+    <div class="modal-content modal-large">
+        <span class="close" onclick="closeDieselDetailsModal()">&times;</span>
+        <div id="dieselModalContent">
+            <!-- Content will be loaded here -->
         </div>
     </div>
 </div>

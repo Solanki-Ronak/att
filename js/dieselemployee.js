@@ -164,12 +164,11 @@ async function openDieselDetailsModal(dieselId) {
         showErrorModal('Error loading diesel details: ' + error.message);
     }
 }
-// Generate diesel modal content
+// Generate diesel modal content for view - SHOWS ALL TRUCK TYPES EVEN IF EMPTY
 function generateDieselModalContent(dieselItem) {
     const mainHeading = `${dieselItem.source} TO ${dieselItem.destination}`;
     const subHeading = `${dieselItem.load}`;
     
-    // Generate truck type rows with comments
     const truckTypes = [
         { key: 'km', label: 'KM', value: dieselItem.km, comment: dieselItem.km_comment },
         { key: 'p360', label: 'P360', value: dieselItem.p360, comment: dieselItem.p360_comment },
@@ -186,15 +185,17 @@ function generateDieselModalContent(dieselItem) {
 
     let truckRowsHTML = '';
     truckTypes.forEach(truck => {
-        if (truck.value !== null && truck.value !== '') {
-            truckRowsHTML += `
-                <tr>
-                    <td class="truck-type-label">${truck.label}</td>
-                    <td class="truck-value">${truck.value}</td>
-                    <td class="truck-comment">${truck.comment || ''}</td>
-                </tr>
-            `;
-        }
+        // ALWAYS show the row, even if value is null/empty
+        const displayValue = truck.value !== null && truck.value !== '' ? truck.value : '---';
+        const displayComment = truck.comment || '---';
+        
+        truckRowsHTML += `
+            <tr>
+                <td class="truck-type-label">${truck.label}</td>
+                <td class="truck-value">${displayValue}</td>
+                <td class="truck-comment">${displayComment}</td>
+            </tr>
+        `;
     });
 
     return `
