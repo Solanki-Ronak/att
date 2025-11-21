@@ -36,11 +36,9 @@ document.addEventListener('DOMContentLoaded', function() {
 let currentAdminTab = 'all-trucks';
 
 
-
-
 async function loadTrucksByAdminStatus(statusTab) {
     const statusMap = {
-        'all-trucks': ['active'], // Only active status for all-trucks
+        'all-trucks': ['active'],
         'no-truck': ['no_truck'], 
         'left': ['left']
     };
@@ -55,6 +53,8 @@ async function loadTrucksByAdminStatus(statusTab) {
     const containerId = containerMap[statusTab];
     
     try {
+        
+        
         const { data: trucks, error } = await supabase
             .from('trucks')
             .select(`
@@ -62,12 +62,15 @@ async function loadTrucksByAdminStatus(statusTab) {
                 driver_contacts (*)
             `)
             .in('status', statuses)
+            .order('display_order', { ascending: true, nullsFirst: false })
             .order('truck_number');
         
         if (error) throw error;
         
         // Store the data for searching
         currentTrucksData[statusTab] = trucks || [];
+        
+      
         
         // Display with proper numbering starting from 1
         displayTrucksInAdminContainer(currentTrucksData[statusTab], containerId);
@@ -102,7 +105,10 @@ function displayTrucksInAdminContainer(trucks, containerId) {
     container.innerHTML = '';
     
     // Always start numbering from 1 for the displayed trucks
+    // The trucks array should already be sorted by display_order
     trucks.forEach((truck, index) => {
+       
+        
         let truckCard;
         
         if (containerId === 'no-truck-list') {
@@ -6435,5 +6441,303 @@ async function handleDeleteAllowance() {
         // Reset the confirm button back to truck deletion
         const confirmBtn = document.getElementById('deleteConfirmYes');
         confirmBtn.onclick = handleDeleteTruck;
+    }
+}
+
+
+// Global variables for rearrangement
+let originalTruckOrder = [];
+let currentTruckOrder = [];
+// Open rearrange modal - UPDATED VERSION
+async function openRearrangeModal() {
+    const modal = document.getElementById('rearrangeModal');
+    
+    try {
+        // Load trucks with their current display order
+        const { data: trucks, error } = await supabase
+            .from('trucks')
+            .select('*')
+            .eq('status', 'active')
+            .order('display_order', { ascending: true, nullsFirst: false })
+            .order('truck_number');
+
+        if (error) throw error;
+
+        // If display_order is null for some trucks, assign temporary order
+        const trucksWithOrder = trucks.map((truck, index) => ({
+            ...truck,
+            display_order: truck.display_order || index + 1
+        }));
+
+        // Sort by display_order
+        trucksWithOrder.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+
+        originalTruckOrder = trucksWithOrder.map(truck => truck.id);
+        currentTruckOrder = [...originalTruckOrder];
+
+        // Display trucks in modal
+        displayTrucksForRearrangement(trucksWithOrder);
+        
+        // Initialize drag and drop
+        initializeDragAndDrop();
+        
+        modal.style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error loading trucks for rearrangement:', error);
+        showErrorModal('Error loading trucks: ' + error.message);
+    }
+}
+// Close rearrange modal
+function closeRearrangeModal() {
+    document.getElementById('rearrangeModal').style.display = 'none';
+    document.getElementById('rearrangeSearch').value = '';
+}
+
+// Display trucks in rearrangement modal
+function displayTrucksForRearrangement(trucks) {
+    const container = document.getElementById('truckCardsContainer');
+    
+    if (!trucks || trucks.length === 0) {
+        container.innerHTML = '<div class="no-results">No trucks found</div>';
+        return;
+    }
+
+    let html = '';
+    trucks.forEach((truck, index) => {
+        html += `
+            <div class="rearrange-card" data-truck-id="${truck.id}" data-truck-number="${truck.truck_number}">
+                <div class="drag-handle">⋮⋮</div>
+                <div class="card-position">${index + 1}</div>
+                <div class="card-info">
+                    <div class="card-truck-number">${truck.truck_number}</div>
+                    <div class="card-driver-name">${truck.driver_name || 'NO DRIVER'}</div>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+// Simple and instant drag & drop - no animations
+function initializeDragAndDrop() {
+    const container = document.getElementById('truckCardsContainer');
+    const scrollContainer = document.querySelector('.rearrange-container');
+    
+    let scrollInterval = null;
+    
+    Sortable.create(container, {
+        animation: 0, // No animations
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen', 
+        handle: '.drag-handle',
+        scroll: false, // Disable Sortable's scroll
+        
+        onStart: function(evt) {
+            evt.item.classList.add('dragging');
+            startScroll();
+        },
+        
+        onEnd: function(evt) {
+            evt.item.classList.remove('dragging');
+            stopScroll();
+        },
+        
+        onUpdate: function(evt) {
+            const newOrder = [];
+            const cards = container.querySelectorAll('.rearrange-card');
+            cards.forEach(card => {
+                newOrder.push(card.getAttribute('data-truck-id'));
+            });
+            currentTruckOrder = newOrder;
+            updatePositionNumbers();
+        }
+    });
+    
+    function startScroll() {
+        scrollInterval = setInterval(() => {
+            const dragged = document.querySelector('.rearrange-card.dragging');
+            if (!dragged) return;
+            
+            const containerRect = scrollContainer.getBoundingClientRect();
+            const draggedRect = dragged.getBoundingClientRect();
+            
+            // Simple edge detection - instant response
+            if (draggedRect.top < containerRect.top + 50) {
+                // Scroll up instantly
+                scrollContainer.scrollTop -= 30;
+            } 
+            else if (draggedRect.bottom > containerRect.bottom - 50) {
+                // Scroll down instantly  
+                scrollContainer.scrollTop += 30;
+            }
+        }, 16); // 60fps but no smoothing
+    }
+    
+    function stopScroll() {
+        if (scrollInterval) {
+            clearInterval(scrollInterval);
+            scrollInterval = null;
+        }
+    }
+}
+// Update position numbers after drag and drop
+function updatePositionNumbers() {
+    const cards = document.querySelectorAll('.rearrange-card');
+    cards.forEach((card, index) => {
+        const positionElement = card.querySelector('.card-position');
+        positionElement.textContent = index + 1;
+    });
+}
+
+// Highlight search results
+function highlightSearchResults(searchTerm) {
+    const cards = document.querySelectorAll('.rearrange-card');
+    const searchLower = searchTerm.toLowerCase().trim();
+    
+    if (!searchLower) {
+        // Clear all highlights
+        cards.forEach(card => {
+            card.classList.remove('highlighted', 'dimmed');
+        });
+        return;
+    }
+    
+    cards.forEach(card => {
+        const truckNumber = card.getAttribute('data-truck-number').toLowerCase();
+        const driverName = card.querySelector('.card-driver-name').textContent.toLowerCase();
+        
+        if (truckNumber.includes(searchLower) || driverName.includes(searchLower)) {
+            card.classList.add('highlighted');
+            card.classList.remove('dimmed');
+        } else {
+            card.classList.add('dimmed');
+            card.classList.remove('highlighted');
+        }
+    });
+}
+// Save new card order to database - UPDATED VERSION
+async function saveCardOrder() {
+    const saveBtn = document.getElementById('saveOrderBtn');
+    const originalText = saveBtn.textContent;
+    
+    try {
+        saveBtn.disabled = true;
+        saveBtn.textContent = '⏳ Saving...';
+        
+        // Check if order actually changed
+        const hasChanges = JSON.stringify(originalTruckOrder) !== JSON.stringify(currentTruckOrder);
+        
+        if (!hasChanges) {
+            showSuccessModal('No changes to save!');
+            closeRearrangeModal();
+            return;
+        }
+        
+        console.log('Saving new order:', currentTruckOrder);
+        
+        // Update display_order for all trucks
+        const updates = currentTruckOrder.map((truckId, index) => ({
+            id: truckId,
+            display_order: index + 1
+        }));
+        
+        // Update database - use upsert for better reliability
+        for (const update of updates) {
+            const { error } = await supabase
+                .from('trucks')
+                .update({ 
+                    display_order: update.display_order,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', update.id);
+            
+            if (error) {
+                console.error('Error updating truck:', update.id, error);
+                throw error;
+            }
+        }
+        
+        showSuccessModal('Card order saved successfully!');
+        closeRearrangeModal();
+        
+        // FORCE RELOAD ALL TRUCK SECTIONS
+        await reloadAllTruckSections();
+        
+        // ADD THIS LINE: Refresh employee view as well
+        await refreshEmployeeView();
+        
+    } catch (error) {
+        console.error('Error saving card order:', error);
+        showErrorModal('Error saving card order: ' + error.message);
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = originalText;
+    }
+}
+
+// NEW FUNCTION: Force reload all truck sections
+async function reloadAllTruckSections() {
+    console.log('Reloading all truck sections...');
+    
+    // Get current active admin tab
+    const activeAdminTab = document.querySelector('.admin-tab-content.active')?.id || 'all-trucks';
+    
+    // Reload all sections to ensure consistency
+    await loadTrucksByAdminStatus('all-trucks');
+    await loadTrucksByAdminStatus('no-truck');
+    await loadTrucksByAdminStatus('left');
+    
+    // Re-activate the current tab
+    const currentTabElement = document.querySelector(`[onclick="openAdminTab('${activeAdminTab}')"]`);
+    if (currentTabElement) {
+        currentTabElement.click();
+    }
+    
+    console.log('All truck sections reloaded');
+}
+
+// Add event listener for modal close
+document.addEventListener('DOMContentLoaded', function() {
+    const rearrangeModal = document.getElementById('rearrangeModal');
+    const closeBtn = rearrangeModal.querySelector('.close');
+    
+    closeBtn.onclick = closeRearrangeModal;
+    
+    window.onclick = function(event) {
+        if (event.target === rearrangeModal) {
+            closeRearrangeModal();
+        }
+    };
+});
+
+// Refresh employee view with new order - ADD TO ADMIN.JS
+async function refreshEmployeeView() {
+    console.log('Refreshing employee view with new order');
+    
+    try {
+        // Check if we're on a page that has employee functions
+        if (typeof loadTrucksByStatus === 'function') {
+            // Get current active employee tab
+            const activeEmployeeTab = document.querySelector('.employee-tab-content.active')?.id || 'all-trucks';
+            
+            // Reload all employee sections
+            await loadTrucksByStatus('all-trucks');
+            await loadTrucksByStatus('no-truck');
+            await loadTrucksByStatus('left');
+            
+            // Re-activate the current tab
+            const currentTabElement = document.querySelector(`[onclick="openEmployeeTab('${activeEmployeeTab}')"]`);
+            if (currentTabElement) {
+                currentTabElement.click();
+            }
+            
+            console.log('Employee view refreshed with new order');
+        } else {
+            console.log('Employee functions not available on this page');
+        }
+    } catch (error) {
+        console.error('Error refreshing employee view:', error);
+        // Don't throw error here - we don't want to break the save operation
     }
 }

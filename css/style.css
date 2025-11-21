@@ -2651,3 +2651,229 @@ body.modal-open {
 }
 
 
+
+
+.rearrange-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    /* Ensure the list takes full height */
+    min-height: min-content;
+}
+
+
+.rearrange-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+
+
+.rearrange-card.highlighted {
+    background: #fff3cd;
+    border-color: #ffc107;
+}
+
+.rearrange-card.dimmed {
+    opacity: 0.5;
+}
+
+.card-position {
+    font-weight: bold;
+    font-size: 18px;
+    color: #667eea;
+    min-width: 40px;
+    text-align: center;
+}
+
+.card-info {
+    flex: 1;
+    margin-left: 15px;
+}
+
+.card-truck-number {
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+}
+
+.card-driver-name {
+    color: #666;
+    font-size: 14px;
+}
+
+.drag-handle {
+    color: #999;
+    font-size: 20px;
+    padding: 0 10px;
+    cursor: grab;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.modal-footer {
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+    margin-top: 15px;
+    text-align: center;
+}
+
+/* Remove all transitions and animations */
+.rearrange-container {
+    max-height: 60vh;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background: #f9f9f9;
+    /* Remove smooth scrolling */
+    scroll-behavior: auto;
+}
+
+.rearrange-card {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: grab;
+    /* Remove all transitions */
+    transition: none;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.rearrange-card.dragging {
+    opacity: 0.8;
+    /* Remove transform animations */
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: #f8f9fa;
+}
+
+/* Make SortableJS instant */
+.sortable-ghost {
+    opacity: 0.5;
+    background: #f8f9fa;
+}
+
+.sortable-chosen {
+    background: #e9ecef;
+}
+
+/* Scroll indicators (optional visual feedback) */
+.scroll-top-indicator,
+.scroll-bottom-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: linear-gradient(to bottom, rgba(102, 126, 234, 0.1), transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 100;
+}
+
+.scroll-top-indicator {
+    top: 0;
+    background: linear-gradient(to bottom, rgba(102, 126, 234, 0.2), transparent);
+}
+
+.scroll-bottom-indicator {
+    bottom: 0;
+    background: linear-gradient(to top, rgba(102, 126, 234, 0.2), transparent);
+}
+
+.scroll-top-indicator.active,
+.scroll-bottom-indicator.active {
+    opacity: 1;
+}
+
+
+/* Button Container - Responsive */
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+}
+
+.button-container h2 {
+    margin: 0;
+    flex-shrink: 0;
+    /* Force the title to stay on left */
+    margin-right: auto;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    flex: 1;
+    /* Force buttons to the right */
+    margin-left: auto;
+}
+
+/* Make sure buttons stay on right on all desktop sizes */
+@media (min-width: 769px) {
+    .button-container {
+        justify-content: space-between;
+    }
+    
+    .button-group {
+        margin-left: auto;
+        justify-content: flex-end;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .button-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .button-container h2 {
+        text-align: center;
+        margin-bottom: 5px;
+        margin-right: 0; /* Reset for mobile */
+    }
+    
+    .button-group {
+        justify-content: center;
+        gap: 8px;
+        margin-left: 0; /* Reset for mobile */
+    }
+    
+    .button-group .btn {
+        flex: 1;
+        min-width: 140px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .button-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .button-group .btn {
+        width: 100%;
+        min-width: auto;
+    }
+}

@@ -158,8 +158,9 @@ function handleAllowanceSearch(event) {
         resultsCount.textContent = `Found ${filteredAllowances.length} of ${allAllowances.length} allowances`;
     }
 }
-
 async function loadTrucks() {
+    console.log('Loading trucks for employee side with display_order');
+    
     // Load trucks for the currently active employee tab
     await loadTrucksByStatus(currentEmployeeTab);
     
@@ -1039,8 +1040,6 @@ function handleFilterChange(event) {
     applyFiltersToCurrentTab();
 }
 
-
-// Apply filters to specific data and display
 function applyFiltersToData(trucks, containerId) {
     if (!trucks || trucks.length === 0) return;
     
@@ -1073,6 +1072,13 @@ function applyFiltersToData(trucks, containerId) {
                 });
             }
         });
+        
+        // ADD THIS: Maintain display_order after filtering
+        filteredTrucks.sort((a, b) => {
+            const orderA = a.display_order || 999999;
+            const orderB = b.display_order || 999999;
+            return orderA - orderB;
+        });
     }
     
     // Display with fresh numbering starting from 1
@@ -1087,7 +1093,6 @@ function applyFiltersToData(trucks, containerId) {
         }
     }
 }
-
 
 let filterTimeout;
 
@@ -1246,12 +1251,17 @@ async function loadTrucksByStatus(statusTab) {
             query = query.in('status', statuses);
         }
         
-        const { data: trucks, error } = await query.order('truck_number');
+        // ADD THIS: Order by display_order first, then truck_number
+        const { data: trucks, error } = await query
+            .order('display_order', { ascending: true, nullsFirst: false })
+            .order('truck_number');
         
         if (error) throw error;
         
         // Store the data
         currentEmployeeTrucksData[statusTab] = trucks || [];
+        
+        console.log(`Loaded ${trucks?.length || 0} trucks for ${statusTab} with display_order`);
         
         // Only apply filters if we're on the All Drivers/Trucks tab
         if (statusTab === 'all-trucks') {
@@ -1400,9 +1410,6 @@ function applyFiltersToCurrentTab() {
     }
 }
 
-
-
-// Update the search function to handle filter visibility
 function handleEmployeeSearch(event) {
     const searchTerm = event.target.value.toLowerCase().trim();
     const resultsCount = document.getElementById('searchResultsCount');
@@ -1434,6 +1441,14 @@ function handleEmployeeSearch(event) {
             (truck.truck_tons && truck.truck_tons.toLowerCase().includes(searchTerm)) ||
             (truck.previous_trucks && truck.previous_trucks.toLowerCase().includes(searchTerm))
         );
+    });
+    
+    // ADD THIS: Maintain the display_order after filtering
+    filteredTrucks.sort((a, b) => {
+        // Handle null display_order values by treating them as very large numbers
+        const orderA = a.display_order || 999999;
+        const orderB = b.display_order || 999999;
+        return orderA - orderB;
     });
     
     // Only apply additional filters if we're on All Drivers/Trucks tab
@@ -1563,4 +1578,25 @@ function formatPreviousTrucksForDetails(previousTrucks) {
     return trucksArray.map((truckNum, index) => 
         `<div class="previous-truck-item">${index + 1}. ${truckNum}</div>`
     ).join('');
+}
+
+// Add this to your rearrange modal save function
+async function refreshEmployeeView() {
+    console.log('Refreshing employee view with new order');
+    
+    // Get current active employee tab
+    const activeEmployeeTab = document.querySelector('.employee-tab-content.active')?.id || 'all-trucks';
+    
+    // Reload all employee sections
+    await loadTrucksByStatus('all-trucks');
+    await loadTrucksByStatus('no-truck');
+    await loadTrucksByStatus('left');
+    
+    // Re-activate the current tab
+    const currentTabElement = document.querySelector(`[onclick="openEmployeeTab('${activeEmployeeTab}')"]`);
+    if (currentTabElement) {
+        currentTabElement.click();
+    }
+    
+    console.log('Employee view refreshed with new order');
 }

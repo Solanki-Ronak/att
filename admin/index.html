@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase.js"></script>
 </head>
@@ -27,9 +28,15 @@
 
   <div id="truck-list" class="tab-content active">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2>Truck List</h2>
+    <!-- Updated Button Container -->
+<div class="button-container">
+    <h2>Truck List</h2>
+    <div class="button-group">
+        <button class="btn btn-primary" onclick="openRearrangeModal()">🔄 Rearrange Cards</button>
         <button class="btn btn-primary" onclick="openAddTruckModal()">➕ Add New Truck</button>
     </div>
+</div>
+</div>
     <div id="last-updated-truck-list" class="last-updated-container"></div>
     
 
@@ -1103,6 +1110,39 @@
         <span class="close" onclick="closeDieselDetailsModal()">&times;</span>
         <div id="dieselModalContent">
             <!-- Content will be loaded here -->
+        </div>
+    </div>
+</div>
+
+
+<!-- Rearrange Cards Modal -->
+<div id="rearrangeModal" class="modal">
+    <div class="modal-content modal-large">
+        <!-- Close Button at Top -->
+        <div class="modal-header">
+            <span class="close" onclick="closeRearrangeModal()">&times;</span>
+            <h2>🔄 Rearrange Truck Cards</h2>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-container" style="margin: 20px 0;">
+            <div class="search-icon">🔍</div>
+            <input type="text" id="rearrangeSearch" class="search-input" 
+                   placeholder="Search by truck number, driver name, license..." 
+                   oninput="highlightSearchResults(this.value)">
+        </div>
+        
+        <!-- Rearrangement Area -->
+        <div class="rearrange-container">
+            <div id="truckCardsContainer" class="rearrange-cards-list">
+                <!-- Draggable truck cards will be loaded here -->
+                <div class="loading">Loading trucks...</div>
+            </div>
+        </div>
+        
+        <!-- Save Button at Bottom -->
+        <div class="modal-footer">
+            <button class="btn btn-primary" onclick="saveCardOrder()" id="saveOrderBtn">💾 Save New Order</button>
         </div>
     </div>
 </div>
