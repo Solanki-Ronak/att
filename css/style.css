@@ -2650,6 +2650,17 @@ body.modal-open {
     transform: translateY(-2px);
 }
 
+
+
+
+
+
+
+
+
+
+
+
 .rearrange-cards-list {
     display: flex;
     flex-direction: column;
@@ -2760,15 +2771,7 @@ body.modal-open {
     z-index: 10000;
 }
 
-/* SortableJS Styles */
-.sortable-ghost {
-    opacity: 0.4;
-    background: #f8f9fa;
-}
 
-.sortable-chosen {
-    background: #e9ecef;
-}
 
 /* Scroll indicators */
 .scroll-top-indicator,
@@ -2937,53 +2940,39 @@ body.dragging-active {
     bottom: 0 !important;
 }
 
-/* Mobile scrolling improvements */
+/* Remove ghost only on mobile screens */
 @media (max-width: 768px) {
-    .rearrange-container {
-        /* Better mobile scrolling */
-        -webkit-overflow-scrolling: touch;
-        overflow-scrolling: touch;
-        /* Larger scroll area */
-        padding: 10px;
-    }
-    
-    .rearrange-cards-list {
-        gap: 8px;
-    }
-    
-    .rearrange-card {
-        /* Better touch feedback */
-        padding: 12px 15px;
-        min-height: 65px;
+    .sortable-ghost {
+        display: none !important;
     }
     
     .rearrange-card.dragging {
-        /* More visible when dragging */
-        box-shadow: 0 6px 25px rgba(0,0,0,0.2);
-        z-index: 100000;
+        opacity: 0.9;
+        border: 2px solid #667eea;
+        /* Remove transitions only on mobile */
+        transition: none;
     }
     
-    /* Make scroll container more responsive */
-    .rearrange-container::-webkit-scrollbar {
-        width: 6px;
+    /* Hide drag image on mobile */
+    .rearrange-card {
+        -webkit-user-drag: none;
+        -khtml-user-drag: none;
+        -moz-user-drag: none;
+        -o-user-drag: none;
+        user-drag: none;
+    }
+}
+
+/* Keep normal animations on desktop */
+@media (min-width: 769px) {
+    .sortable-ghost {
+        opacity: 0.4;
+        background: #f8f9fa;
     }
     
-    .rearrange-container::-webkit-scrollbar-thumb {
-        background: #ccc;
-        border-radius: 3px;
+    .rearrange-card.dragging {
+        opacity: 0.8;
+        transform: rotate(2deg);
+        transition: all 0.2s ease;
     }
-}
-
-/* Ensure the modal doesn't interfere with scrolling */
-#rearrangeModal .modal-content {
-    touch-action: pan-y; /* Allow vertical scrolling */
-}
-
-/* Prevent the dragged element from blocking scroll */
-.rearrange-card.dragging {
-    pointer-events: none; /* Allow scroll through dragged element */
-}
-
-.rearrange-card.dragging * {
-    pointer-events: none; /* Allow scroll through all child elements */
 }
