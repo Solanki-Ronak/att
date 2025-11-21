@@ -317,8 +317,7 @@ async function openEditDieselModal(dieselId) {
         showErrorModal('Error loading diesel data: ' + error.message);
     }
 }
-
-// Populate truck fields
+// Populate truck fields - ENHANCED VERSION
 function populateTruckFields(formType, dieselItem) {
     const containerId = formType === 'edit' ? 'editTruckFieldsContainer' : 'addTruckFieldsContainer';
     const container = document.getElementById(containerId);
@@ -358,8 +357,9 @@ function populateTruckFields(formType, dieselItem) {
         `;
         container.innerHTML += fieldHTML;
     });
+    
+    console.log(`Populated ${truckTypes.length} truck fields for ${formType} form`);
 }
-
 // Form submission handlers
 document.getElementById('addDieselForm')?.addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -370,8 +370,7 @@ document.getElementById('editDieselForm')?.addEventListener('submit', async func
     e.preventDefault();
     await saveDieselData('edit');
 });
-
-// Save diesel data
+// Save diesel data - CORRECTED VERSION
 async function saveDieselData(action) {
     const formId = action === 'add' ? 'addDieselForm' : 'editDieselForm';
     const form = document.getElementById(formId);
@@ -387,10 +386,20 @@ async function saveDieselData(action) {
         submitBtn.disabled = true;
         submitBtn.textContent = action === 'add' ? '➕ Adding...' : '💾 Saving...';
         
-        // Get field values directly
-        const source = document.getElementById(action + 'Source')?.value.trim();
-        const destination = document.getElementById(action + 'Destination')?.value.trim();
-        const load = document.getElementById(action + 'Load')?.value.trim();
+        // CORRECTED: Use the actual field IDs from your HTML
+        let source, destination, load;
+        
+        if (action === 'add') {
+            source = document.getElementById('addSource1')?.value.trim(); // Changed to addSource1
+            destination = document.getElementById('addDestination1')?.value.trim(); // Changed to addDestination1
+            load = document.getElementById('addLoad')?.value.trim();
+        } else {
+            source = document.getElementById('editSource1')?.value.trim();
+            destination = document.getElementById('editDestination1')?.value.trim();
+            load = document.getElementById('editLoad')?.value.trim();
+        }
+        
+        console.log('Form values:', { source, destination, load, action }); // Debug log
         
         if (!source || !destination || !load) {
             throw new Error('Source, Destination, and Load are required fields');
@@ -423,6 +432,8 @@ async function saveDieselData(action) {
             semi_howo_flatbed: parseInt(document.getElementById(action + 'semi_howo_flatbed')?.value) || null,
             semi_howo_flatbed_comment: document.getElementById(action + 'semi_howo_flatbed_comment')?.value.trim() || null
         };
+        
+        console.log('Form data to save:', formData); // Debug log
         
         let result;
         if (action === 'add') {
