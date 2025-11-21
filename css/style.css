@@ -2940,39 +2940,42 @@ body.dragging-active {
     bottom: 0 !important;
 }
 
-/* Remove ghost only on mobile screens */
+/* Mobile scroll indicators */
 @media (max-width: 768px) {
-    .sortable-ghost {
-        display: none !important;
+    .rearrange-container {
+        position: relative;
+        max-height: 60vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     }
     
-    .rearrange-card.dragging {
-        opacity: 0.9;
-        border: 2px solid #667eea;
-        /* Remove transitions only on mobile */
-        transition: none;
+    /* Scroll indicators for mobile */
+    .rearrange-container.scroll-top::before,
+    .rearrange-container.scroll-bottom::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 30px;
+        background: linear-gradient(to bottom, rgba(102, 126, 234, 0.3), transparent);
+        pointer-events: none;
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
     
-    /* Hide drag image on mobile */
-    .rearrange-card {
-        -webkit-user-drag: none;
-        -khtml-user-drag: none;
-        -moz-user-drag: none;
-        -o-user-drag: none;
-        user-drag: none;
-    }
-}
-
-/* Keep normal animations on desktop */
-@media (min-width: 769px) {
-    .sortable-ghost {
-        opacity: 0.4;
-        background: #f8f9fa;
+    .rearrange-container.scroll-top::before {
+        top: 0;
+        background: linear-gradient(to bottom, rgba(102, 126, 234, 0.4), transparent);
     }
     
-    .rearrange-card.dragging {
-        opacity: 0.8;
-        transform: rotate(2deg);
-        transition: all 0.2s ease;
+    .rearrange-container.scroll-bottom::before {
+        bottom: 0;
+        background: linear-gradient(to top, rgba(102, 126, 234, 0.4), transparent);
+    }
+    
+    .rearrange-container.scroll-top.active::before,
+    .rearrange-container.scroll-bottom.active::before {
+        opacity: 1;
     }
 }
