@@ -6519,28 +6519,31 @@ function displayTrucksForRearrangement(trucks) {
 
     container.innerHTML = html;
 }
-// Simple and instant drag & drop - no animations
+// Manual mobile scroll solution
 function initializeDragAndDrop() {
     const container = document.getElementById('truckCardsContainer');
     const scrollContainer = document.querySelector('.rearrange-container');
     
     let scrollInterval = null;
+    let isDragging = false;
     
     Sortable.create(container, {
-        animation: 0, // No animations
+        animation: 0,
         ghostClass: 'sortable-ghost',
-        chosenClass: 'sortable-chosen', 
+        chosenClass: 'sortable-chosen',
         handle: '.drag-handle',
         scroll: false, // Disable Sortable's scroll
         
         onStart: function(evt) {
             evt.item.classList.add('dragging');
-            startScroll();
+            isDragging = true;
+            startMobileScroll();
         },
         
         onEnd: function(evt) {
             evt.item.classList.remove('dragging');
-            stopScroll();
+            isDragging = false;
+            stopMobileScroll();
         },
         
         onUpdate: function(evt) {
@@ -6554,27 +6557,37 @@ function initializeDragAndDrop() {
         }
     });
     
-    function startScroll() {
+    function startMobileScroll() {
         scrollInterval = setInterval(() => {
+            if (!isDragging) return;
+            
             const dragged = document.querySelector('.rearrange-card.dragging');
             if (!dragged) return;
             
             const containerRect = scrollContainer.getBoundingClientRect();
             const draggedRect = dragged.getBoundingClientRect();
             
-            // Simple edge detection - instant response
-            if (draggedRect.top < containerRect.top + 50) {
-                // Scroll up instantly
-                scrollContainer.scrollTop -= 30;
-            } 
-            else if (draggedRect.bottom > containerRect.bottom - 50) {
-                // Scroll down instantly  
-                scrollContainer.scrollTop += 30;
+            // Scroll zones - larger for mobile
+            const scrollZone = 100;
+            let scrollAmount = 0;
+            
+            // Check if near top (scroll up)
+            if (draggedRect.top < containerRect.top + scrollZone) {
+                scrollAmount = -25;
             }
-        }, 16); // 60fps but no smoothing
+            // Check if near bottom (scroll down)
+            else if (draggedRect.bottom > containerRect.bottom - scrollZone) {
+                scrollAmount = 25;
+            }
+            
+            // Apply scroll
+            if (scrollAmount !== 0) {
+                scrollContainer.scrollTop += scrollAmount;
+            }
+        }, 50); // Slower interval for mobile
     }
     
-    function stopScroll() {
+    function stopMobileScroll() {
         if (scrollInterval) {
             clearInterval(scrollInterval);
             scrollInterval = null;

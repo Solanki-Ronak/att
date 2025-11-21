@@ -2936,3 +2936,54 @@ body.dragging-active {
     right: 0 !important;
     bottom: 0 !important;
 }
+
+/* Mobile scrolling improvements */
+@media (max-width: 768px) {
+    .rearrange-container {
+        /* Better mobile scrolling */
+        -webkit-overflow-scrolling: touch;
+        overflow-scrolling: touch;
+        /* Larger scroll area */
+        padding: 10px;
+    }
+    
+    .rearrange-cards-list {
+        gap: 8px;
+    }
+    
+    .rearrange-card {
+        /* Better touch feedback */
+        padding: 12px 15px;
+        min-height: 65px;
+    }
+    
+    .rearrange-card.dragging {
+        /* More visible when dragging */
+        box-shadow: 0 6px 25px rgba(0,0,0,0.2);
+        z-index: 100000;
+    }
+    
+    /* Make scroll container more responsive */
+    .rearrange-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .rearrange-container::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 3px;
+    }
+}
+
+/* Ensure the modal doesn't interfere with scrolling */
+#rearrangeModal .modal-content {
+    touch-action: pan-y; /* Allow vertical scrolling */
+}
+
+/* Prevent the dragged element from blocking scroll */
+.rearrange-card.dragging {
+    pointer-events: none; /* Allow scroll through dragged element */
+}
+
+.rearrange-card.dragging * {
+    pointer-events: none; /* Allow scroll through all child elements */
+}
