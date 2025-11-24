@@ -1654,19 +1654,16 @@ function copyToClipboard(text) {
         showNotification('Failed to copy to clipboard');
     });
 }
-
-// Call driver function
+// Call driver function - opens dialpad directly
 function callDriver(phone) {
     if (!phone) {
         showNotification('No phone number available');
         return;
     }
     
-    if (confirm(`Call ${phone}?`)) {
-        window.open(`tel:${phone}`, '_self');
-    }
+    // Open phone dialpad directly without confirmation
+    window.open(`tel:${phone}`, '_self');
 }
-
 function copyTruckDetails(truckNumber, name, license, contacts) {
     const contactsText = Array.isArray(contacts) ? contacts.join('\n                 ') : contacts;
     const details = `Truck: ${truckNumber}\nName: ${name}\nLicense: ${license}\nContacts: ${contactsText}`;
