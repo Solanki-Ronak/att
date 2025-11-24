@@ -1114,17 +1114,13 @@
     </div>
 </div>
 
-
-<!-- Rearrange Cards Modal -->
 <div id="rearrangeModal" class="modal">
     <div class="modal-content modal-large">
-        <!-- Close Button at Top -->
         <div class="modal-header">
             <span class="close" onclick="closeRearrangeModal()">&times;</span>
             <h2>🔄 Rearrange Truck Cards</h2>
         </div>
         
-        <!-- Search Bar -->
         <div class="search-container" style="margin: 20px 0;">
             <div class="search-icon">🔍</div>
             <input type="text" id="rearrangeSearch" class="search-input" 
@@ -1132,15 +1128,12 @@
                    oninput="highlightSearchResults(this.value)">
         </div>
         
-        <!-- Rearrangement Area -->
         <div class="rearrange-container">
             <div id="truckCardsContainer" class="rearrange-cards-list">
-                <!-- Draggable truck cards will be loaded here -->
                 <div class="loading">Loading trucks...</div>
             </div>
         </div>
         
-        <!-- Save Button at Bottom -->
         <div class="modal-footer">
             <button class="btn btn-primary" onclick="saveCardOrder()" id="saveOrderBtn">💾 Save New Order</button>
         </div>

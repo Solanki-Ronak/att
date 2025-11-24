@@ -6519,36 +6519,28 @@ function displayTrucksForRearrangement(trucks) {
 
     container.innerHTML = html;
 }
+// Simple and instant drag & drop - no animations
 function initializeDragAndDrop() {
     const container = document.getElementById('truckCardsContainer');
     const scrollContainer = document.querySelector('.rearrange-container');
-    const isMobile = window.innerWidth <= 768;
     
     let scrollInterval = null;
-    let scrollSpeed = 0;
     
     Sortable.create(container, {
-        animation: isMobile ? 0 : 150,
+        animation: 0, // No animations
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen', 
         handle: '.drag-handle',
-        scroll: isMobile ? false : true, // Disable Sortable's scroll on mobile
-        scrollSensitivity: 50,
+        scroll: false, // Disable Sortable's scroll
         
         onStart: function(evt) {
             evt.item.classList.add('dragging');
-            if (isMobile) {
-                document.body.classList.add('dragging-active');
-                startMobileScroll();
-            }
+            startScroll();
         },
         
         onEnd: function(evt) {
             evt.item.classList.remove('dragging');
-            if (isMobile) {
-                document.body.classList.remove('dragging-active');
-                stopMobileScroll();
-            }
+            stopScroll();
         },
         
         onUpdate: function(evt) {
@@ -6562,10 +6554,7 @@ function initializeDragAndDrop() {
         }
     });
     
-    // Mobile auto-scroll function
-    function startMobileScroll() {
-        if (!isMobile) return;
-        
+    function startScroll() {
         scrollInterval = setInterval(() => {
             const dragged = document.querySelector('.rearrange-card.dragging');
             if (!dragged) return;
@@ -6573,33 +6562,22 @@ function initializeDragAndDrop() {
             const containerRect = scrollContainer.getBoundingClientRect();
             const draggedRect = dragged.getBoundingClientRect();
             
-            // Calculate distance from edges
-            const fromTop = draggedRect.top - containerRect.top;
-            const fromBottom = containerRect.bottom - draggedRect.bottom;
-            
-            // Scroll up if near top (within 50px)
-            if (fromTop < 50) {
-                scrollSpeed = Math.max(-15, -((50 - fromTop) / 2));
-                scrollContainer.scrollTop += scrollSpeed;
+            // Simple edge detection - instant response
+            if (draggedRect.top < containerRect.top + 50) {
+                // Scroll up instantly
+                scrollContainer.scrollTop -= 30;
+            } 
+            else if (draggedRect.bottom > containerRect.bottom - 50) {
+                // Scroll down instantly  
+                scrollContainer.scrollTop += 30;
             }
-            // Scroll down if near bottom (within 50px)
-            else if (fromBottom < 50) {
-                scrollSpeed = Math.min(15, ((50 - fromBottom) / 2));
-                scrollContainer.scrollTop += scrollSpeed;
-            }
-            // Reset speed if not near edges
-            else {
-                scrollSpeed = 0;
-            }
-            
-        }, 16); // ~60fps
+        }, 16); // 60fps but no smoothing
     }
     
-    function stopMobileScroll() {
+    function stopScroll() {
         if (scrollInterval) {
             clearInterval(scrollInterval);
             scrollInterval = null;
-            scrollSpeed = 0;
         }
     }
 }
@@ -6762,4 +6740,276 @@ async function refreshEmployeeView() {
         console.error('Error refreshing employee view:', error);
         // Don't throw error here - we don't want to break the save operation
     }
+}
+
+
+let rearrangeTrucks = [];
+
+// Open rearrange modal with arrow controls
+async function openRearrangeModal() {
+    const modal = document.getElementById('rearrangeModal');
+    
+    try {
+        // Load trucks with their current display order
+        const { data: trucks, error } = await supabase
+            .from('trucks')
+            .select('*')
+            .eq('status', 'active')
+            .order('display_order', { ascending: true, nullsFirst: false })
+            .order('truck_number');
+
+        if (error) throw error;
+
+        // If display_order is null for some trucks, assign temporary order
+        const trucksWithOrder = trucks.map((truck, index) => ({
+            ...truck,
+            display_order: truck.display_order || index + 1
+        }));
+
+        // Sort by display_order
+        trucksWithOrder.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+
+        rearrangeTrucks = trucksWithOrder;
+        originalTruckOrder = trucksWithOrder.map(truck => truck.id);
+        currentTruckOrder = [...originalTruckOrder];
+
+        // Display trucks in modal with arrow controls
+        displayTrucksWithArrows(rearrangeTrucks);
+        
+        modal.style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error loading trucks for rearrangement:', error);
+        showErrorModal('Error loading trucks: ' + error.message);
+    }
+}
+
+// Display trucks with arrow controls
+function displayTrucksWithArrows(trucks) {
+    const container = document.getElementById('truckCardsContainer');
+    
+    if (!trucks || trucks.length === 0) {
+        container.innerHTML = '<div class="no-results">No trucks found</div>';
+        return;
+    }
+
+    let html = '';
+    trucks.forEach((truck, index) => {
+        const isFirst = index === 0;
+        const isLast = index === trucks.length - 1;
+        
+        html += `
+            <div class="rearrange-card" data-truck-id="${truck.id}" data-position="${index}">
+                <div class="card-position">${index + 1}</div>
+                <div class="card-info">
+                    <div class="card-truck-number">${truck.truck_number}</div>
+                    <div class="card-driver-name">${truck.driver_name || 'NO DRIVER'}</div>
+                </div>
+                <div class="arrow-controls">
+                    <button class="arrow-btn up" onclick="moveTruckUp('${truck.id}')" ${isFirst ? 'disabled' : ''}>↑</button>
+                    <button class="arrow-btn down" onclick="moveTruckDown('${truck.id}')" ${isLast ? 'disabled' : ''}>↓</button>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+// Move truck up with highlight
+function moveTruckUp(truckId) {
+    const currentIndex = rearrangeTrucks.findIndex(truck => truck.id === truckId);
+    if (currentIndex <= 0) return;
+
+    // Swap positions
+    [rearrangeTrucks[currentIndex], rearrangeTrucks[currentIndex - 1]] = 
+    [rearrangeTrucks[currentIndex - 1], rearrangeTrucks[currentIndex]];
+
+    // Update current order
+    currentTruckOrder = rearrangeTrucks.map(truck => truck.id);
+    
+    // Re-render with new order FIRST
+    displayTrucksWithArrows(rearrangeTrucks);
+    
+    // THEN highlight the moving card (after cards are recreated)
+    highlightMovingCard(truckId);
+    
+    // Auto-scroll if needed
+    autoScrollToCard(truckId, 'up');
+}
+
+// Move truck down with highlight
+function moveTruckDown(truckId) {
+    const currentIndex = rearrangeTrucks.findIndex(truck => truck.id === truckId);
+    if (currentIndex >= rearrangeTrucks.length - 1) return;
+
+    // Swap positions
+    [rearrangeTrucks[currentIndex], rearrangeTrucks[currentIndex + 1]] = 
+    [rearrangeTrucks[currentIndex + 1], rearrangeTrucks[currentIndex]];
+
+    // Update current order
+    currentTruckOrder = rearrangeTrucks.map(truck => truck.id);
+    
+    // Re-render with new order FIRST
+    displayTrucksWithArrows(rearrangeTrucks);
+    
+    // THEN highlight the moving card (after cards are recreated)
+    highlightMovingCard(truckId);
+    
+    // Auto-scroll if needed
+    autoScrollToCard(truckId, 'down');
+}
+function highlightMovingCard(truckId) {
+    console.log('Highlighting card:', truckId);
+    
+    // Remove any existing highlights first
+    const existingHighlights = document.querySelectorAll('.rearrange-card.highlighted-move');
+    console.log('Found existing highlights:', existingHighlights.length);
+    
+    existingHighlights.forEach(card => {
+        card.classList.remove('highlighted-move');
+    });
+    
+    // Add highlight to the moving card
+    const movingCard = document.querySelector(`[data-truck-id="${truckId}"]`);
+    console.log('Moving card element:', movingCard);
+    
+    if (movingCard) {
+        movingCard.classList.add('highlighted-move');
+        console.log('Added highlight class');
+        
+        // Auto-remove highlight after 5 seconds
+        setTimeout(() => {
+            movingCard.classList.remove('highlighted-move');
+            console.log('Removed highlight class');
+        }, 2000);
+    } else {
+        console.log('Card not found!');
+    }
+}
+// Auto-scroll when moving cards near edges
+function autoScrollToCard(truckId, direction) {
+    const container = document.querySelector('.rearrange-container');
+    const card = document.querySelector(`[data-truck-id="${truckId}"]`);
+    
+    if (!container || !card) return;
+    
+    const containerRect = container.getBoundingClientRect();
+    const cardRect = card.getBoundingClientRect();
+    
+    // Scroll if card is near the edge
+    if (direction === 'down' && cardRect.bottom > containerRect.bottom - 50) {
+        container.scrollTop += card.offsetHeight + 10; // card height + gap
+    } else if (direction === 'up' && cardRect.top < containerRect.top + 50) {
+        container.scrollTop -= card.offsetHeight + 10; // card height + gap
+    }
+}
+
+// Update position numbers (called after any move)
+function updatePositionNumbers() {
+    const cards = document.querySelectorAll('.rearrange-card');
+    cards.forEach((card, index) => {
+        const positionElement = card.querySelector('.card-position');
+        positionElement.textContent = index + 1;
+        
+        // Update arrow button states
+        const upBtn = card.querySelector('.arrow-btn.up');
+        const downBtn = card.querySelector('.arrow-btn.down');
+        
+        upBtn.disabled = index === 0;
+        downBtn.disabled = index === cards.length - 1;
+    });
+}
+
+// Highlight search results
+function highlightSearchResults(searchTerm) {
+    const cards = document.querySelectorAll('.rearrange-card');
+    const searchLower = searchTerm.toLowerCase().trim();
+    
+    if (!searchLower) {
+        // Clear all highlights
+        cards.forEach(card => {
+            card.classList.remove('highlighted', 'dimmed');
+        });
+        return;
+    }
+    
+    cards.forEach(card => {
+        const truckNumber = card.querySelector('.card-truck-number').textContent.toLowerCase();
+        const driverName = card.querySelector('.card-driver-name').textContent.toLowerCase();
+        
+        if (truckNumber.includes(searchLower) || driverName.includes(searchLower)) {
+            card.classList.add('highlighted');
+            card.classList.remove('dimmed');
+        } else {
+            card.classList.add('dimmed');
+            card.classList.remove('highlighted');
+        }
+    });
+}
+
+// Save new card order to database
+async function saveCardOrder() {
+    const saveBtn = document.getElementById('saveOrderBtn');
+    const originalText = saveBtn.textContent;
+    
+    try {
+        saveBtn.disabled = true;
+        saveBtn.textContent = '⏳ Saving...';
+        
+        // Check if order actually changed
+        const hasChanges = JSON.stringify(originalTruckOrder) !== JSON.stringify(currentTruckOrder);
+        
+        if (!hasChanges) {
+            showSuccessModal('No changes to save!');
+            closeRearrangeModal();
+            return;
+        }
+        
+        console.log('Saving new order:', currentTruckOrder);
+        
+        // Update display_order for all trucks
+        const updates = currentTruckOrder.map((truckId, index) => ({
+            id: truckId,
+            display_order: index + 1
+        }));
+        
+        // Update database
+        for (const update of updates) {
+            const { error } = await supabase
+                .from('trucks')
+                .update({ 
+                    display_order: update.display_order,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', update.id);
+            
+            if (error) {
+                console.error('Error updating truck:', update.id, error);
+                throw error;
+            }
+        }
+        
+        showSuccessModal('Card order saved successfully!');
+        closeRearrangeModal();
+        
+        // Force reload all truck sections
+        await reloadAllTruckSections();
+        
+        // Refresh employee view as well
+        await refreshEmployeeView();
+        
+    } catch (error) {
+        console.error('Error saving card order:', error);
+        showErrorModal('Error saving card order: ' + error.message);
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = originalText;
+    }
+}
+
+// Close rearrange modal
+function closeRearrangeModal() {
+    document.getElementById('rearrangeModal').style.display = 'none';
+    document.getElementById('rearrangeSearch').value = '';
 }
