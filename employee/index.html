@@ -164,6 +164,19 @@
             </div>
         </div>
     </div>
+
+    <!-- Call Confirmation Modal -->
+<div id="callConfirmModal" class="modal">
+    <div class="modal-content confirm-modal">
+        <span class="close" onclick="closeCallConfirmModal()">&times;</span>
+        <h3>📞 Open Dial Pad</h3>
+        <p id="callConfirmMessage">Do you want to open the dial pad for <span id="callPhoneNumber"></span>?</p>
+        <div class="confirm-buttons">
+            <button class="btn btn-primary" onclick="confirmCall()">✅ Yes, Open Dial Pad</button>
+            <button class="btn btn-back" onclick="closeCallConfirmModal()">❌ No, Cancel</button>
+        </div>
+    </div>
+</div>
 <script src="../js/dieselemployee.js"></script>
     <script src="../js/employee.js"></script>
 </body>

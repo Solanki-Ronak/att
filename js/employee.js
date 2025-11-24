@@ -823,17 +823,56 @@ function copyAllDetails(truckNumber, name, license, phone) {
     });
 }
 
-// Call driver function - opens dialpad directly
+let currentPhoneToCall = null;
+
+// Call driver function - shows confirmation modal
 function callDriver(phone) {
     if (!phone) {
         showNotification('No phone number available');
         return;
     }
     
-    // Open phone dialpad directly without confirmation
-    window.open(`tel:${phone}`, '_self');
+    currentPhoneToCall = phone;
+    showCallConfirmModal(phone);
 }
 
+// Show call confirmation modal
+function showCallConfirmModal(phone) {
+    const modal = document.getElementById('callConfirmModal');
+    const phoneNumberSpan = document.getElementById('callPhoneNumber');
+    const message = document.getElementById('callConfirmMessage');
+    
+    phoneNumberSpan.textContent = phone;
+    message.textContent = `Do you want to open the dial pad for ${phone}?`;
+    
+    modal.style.display = 'block';
+}
+
+// Close call confirmation modal
+function closeCallConfirmModal() {
+    const modal = document.getElementById('callConfirmModal');
+    modal.style.display = 'none';
+    currentPhoneToCall = null;
+}
+
+// Confirm and open dial pad
+function confirmCall() {
+    if (currentPhoneToCall) {
+        // Close modal first
+        closeCallConfirmModal();
+        
+        // Open phone dialpad
+        window.open(`tel:${currentPhoneToCall}`, '_self');
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const callModal = document.getElementById('callConfirmModal');
+    if (event.target === callModal) {
+        closeCallConfirmModal();
+    }
+};
 function showNotification(message) {
     const notification = document.createElement('div');
     notification.style.cssText = `

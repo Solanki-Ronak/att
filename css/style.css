@@ -2811,3 +2811,21 @@ body.modal-open {
     z-index: 10;
     position: relative;
 }
+
+
+/* Call Confirmation Modal Styles */
+#callConfirmModal .confirm-modal {
+    max-width: 400px;
+    text-align: center;
+}
+
+#callConfirmMessage {
+    margin: 15px 0;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+#callPhoneNumber {
+    font-weight: bold;
+    color: #667eea;
+}
