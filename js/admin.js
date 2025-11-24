@@ -2230,11 +2230,6 @@ async function handleDeleteTruck() {
         currentTruckId = null;
     }
 }
-let currentTrucksData = {
-    'all-trucks': [],
-    'no-truck': [],
-    'left': []
-};
 
 
 document.getElementById('confirmNo').onclick = function() {
@@ -7013,3 +7008,12 @@ function closeRearrangeModal() {
     document.getElementById('rearrangeModal').style.display = 'none';
     document.getElementById('rearrangeSearch').value = '';
 }
+
+
+// Update the currentTrucksData object to include download-pdf
+let currentTrucksData = {
+    'all-trucks': [],
+    'no-truck': [],
+    'left': []
+    
+};

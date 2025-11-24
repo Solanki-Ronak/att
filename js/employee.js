@@ -2,10 +2,6 @@ let allTrucks = []; // Store all trucks for filtering
 let allAllowances = [];
 
 
-
-
-
-
 function openTab(tabName) {
     const tabContents = document.querySelectorAll('.tab-content');
     tabContents.forEach(tab => tab.classList.remove('active'));
@@ -827,10 +823,15 @@ function copyAllDetails(truckNumber, name, license, phone) {
     });
 }
 
+// Call driver function - opens dialpad directly
 function callDriver(phone) {
-    if (confirm(`Call ${phone}?`)) {
-        window.open(`tel:${phone}`, '_self');
+    if (!phone) {
+        showNotification('No phone number available');
+        return;
     }
+    
+    // Open phone dialpad directly without confirmation
+    window.open(`tel:${phone}`, '_self');
 }
 
 function showNotification(message) {

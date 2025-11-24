@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase.js"></script>
 </head>
@@ -22,7 +24,7 @@
             <button class="nav-tab active" onclick="openTab('truck-list')">🚛 Truck List</button>
             <button class="nav-tab" onclick="openTab('allowances')">💰 Allowances</button>
              <button class="nav-tab" onclick="openTab('diesel')">⛽ Diesel</button>
-            <button class="nav-tab" onclick="openTab('distance')">📏 Distance</button>
+            <!-- <button class="nav-tab" onclick="openTab('distance')">📏 Distance</button> -->
            
         </div>
 
@@ -40,14 +42,12 @@
     <div id="last-updated-truck-list" class="last-updated-container"></div>
     
 
-
-    <!-- Three Tabs for Admin -->
-    <div class="nav-tabs secondary-tabs">
-        <button class="nav-tab secondary-tab active" onclick="openAdminTab('all-trucks')">All Drivers/Trucks</button>
-        <button class="nav-tab secondary-tab" onclick="openAdminTab('no-truck')">Drivers with No Trucks</button>
-        <button class="nav-tab secondary-tab" onclick="openAdminTab('left')">Drivers Who Left</button>
-    </div>
-    
+<div class="nav-tabs secondary-tabs">
+    <button class="nav-tab secondary-tab active" onclick="openAdminTab('all-trucks')">All Drivers/Trucks</button>
+    <button class="nav-tab secondary-tab" onclick="openAdminTab('no-truck')">Drivers with No Trucks</button>
+    <button class="nav-tab secondary-tab" onclick="openAdminTab('left')">Drivers Who Left</button>
+   
+</div>
 <!-- Replace your current search and filter section with this: -->
 <div class="search-filter-container">
     <!-- Search Bar -->
@@ -97,6 +97,8 @@
         </div>
     </div>
 </div>
+
+
     <!-- Content for each sub-tab -->
     <div id="all-trucks" class="admin-tab-content active">
         <div id="trucks-list" class="trucks-grid">
@@ -1139,6 +1141,7 @@
         </div>
     </div>
 </div>
+
 <script src="../js/dieseladmin.js"></script>
     <script src="../js/admin.js"></script>
     
