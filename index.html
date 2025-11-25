@@ -14,8 +14,7 @@
         }
 
         body {
-            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
-             background: linear-gradient(135deg, #667eea, #2a3a7c, #3a4a8c);
+            background: linear-gradient(135deg, #1a2a6c, #2a3a7c, #3a4a8c);
             color: white;
             min-height: 100vh;
             display: flex;
@@ -29,11 +28,11 @@
             max-width: 900px;
             text-align: center;
             padding: 2rem;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
             overflow: hidden;
         }
@@ -61,7 +60,7 @@
                 text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
             }
             100% {
-                text-shadow: 2px 2px 20px rgba(255, 255, 255, 0.4);
+                text-shadow: 2px 2px 20px rgba(100, 150, 255, 0.6);
             }
         }
 
@@ -128,6 +127,7 @@
         .tms-btn:active {
             transform: translateY(0);
         }
+
         .truck-icons {
             display: flex;
             justify-content: space-around;
@@ -141,7 +141,6 @@
             font-size: 4rem;
             animation: truckBounce 2s ease-in-out infinite;
             filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
-            color: rgba(255, 255, 255, 0.9);
         }
 
         .truck-icon:nth-child(1) {
@@ -171,7 +170,7 @@
 
         .road {
             height: 4px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+            background: linear-gradient(90deg, transparent, #ffcc00, transparent);
             margin: 2rem 0;
             position: relative;
             overflow: hidden;
@@ -184,7 +183,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
             animation: roadShine 3s infinite;
         }
 
@@ -206,24 +205,22 @@
         }
 
         .feature {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.1);
             padding: 1.5rem;
             border-radius: 12px;
             width: 180px;
             transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .feature:hover {
             transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .feature i {
             font-size: 2.5rem;
             margin-bottom: 1rem;
-            color: rgba(255, 255, 255, 0.9);
+            color: #8f94fb;
         }
 
         .feature h3 {
@@ -258,38 +255,6 @@
             
             .truck-icon {
                 font-size: 3rem;
-            }
-            
-            .features {
-                gap: 1rem;
-            }
-            
-            .feature {
-                width: 160px;
-                padding: 1.2rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .tms-container {
-                padding: 1.5rem;
-            }
-            
-            .truck-icon {
-                font-size: 2.5rem;
-            }
-            
-            .feature {
-                width: 140px;
-                padding: 1rem;
-            }
-            
-            .feature i {
-                font-size: 2rem;
             }
         }
     </style>
@@ -345,7 +310,6 @@
         // Add some interactive effects
         document.addEventListener('DOMContentLoaded', function() {
             const buttons = document.querySelectorAll('.tms-btn');
-            const features = document.querySelectorAll('.feature');
             
             buttons.forEach(button => {
                 button.addEventListener('mouseenter', function() {
@@ -365,17 +329,6 @@
                 
                 button.addEventListener('mouseup', function() {
                     this.style.transform = 'translateY(-7px) scale(1.03)';
-                });
-            });
-            
-            // Add feature hover effects
-            features.forEach(feature => {
-                feature.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-8px)';
-                });
-                
-                feature.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
                 });
             });
         });
