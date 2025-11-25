@@ -170,33 +170,33 @@
             }
         }
 
-        .road {
-            height: 4px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
-            margin: 2rem 0;
-            position: relative;
-            overflow: hidden;
-        }
+.road {
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #ffcc00, transparent);
+    margin: 2rem 0;
+    position: relative;
+    overflow: hidden;
+}
 
-        .road::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
-            animation: roadShine 3s infinite;
-        }
+.road::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+    animation: roadShine 3s infinite;
+}
 
-        @keyframes roadShine {
-            0% {
-                left: -100%;
-            }
-            100% {
-                left: 100%;
-            }
-        }
+@keyframes roadShine {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
 
         .features {
             display: flex;
