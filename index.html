@@ -4,19 +4,381 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Truck Management System</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+             background: linear-gradient(135deg, #667eea, #2a3a7c, #3a4a8c);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .tms-container {
+            width: 90%;
+            max-width: 900px;
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tms-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        h1 {
+            font-size: 3.2rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% {
+                text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            }
+            100% {
+                text-shadow: 2px 2px 20px rgba(255, 255, 255, 0.4);
+            }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .tms-btn {
+            padding: 1.2rem 2.5rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .tms-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: all 0.6s ease;
+        }
+
+        .tms-btn:hover::before {
+            left: 100%;
+        }
+
+        .tms-btn-primary {
+            background: linear-gradient(45deg, #4e54c8, #8f94fb);
+            color: white;
+        }
+
+        .tms-btn-secondary {
+            background: linear-gradient(45deg, #11998e, #38ef7d);
+            color: white;
+        }
+
+        .tms-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .tms-btn:active {
+            transform: translateY(0);
+        }
+        .truck-icons {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .truck-icon {
+            font-size: 4rem;
+            animation: truckBounce 2s ease-in-out infinite;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .truck-icon:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .truck-icon:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .truck-icon:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        .truck-icon:nth-child(4) {
+            animation-delay: 0.9s;
+        }
+
+        @keyframes truckBounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .road {
+            height: 4px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .road::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+            animation: roadShine 3s infinite;
+        }
+
+        @keyframes roadShine {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        .features {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1.5rem;
+            border-radius: 12px;
+            width: 180px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .feature h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .tms-btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+            
+            .truck-icons {
+                gap: 1rem;
+            }
+            
+            .truck-icon {
+                font-size: 3rem;
+            }
+            
+            .features {
+                gap: 1rem;
+            }
+            
+            .feature {
+                width: 160px;
+                padding: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .tms-container {
+                padding: 1.5rem;
+            }
+            
+            .truck-icon {
+                font-size: 2.5rem;
+            }
+            
+            .feature {
+                width: 140px;
+                padding: 1rem;
+            }
+            
+            .feature i {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🚛 Truck Management System</h1>
+    <div class="tms-container">
+        <h1><i class="fas fa-truck-moving"></i> Truck Management System</h1>
+        <p class="subtitle">Efficient logistics and fleet management solutions</p>
+        
+        <div class="truck-icons">
+            <div class="truck-icon"><i class="fas fa-gas-pump"></i></div>
+            <div class="truck-icon"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="truck-icon"><i class="fas fa-truck-pickup"></i></div>
+            <div class="truck-icon"><i class="fas fa-users"></i></div>
+        </div>
+        
+        <div class="road"></div>
+        
         <div class="button-group">
-            <button onclick="window.location.href='employee/index.html'" class="btn btn-primary">
-                👨‍💼 Employee Portal
+            <button onclick="window.location.href='employee/index.html'" class="tms-btn tms-btn-primary">
+                <i class="fas fa-user-tie"></i> Employee Portal
             </button>
-            <button onclick="window.location.href='admin/index.html'" class="btn btn-secondary">
-                🔧 Admin Portal
+            <button onclick="window.location.href='admin/index.html'" class="tms-btn tms-btn-secondary">
+                <i class="fas fa-tools"></i> Admin Portal
             </button>
         </div>
+        
+        <div class="features">
+            <div class="feature">
+                <i class="fas fa-gas-pump"></i>
+                <h3>Fuel Tracking</h3>
+                <p>Monitor fuel consumption</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-money-bill-wave"></i>
+                <h3>Allowances</h3>
+                <p>Manage driver allowances</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-truck-pickup"></i>
+                <h3>Truck List</h3>
+                <p>View all vehicles</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-users"></i>
+                <h3>Drivers</h3>
+                <p>Driver management</p>
+            </div>
+        </div>
     </div>
+
+    <script>
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.tms-btn');
+            const features = document.querySelectorAll('.feature');
+            
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-7px) scale(1.03)';
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+            
+            // Add click effect
+            buttons.forEach(button => {
+                button.addEventListener('mousedown', function() {
+                    this.style.transform = 'translateY(-2px) scale(0.98)';
+                });
+                
+                button.addEventListener('mouseup', function() {
+                    this.style.transform = 'translateY(-7px) scale(1.03)';
+                });
+            });
+            
+            // Add feature hover effects
+            features.forEach(feature => {
+                feature.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                });
+                
+                feature.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
 </body>
 </html>
