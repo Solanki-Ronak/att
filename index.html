@@ -261,14 +261,8 @@
                 font-size: 3rem;
             }
             
-            .features {
-                gap: 1rem;
-            }
-            
-            .feature {
-                width: 160px;
-                padding: 1.2rem;
-            }
+          
+        
         }
 
         @media (max-width: 480px) {
@@ -284,15 +278,60 @@
                 font-size: 2.5rem;
             }
             
-            .feature {
-                width: 140px;
-                padding: 1rem;
-            }
-            
-            .feature i {
-                font-size: 2rem;
-            }
+       
         }
+
+        @media (max-width: 300px) {
+    .features {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .feature {
+        width: 100%;
+        max-width: 250px;
+        padding: 1rem;
+    }
+    
+    .feature i {
+        font-size: 2rem;
+    }
+    
+    .feature h3 {
+        font-size: 1rem;
+    }
+    
+    .feature p {
+        font-size: 0.8rem;
+    }
+}
+
+@media (min-width: 301px) and (max-width: 600px) {
+    .features {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .feature {
+        width: 100%;
+        padding: 1rem;
+        min-width: 0; /* Prevents overflow */
+    }
+    
+    .feature i {
+        font-size: 1.8rem;
+    }
+    
+    .feature h3 {
+        font-size: 0.95rem;
+    }
+    
+    .feature p {
+        font-size: 0.8rem;
+    }
+}
     </style>
 </head>
 <body>
