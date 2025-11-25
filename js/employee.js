@@ -652,7 +652,7 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
             `<div class="license-actions">
                 <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View </button>
              </div>` :
-            '<span style="color: #666;">No license document uploaded</span>';
+            '<span style="color: #666;"></span>';
         
         // Generate contacts HTML for details modal
         const contactsHtml = generateDetailsContactsHtml(truck.driver_contacts);
@@ -831,7 +831,7 @@ function callDriver(phone) {
     }
     
     // Open phone dialpad directly without confirmation
-    window.open(`tel:${phone}`, '_self');
+    windowopen(`tel:${phone}`, '_self');
 }
 
 function showNotification(message) {
@@ -888,7 +888,7 @@ async function openDetailsModal(truckId) {
             `<div class="license-actions">
                 <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View</button>
              </div>` :
-            '<span style="color: #666;">No license document uploaded</span>';
+            '<span style="color: #666;"></span>';
         
         // Generate contacts HTML for details modal
         const contactsHtml = generateDetailsContactsHtml(truck.driver_contacts);
