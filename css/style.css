@@ -2695,8 +2695,7 @@ body.modal-open {
 }
 
 .diesel-details-table th {
- 
-   background: linear-gradient(135deg, #667eea 0%, #5a3d8a 100%);
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
     padding: 14px 12px;
     text-align: center;
