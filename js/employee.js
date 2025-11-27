@@ -823,7 +823,6 @@ function copyAllDetails(truckNumber, name, license, phone) {
     });
 }
 
-// Call driver function - opens dialpad directly
 function callDriver(phone) {
     if (!phone) {
         showNotification('No phone number available');
@@ -831,7 +830,7 @@ function callDriver(phone) {
     }
     
     // Open phone dialpad directly without confirmation
-    windowopen(`tel:${phone}`, '_self');
+    window.open(`tel:${phone}`, '_self');
 }
 
 function showNotification(message) {
