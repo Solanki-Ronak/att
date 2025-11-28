@@ -13,15 +13,25 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
+        :root {
+            --primary-color: #1e3c72;
+            --secondary-color: #2a5298;
+            --accent-color: #3498db;
+            --button-primary: #3498db;
+            --button-secondary: #2ecc71;
+            --text-color: white;
+        }
+
         body {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--text-color);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow-x: hidden;
             padding: 10px;
+            transition: all 0.5s ease;
         }
 
         .tms-container {
@@ -49,11 +59,82 @@
             z-index: -1;
         }
 
+        .theme-selector {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            max-width: 120px;
+            justify-content: flex-end;
+        }
+
+        .theme-btn {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.3);
+        }
+
+        .theme-btn.active {
+            border-color: white;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+        }
+
+        /* Blue Theme Colors */
+        .theme-midnight {
+            background: linear-gradient(135deg, #0f1b3a, #1c3b6a);
+        }
+
+        .theme-navy {
+            background: linear-gradient(135deg, #001f3f, #003366);
+        }
+
+        .theme-royal {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+        }
+
+        .theme-sapphire {
+            background: linear-gradient(135deg, #082567, #0d4b9c);
+        }
+
+        .theme-ocean {
+            background: linear-gradient(135deg, #005b96, #0077be);
+        }
+
+        .theme-sky {
+            background: linear-gradient(135deg, #0077be, #0096ff);
+        }
+
+        .theme-steel {
+            background: linear-gradient(135deg, #4682b4, #5f9ea0);
+        }
+
+        .theme-azure {
+            background: linear-gradient(135deg, #007fff, #00bfff);
+        }
+
+        .theme-cobalt {
+            background: linear-gradient(135deg, #0047ab, #1e90ff);
+        }
+
+        .theme-denim {
+            background: linear-gradient(135deg, #1560bd, #1e90ff);
+        }
+
         h1 {
             font-size: 2.2rem;
             margin-bottom: 0.8rem;
             text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-            color: white;
+            color: var(--text-color);
         }
 
         .subtitle {
@@ -102,12 +183,12 @@
         }
 
         .tms-btn-primary {
-            background: linear-gradient(45deg, #3498db, #2980b9);
+            background: linear-gradient(45deg, var(--button-primary), color-mix(in srgb, var(--button-primary) 80%, black));
             color: white;
         }
 
         .tms-btn-secondary {
-            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            background: linear-gradient(45deg, var(--button-secondary), color-mix(in srgb, var(--button-secondary) 80%, black));
             color: white;
         }
 
@@ -191,7 +272,7 @@
 
         .road {
             height: 3px;
-            background: linear-gradient(90deg, transparent, #3498db, transparent);
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
             margin: 1.5rem 0;
             position: relative;
             overflow: hidden;
@@ -321,11 +402,33 @@
                 padding: 0.8rem 1.5rem;
                 font-size: 0.9rem;
             }
+            
+            .theme-selector {
+                max-width: 100px;
+            }
+            
+            .theme-btn {
+                width: 14px;
+                height: 14px;
+            }
         }
     </style>
 </head>
-<body>
+<body class="theme-royal">
     <div class="tms-container">
+        <div class="theme-selector">
+            <div class="theme-btn theme-midnight active" data-theme="midnight" title="Midnight Blue"></div>
+            <div class="theme-btn theme-navy" data-theme="navy" title="Navy Blue"></div>
+            <div class="theme-btn theme-royal" data-theme="royal" title="Royal Blue"></div>
+            <div class="theme-btn theme-sapphire" data-theme="sapphire" title="Sapphire Blue"></div>
+            <div class="theme-btn theme-ocean" data-theme="ocean" title="Ocean Blue"></div>
+            <div class="theme-btn theme-sky" data-theme="sky" title="Sky Blue"></div>
+            <div class="theme-btn theme-steel" data-theme="steel" title="Steel Blue"></div>
+            <div class="theme-btn theme-azure" data-theme="azure" title="Azure Blue"></div>
+            <div class="theme-btn theme-cobalt" data-theme="cobalt" title="Cobalt Blue"></div>
+            <div class="theme-btn theme-denim" data-theme="denim" title="Denim Blue"></div>
+        </div>
+        
         <h1><i class="fas fa-truck-moving"></i> Truck Management System</h1>
         <p class="subtitle">Efficient logistics and fleet management solutions</p>
         
@@ -372,8 +475,117 @@
     </div>
 
     <script>
-        // Add some interactive effects
+        // Theme switching functionality
         document.addEventListener('DOMContentLoaded', function() {
+            const themeButtons = document.querySelectorAll('.theme-btn');
+            const body = document.body;
+            
+            // Define color schemes for each blue theme
+            const themes = {
+                midnight: {
+                    primary: '#0f1b3a',
+                    secondary: '#1c3b6a',
+                    accent: '#2c5282',
+                    buttonPrimary: '#2c5282',
+                    buttonSecondary: '#2ecc71'
+                },
+                navy: {
+                    primary: '#001f3f',
+                    secondary: '#003366',
+                    accent: '#00509e',
+                    buttonPrimary: '#00509e',
+                    buttonSecondary: '#2ecc71'
+                },
+                royal: {
+                    primary: '#1e3c72',
+                    secondary: '#2a5298',
+                    accent: '#3498db',
+                    buttonPrimary: '#3498db',
+                    buttonSecondary: '#2ecc71'
+                },
+                sapphire: {
+                    primary: '#082567',
+                    secondary: '#0d4b9c',
+                    accent: '#1261b1',
+                    buttonPrimary: '#1261b1',
+                    buttonSecondary: '#2ecc71'
+                },
+                ocean: {
+                    primary: '#005b96',
+                    secondary: '#0077be',
+                    accent: '#0096ff',
+                    buttonPrimary: '#0096ff',
+                    buttonSecondary: '#2ecc71'
+                },
+                sky: {
+                    primary: '#0077be',
+                    secondary: '#0096ff',
+                    accent: '#00bfff',
+                    buttonPrimary: '#00bfff',
+                    buttonSecondary: '#2ecc71'
+                },
+                steel: {
+                    primary: '#4682b4',
+                    secondary: '#5f9ea0',
+                    accent: '#70a8c9',
+                    buttonPrimary: '#70a8c9',
+                    buttonSecondary: '#2ecc71'
+                },
+                azure: {
+                    primary: '#007fff',
+                    secondary: '#00bfff',
+                    accent: '#40e0d0',
+                    buttonPrimary: '#40e0d0',
+                    buttonSecondary: '#2ecc71'
+                },
+                cobalt: {
+                    primary: '#0047ab',
+                    secondary: '#1e90ff',
+                    accent: '#4aa8ff',
+                    buttonPrimary: '#4aa8ff',
+                    buttonSecondary: '#2ecc71'
+                },
+                denim: {
+                    primary: '#1560bd',
+                    secondary: '#1e90ff',
+                    accent: '#4aa8ff',
+                    buttonPrimary: '#4aa8ff',
+                    buttonSecondary: '#2ecc71'
+                }
+            };
+            
+            // Set initial theme
+            setTheme('royal');
+            
+            // Add event listeners to theme buttons
+            themeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    
+                    // Update active button
+                    themeButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Apply theme
+                    setTheme(theme);
+                });
+            });
+            
+            function setTheme(themeName) {
+                const theme = themes[themeName];
+                
+                // Update CSS custom properties
+                document.documentElement.style.setProperty('--primary-color', theme.primary);
+                document.documentElement.style.setProperty('--secondary-color', theme.secondary);
+                document.documentElement.style.setProperty('--accent-color', theme.accent);
+                document.documentElement.style.setProperty('--button-primary', theme.buttonPrimary);
+                document.documentElement.style.setProperty('--button-secondary', theme.buttonSecondary);
+                
+                // Update body class for theme-specific adjustments
+                body.className = `theme-${themeName}`;
+            }
+            
+            // Add interactive effects
             const buttons = document.querySelectorAll('.tms-btn');
             const features = document.querySelectorAll('.feature');
             const truckIcons = document.querySelectorAll('.truck-icon');
