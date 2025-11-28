@@ -21,14 +21,14 @@
             justify-content: center;
             align-items: center;
             overflow-x: hidden;
-            padding: 20px;
+            padding: 10px;
         }
 
         .tms-container {
-            width: 90%;
+            width: 100%;
             max-width: 1000px;
             text-align: center;
-            padding: 3rem 2rem;
+            padding: 2rem 1.5rem;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(12px);
             border-radius: 20px;
@@ -50,29 +50,29 @@
         }
 
         h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+            font-size: 2.2rem;
+            margin-bottom: 0.8rem;
             text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
             color: white;
         }
 
         .subtitle {
-            font-size: 1.2rem;
-            margin-bottom: 3rem;
+            font-size: 1rem;
+            margin-bottom: 2rem;
             opacity: 0.9;
         }
 
         .button-group {
             display: flex;
             justify-content: center;
-            gap: 2rem;
-            margin-bottom: 3rem;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
             flex-wrap: wrap;
         }
 
         .tms-btn {
-            padding: 1.2rem 2.5rem;
-            font-size: 1.1rem;
+            padding: 1rem 2rem;
+            font-size: 1rem;
             border: none;
             border-radius: 12px;
             cursor: pointer;
@@ -80,7 +80,7 @@
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             position: relative;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -125,12 +125,12 @@
             justify-content: space-around;
             align-items: center;
             flex-wrap: nowrap;
-            gap: 1rem;
-            margin: 3rem 0;
+            gap: 0.5rem;
+            margin: 2rem 0;
         }
 
         .truck-icon {
-            font-size: 3.5rem;
+            font-size: 2.5rem;
             color: white;
             filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
             transition: all 0.3s ease;
@@ -160,7 +160,7 @@
                 transform: translateY(0) rotate(0deg);
             }
             50% {
-                transform: translateY(-15px) rotate(5deg);
+                transform: translateY(-10px) rotate(3deg);
             }
         }
 
@@ -173,7 +173,7 @@
                 transform: scale(1);
             }
             50% {
-                transform: scale(1.2);
+                transform: scale(1.15);
             }
             100% {
                 transform: scale(1);
@@ -185,14 +185,14 @@
                 filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
             }
             to {
-                filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.7));
+                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.7));
             }
         }
 
         .road {
-            height: 4px;
+            height: 3px;
             background: linear-gradient(90deg, transparent, #3498db, transparent);
-            margin: 2rem 0;
+            margin: 1.5rem 0;
             position: relative;
             overflow: hidden;
             border-radius: 2px;
@@ -220,15 +220,15 @@
 
         .features {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.5rem;
-            margin-top: 2rem;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
         }
 
         .feature {
             background: rgba(255, 255, 255, 0.15);
-            padding: 1.5rem;
-            border-radius: 12px;
+            padding: 1rem;
+            border-radius: 10px;
             transition: all 0.3s ease;
             border: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
@@ -245,96 +245,81 @@
         }
 
         .feature i {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+            font-size: 1.8rem;
+            margin-bottom: 0.8rem;
             color: white;
         }
 
         .feature h3 {
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            margin-bottom: 0.4rem;
         }
 
         .feature p {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             opacity: 0.8;
         }
 
-        /* Tablet and Mobile Styles */
-        @media (max-width: 768px) {
+        /* Tablet Styles */
+        @media (min-width: 769px) {
             h1 {
-                font-size: 2.5rem;
+                font-size: 3rem;
             }
             
-            .button-group {
-                flex-direction: column;
-                align-items: center;
+            .subtitle {
+                font-size: 1.2rem;
+                margin-bottom: 3rem;
             }
             
             .tms-btn {
-                width: 100%;
-                max-width: 300px;
-                justify-content: center;
-            }
-            
-            /* Truck icons remain 4x1 on all screen sizes */
-            .truck-icons {
-                flex-wrap: nowrap;
-                gap: 0.5rem;
+                padding: 1.2rem 2.5rem;
+                font-size: 1.1rem;
             }
             
             .truck-icon {
-                font-size: 2.8rem;
-                flex: 1;
+                font-size: 3.5rem;
             }
             
-            /* Features become 2x2 grid on tablets and mobiles */
             .features {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1.5rem;
+                margin-top: 2rem;
             }
             
             .feature {
-                padding: 1.2rem;
+                padding: 1.5rem;
             }
             
             .feature i {
-                font-size: 2rem;
+                font-size: 2.5rem;
             }
             
             .feature h3 {
-                font-size: 1rem;
+                font-size: 1.1rem;
             }
             
             .feature p {
-                font-size: 0.85rem;
+                font-size: 0.9rem;
             }
         }
 
         /* For very small mobile screens */
-        @media (max-width: 480px) {
+        @media (max-width: 350px) {
+            .tms-container {
+                padding: 1.5rem 1rem;
+            }
+            
             h1 {
+                font-size: 1.8rem;
+            }
+            
+            .truck-icon {
                 font-size: 2rem;
             }
             
-            .tms-container {
-                padding: 2rem 1rem;
-            }
-            
-            .truck-icon {
-                font-size: 2.2rem;
-            }
-            
-            /* Ensure features remain 2x2 on very small screens */
-            .features {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        /* For extremely small screens, adjust icon size */
-        @media (max-width: 350px) {
-            .truck-icon {
-                font-size: 1.8rem;
+            .tms-btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -395,7 +380,7 @@
             
             buttons.forEach(button => {
                 button.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-7px) scale(1.03)';
+                    this.style.transform = 'translateY(-5px) scale(1.03)';
                 });
                 
                 button.addEventListener('mouseleave', function() {
@@ -410,14 +395,14 @@
                 });
                 
                 button.addEventListener('mouseup', function() {
-                    this.style.transform = 'translateY(-7px) scale(1.03)';
+                    this.style.transform = 'translateY(-5px) scale(1.03)';
                 });
             });
             
             // Add feature hover effects
             features.forEach(feature => {
                 feature.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-8px)';
+                    this.style.transform = 'translateY(-5px)';
                 });
                 
                 feature.addEventListener('mouseleave', function() {
