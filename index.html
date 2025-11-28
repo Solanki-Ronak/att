@@ -14,10 +14,10 @@
         }
 
         :root {
-            --primary-color: #1e3c72;
-            --secondary-color: #2a5298;
-            --accent-color: #3498db;
-            --button-primary: #3498db;
+            --primary-color: #001f3f;
+            --secondary-color: #003366;
+            --accent-color: #00509e;
+            --button-primary: #00509e;
             --button-secondary: #2ecc71;
             --text-color: white;
         }
@@ -59,77 +59,6 @@
             z-index: -1;
         }
 
-        .theme-selector {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            max-width: 120px;
-            justify-content: flex-end;
-        }
-
-        .theme-btn {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        .theme-btn:hover {
-            transform: scale(1.3);
-        }
-
-        .theme-btn.active {
-            border-color: white;
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
-        }
-
-        /* Blue Theme Colors */
-        .theme-midnight {
-            background: linear-gradient(135deg, #0f1b3a, #1c3b6a);
-        }
-
-        .theme-navy {
-            background: linear-gradient(135deg, #001f3f, #003366);
-        }
-
-        .theme-royal {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-        }
-
-        .theme-sapphire {
-            background: linear-gradient(135deg, #082567, #0d4b9c);
-        }
-
-        .theme-ocean {
-            background: linear-gradient(135deg, #005b96, #0077be);
-        }
-
-        .theme-sky {
-            background: linear-gradient(135deg, #0077be, #0096ff);
-        }
-
-        .theme-steel {
-            background: linear-gradient(135deg, #4682b4, #5f9ea0);
-        }
-
-        .theme-azure {
-            background: linear-gradient(135deg, #007fff, #00bfff);
-        }
-
-        .theme-cobalt {
-            background: linear-gradient(135deg, #0047ab, #1e90ff);
-        }
-
-        .theme-denim {
-            background: linear-gradient(135deg, #1560bd, #1e90ff);
-        }
-
         h1 {
             font-size: 2.2rem;
             margin-bottom: 0.8rem;
@@ -152,19 +81,22 @@
         }
 
         .tms-btn {
-            padding: 1rem 2rem;
-            font-size: 1rem;
+            padding: 1.2rem 2.5rem;
+            font-size: 1.1rem;
             border: none;
             border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            gap: 10px;
             position: relative;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            min-width: 220px;
+            min-height: 60px;
         }
 
         .tms-btn::before {
@@ -193,12 +125,33 @@
         }
 
         .tms-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
         }
 
         .tms-btn:active {
-            transform: translateY(0);
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        /* Button animation effects */
+        @keyframes buttonPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 80, 158, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(0, 80, 158, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 80, 158, 0);
+            }
+        }
+
+        .tms-btn-primary:hover {
+            animation: buttonPulse 1.5s infinite;
+        }
+
+        .tms-btn-secondary:hover {
+            animation: buttonPulse 1.5s infinite;
         }
 
         .truck-icons {
@@ -317,6 +270,8 @@
             align-items: center;
             text-align: center;
             min-width: 0;
+            min-height: 140px;
+            justify-content: center;
         }
 
         .feature:hover {
@@ -355,6 +310,7 @@
             .tms-btn {
                 padding: 1.2rem 2.5rem;
                 font-size: 1.1rem;
+                min-width: 240px;
             }
             
             .truck-icon {
@@ -369,6 +325,7 @@
             
             .feature {
                 padding: 1.5rem;
+                min-height: 180px;
             }
             
             .feature i {
@@ -384,51 +341,94 @@
             }
         }
 
-        /* For very small mobile screens */
-        @media (max-width: 350px) {
+        /* Mobile optimization for 2x2 cards */
+        @media (max-width: 768px) {
             .tms-container {
                 padding: 1.5rem 1rem;
+                margin: 0;
             }
             
             h1 {
                 font-size: 1.8rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .button-group {
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .tms-btn {
+                padding: 1rem 1.5rem;
+                font-size: 1rem;
+                min-width: 100%;
+                min-height: 55px;
+            }
+            
+            .truck-icons {
+                margin: 1.5rem 0;
             }
             
             .truck-icon {
                 font-size: 2rem;
             }
             
-            .tms-btn {
-                padding: 0.8rem 1.5rem;
-                font-size: 0.9rem;
+            .road {
+                margin: 1rem 0;
             }
             
-            .theme-selector {
-                max-width: 100px;
+            .features {
+                gap: 0.8rem;
+                margin-top: 1rem;
             }
             
-            .theme-btn {
-                width: 14px;
-                height: 14px;
+            .feature {
+                padding: 0.8rem;
+                min-height: 120px;
+            }
+            
+            .feature i {
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .feature h3 {
+                font-size: 0.85rem;
+                margin-bottom: 0.3rem;
+            }
+            
+            .feature p {
+                font-size: 0.75rem;
+            }
+        }
+
+        /* For very small mobile screens */
+        @media (max-width: 350px) {
+            .tms-container {
+                padding: 1rem 0.8rem;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .truck-icon {
+                font-size: 1.8rem;
+            }
+            
+            .feature {
+                min-height: 110px;
             }
         }
     </style>
 </head>
-<body class="theme-royal">
+<body>
     <div class="tms-container">
-        <div class="theme-selector">
-            <div class="theme-btn theme-midnight active" data-theme="midnight" title="Midnight Blue"></div>
-            <div class="theme-btn theme-navy" data-theme="navy" title="Navy Blue"></div>
-            <div class="theme-btn theme-royal" data-theme="royal" title="Royal Blue"></div>
-            <div class="theme-btn theme-sapphire" data-theme="sapphire" title="Sapphire Blue"></div>
-            <div class="theme-btn theme-ocean" data-theme="ocean" title="Ocean Blue"></div>
-            <div class="theme-btn theme-sky" data-theme="sky" title="Sky Blue"></div>
-            <div class="theme-btn theme-steel" data-theme="steel" title="Steel Blue"></div>
-            <div class="theme-btn theme-azure" data-theme="azure" title="Azure Blue"></div>
-            <div class="theme-btn theme-cobalt" data-theme="cobalt" title="Cobalt Blue"></div>
-            <div class="theme-btn theme-denim" data-theme="denim" title="Denim Blue"></div>
-        </div>
-        
         <h1><i class="fas fa-truck-moving"></i> Truck Management System</h1>
         <p class="subtitle">Efficient logistics and fleet management solutions</p>
         
@@ -475,143 +475,32 @@
     </div>
 
     <script>
-        // Theme switching functionality
+        // Add interactive effects
         document.addEventListener('DOMContentLoaded', function() {
-            const themeButtons = document.querySelectorAll('.theme-btn');
-            const body = document.body;
-            
-            // Define color schemes for each blue theme
-            const themes = {
-                midnight: {
-                    primary: '#0f1b3a',
-                    secondary: '#1c3b6a',
-                    accent: '#2c5282',
-                    buttonPrimary: '#2c5282',
-                    buttonSecondary: '#2ecc71'
-                },
-                navy: {
-                    primary: '#001f3f',
-                    secondary: '#003366',
-                    accent: '#00509e',
-                    buttonPrimary: '#00509e',
-                    buttonSecondary: '#2ecc71'
-                },
-                royal: {
-                    primary: '#1e3c72',
-                    secondary: '#2a5298',
-                    accent: '#3498db',
-                    buttonPrimary: '#3498db',
-                    buttonSecondary: '#2ecc71'
-                },
-                sapphire: {
-                    primary: '#082567',
-                    secondary: '#0d4b9c',
-                    accent: '#1261b1',
-                    buttonPrimary: '#1261b1',
-                    buttonSecondary: '#2ecc71'
-                },
-                ocean: {
-                    primary: '#005b96',
-                    secondary: '#0077be',
-                    accent: '#0096ff',
-                    buttonPrimary: '#0096ff',
-                    buttonSecondary: '#2ecc71'
-                },
-                sky: {
-                    primary: '#0077be',
-                    secondary: '#0096ff',
-                    accent: '#00bfff',
-                    buttonPrimary: '#00bfff',
-                    buttonSecondary: '#2ecc71'
-                },
-                steel: {
-                    primary: '#4682b4',
-                    secondary: '#5f9ea0',
-                    accent: '#70a8c9',
-                    buttonPrimary: '#70a8c9',
-                    buttonSecondary: '#2ecc71'
-                },
-                azure: {
-                    primary: '#007fff',
-                    secondary: '#00bfff',
-                    accent: '#40e0d0',
-                    buttonPrimary: '#40e0d0',
-                    buttonSecondary: '#2ecc71'
-                },
-                cobalt: {
-                    primary: '#0047ab',
-                    secondary: '#1e90ff',
-                    accent: '#4aa8ff',
-                    buttonPrimary: '#4aa8ff',
-                    buttonSecondary: '#2ecc71'
-                },
-                denim: {
-                    primary: '#1560bd',
-                    secondary: '#1e90ff',
-                    accent: '#4aa8ff',
-                    buttonPrimary: '#4aa8ff',
-                    buttonSecondary: '#2ecc71'
-                }
-            };
-            
-            // Set initial theme
-            setTheme('royal');
-            
-            // Add event listeners to theme buttons
-            themeButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const theme = this.getAttribute('data-theme');
-                    
-                    // Update active button
-                    themeButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Apply theme
-                    setTheme(theme);
-                });
-            });
-            
-            function setTheme(themeName) {
-                const theme = themes[themeName];
-                
-                // Update CSS custom properties
-                document.documentElement.style.setProperty('--primary-color', theme.primary);
-                document.documentElement.style.setProperty('--secondary-color', theme.secondary);
-                document.documentElement.style.setProperty('--accent-color', theme.accent);
-                document.documentElement.style.setProperty('--button-primary', theme.buttonPrimary);
-                document.documentElement.style.setProperty('--button-secondary', theme.buttonSecondary);
-                
-                // Update body class for theme-specific adjustments
-                body.className = `theme-${themeName}`;
-            }
-            
-            // Add interactive effects
             const buttons = document.querySelectorAll('.tms-btn');
             const features = document.querySelectorAll('.feature');
             const truckIcons = document.querySelectorAll('.truck-icon');
             
+            // Button effects
             buttons.forEach(button => {
                 button.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-5px) scale(1.03)';
+                    this.style.transform = 'translateY(-8px) scale(1.05)';
                 });
                 
                 button.addEventListener('mouseleave', function() {
                     this.style.transform = 'translateY(0) scale(1)';
                 });
-            });
-            
-            // Add click effect
-            buttons.forEach(button => {
+                
                 button.addEventListener('mousedown', function() {
-                    this.style.transform = 'translateY(-2px) scale(0.98)';
+                    this.style.transform = 'translateY(-2px) scale(1.02)';
                 });
                 
                 button.addEventListener('mouseup', function() {
-                    this.style.transform = 'translateY(-5px) scale(1.03)';
+                    this.style.transform = 'translateY(-8px) scale(1.05)';
                 });
             });
             
-            // Add feature hover effects
+            // Feature hover effects
             features.forEach(feature => {
                 feature.addEventListener('mouseenter', function() {
                     this.style.transform = 'translateY(-5px)';
@@ -622,7 +511,7 @@
                 });
             });
             
-            // Add truck icon hover effects
+            // Truck icon hover effects
             truckIcons.forEach(icon => {
                 icon.addEventListener('mouseenter', function() {
                     this.style.animation = 'pulse 0.5s ease-in-out, glow 1.5s ease-in-out infinite alternate';
