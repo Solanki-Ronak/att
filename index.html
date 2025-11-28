@@ -14,24 +14,22 @@
         }
 
         body {
-
-            
-            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
-            background: linear-gradient(135deg, #667eea 10%, #671ab4 90%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow-x: hidden;
+            padding: 20px;
         }
 
         .tms-container {
             width: 90%;
-            max-width: 900px;
+            max-width: 1000px;
             text-align: center;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.15);
+            padding: 3rem 2rem;
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(12px);
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
@@ -52,19 +50,10 @@
         }
 
         h1 {
-            font-size: 3.2rem;
-            margin-bottom: 1.5rem;
+            font-size: 3rem;
+            margin-bottom: 1rem;
             text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-            animation: titleGlow 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes titleGlow {
-            0% {
-                text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-            }
-            100% {
-                text-shadow: 2px 2px 20px rgba(255, 255, 255, 0.4);
-            }
+            color: white;
         }
 
         .subtitle {
@@ -73,7 +62,7 @@
             opacity: 0.9;
         }
 
-       .button-group {
+        .button-group {
             display: flex;
             justify-content: center;
             gap: 2rem;
@@ -83,7 +72,7 @@
 
         .tms-btn {
             padding: 1.2rem 2.5rem;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             border: none;
             border-radius: 12px;
             cursor: pointer;
@@ -113,12 +102,12 @@
         }
 
         .tms-btn-primary {
-            background: linear-gradient(45deg, #4e54c8, #8f94fb);
+            background: linear-gradient(45deg, #3498db, #2980b9);
             color: white;
         }
 
         .tms-btn-secondary {
-            background: linear-gradient(45deg, #11998e, #38ef7d);
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
             color: white;
         }
 
@@ -135,16 +124,19 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 2rem;
-            margin-top: 2rem;
+            flex-wrap: nowrap;
+            gap: 1rem;
+            margin: 3rem 0;
         }
 
         .truck-icon {
-            font-size: 4rem;
-            animation: truckBounce 2s ease-in-out infinite;
+            font-size: 3.5rem;
+            color: white;
             filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
-            color: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+            animation: float 3s ease-in-out infinite;
+            flex: 1;
+            text-align: center;
         }
 
         .truck-icon:nth-child(1) {
@@ -152,56 +144,123 @@
         }
 
         .truck-icon:nth-child(2) {
-            animation-delay: 0.3s;
+            animation-delay: 0.5s;
         }
 
         .truck-icon:nth-child(3) {
-            animation-delay: 0.6s;
+            animation-delay: 1s;
         }
 
         .truck-icon:nth-child(4) {
-            animation-delay: 0.9s;
+            animation-delay: 1.5s;
         }
 
-        @keyframes truckBounce {
+        @keyframes float {
             0%, 100% {
-                transform: translateY(0);
+                transform: translateY(0) rotate(0deg);
             }
             50% {
-                transform: translateY(-15px);
+                transform: translateY(-15px) rotate(5deg);
             }
         }
 
-.road {
-    height: 4px;
-    background: linear-gradient(90deg, transparent, #ffcc00, transparent);
-    margin: 2rem 0;
-    position: relative;
-    overflow: hidden;
-}
+        .truck-icon:hover {
+            animation: pulse 0.5s ease-in-out, glow 1.5s ease-in-out infinite alternate;
+        }
 
-.road::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
-    animation: roadShine 3s infinite;
-}
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
 
-@keyframes roadShine {
-    0% {
-        left: -100%;
-    }
-    100% {
-        left: 100%;
-    }
-}
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+            }
+            to {
+                filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.7));
+            }
+        }
 
-        
+        .road {
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #3498db, transparent);
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+            border-radius: 2px;
+        }
 
+        .road::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+            animation: roadShine 3s infinite;
+        }
+
+        @keyframes roadShine {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1.5rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-width: 0;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .feature h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Tablet and Mobile Styles */
         @media (max-width: 768px) {
             h1 {
                 font-size: 2.5rem;
@@ -218,144 +277,66 @@
                 justify-content: center;
             }
             
+            /* Truck icons remain 4x1 on all screen sizes */
             .truck-icons {
-                gap: 1rem;
+                flex-wrap: nowrap;
+                gap: 0.5rem;
             }
             
             .truck-icon {
-                font-size: 3rem;
+                font-size: 2.8rem;
+                flex: 1;
             }
             
-          
-        
+            /* Features become 2x2 grid on tablets and mobiles */
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .feature {
+                padding: 1.2rem;
+            }
+            
+            .feature i {
+                font-size: 2rem;
+            }
+            
+            .feature h3 {
+                font-size: 1rem;
+            }
+            
+            .feature p {
+                font-size: 0.85rem;
+            }
         }
 
+        /* For very small mobile screens */
         @media (max-width: 480px) {
             h1 {
                 font-size: 2rem;
             }
             
             .tms-container {
-                padding: 1.5rem;
+                padding: 2rem 1rem;
             }
             
             .truck-icon {
-                font-size: 2.5rem;
+                font-size: 2.2rem;
             }
             
-       
+            /* Ensure features remain 2x2 on very small screens */
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
-.features {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-    margin-top: 2rem;
-}
 
-.feature {
-    background: rgba(255, 255, 255, 0.15);
-    padding: 1.5rem;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    min-width: 0; /* Prevents overflow */
-}
-
-.feature:hover {
-    transform: translateY(-5px);
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-.feature i {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.feature h3 {
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
-}
-
-.feature p {
-    font-size: 0.9rem;
-    opacity: 0.8;
-}
-
-/* For mobile screens only - 2x2 layout */
-@media (max-width: 768px) {
-    h1 {
-        font-size: 2.5rem;
-    }
-    
-    .button-group {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .tms-btn {
-        width: 100%;
-        max-width: 300px;
-        justify-content: center;
-    }
-    
-    .truck-icons {
-        gap: 1rem;
-    }
-    
-    .truck-icon {
-        font-size: 3rem;
-    }
-    
-    /* Change to 2x2 grid on mobile */
-    .features {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
-    
-    .feature {
-        padding: 1rem;
-    }
-    
-    .feature i {
-        font-size: 1.8rem;
-    }
-    
-    .feature h3 {
-        font-size: 0.95rem;
-    }
-    
-    .feature p {
-        font-size: 0.8rem;
-    }
-}
-
-/* For very small mobile screens */
-@media (max-width: 480px) {
-    h1 {
-        font-size: 2rem;
-    }
-    
-    .tms-container {
-        padding: 1.5rem;
-    }
-    
-    .truck-icon {
-        font-size: 2.5rem;
-    }
-    
-    /* Optional: make single column on very small screens */
-    @media (max-width: 350px) {
-        .features {
-            grid-template-columns: 1fr;
+        /* For extremely small screens, adjust icon size */
+        @media (max-width: 350px) {
+            .truck-icon {
+                font-size: 1.8rem;
+            }
         }
-    }
-}
     </style>
 </head>
 <body>
@@ -410,6 +391,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const buttons = document.querySelectorAll('.tms-btn');
             const features = document.querySelectorAll('.feature');
+            const truckIcons = document.querySelectorAll('.truck-icon');
             
             buttons.forEach(button => {
                 button.addEventListener('mouseenter', function() {
@@ -440,6 +422,18 @@
                 
                 feature.addEventListener('mouseleave', function() {
                     this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // Add truck icon hover effects
+            truckIcons.forEach(icon => {
+                icon.addEventListener('mouseenter', function() {
+                    this.style.animation = 'pulse 0.5s ease-in-out, glow 1.5s ease-in-out infinite alternate';
+                });
+                
+                icon.addEventListener('mouseleave', function() {
+                    this.style.animation = 'float 3s ease-in-out infinite';
+                    this.style.animationDelay = getComputedStyle(this).animationDelay;
                 });
             });
         });
