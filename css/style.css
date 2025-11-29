@@ -1086,7 +1086,7 @@
 
         .truck-image {
             width: 100%;
-            height: 180px;
+           
             object-fit: cover;
             border-radius: 8px;
             border: 2px solid #e9ecef;
@@ -2002,7 +2002,6 @@
         /* === Images === */
         .driver-image{
             width: 100%;
-           
             object-fit: cover;
             border-radius: 12px;
             margin-bottom: 15px;
