@@ -118,28 +118,40 @@ function displayDieselData(dieselData) {
 
     dieselList.innerHTML = tableHTML;
 }
-// Setup diesel modal
+// Setup diesel modal with back button functionality
 function setupDieselModal() {
     const modal = document.getElementById('dieselDetailsModal');
     const closeBtn = modal.querySelector('.close');
     
     closeBtn.onclick = () => {
-        modal.style.display = 'none';
+        closeDieselDetailsModal();
     };
     
     // Close modal when clicking outside
     window.onclick = (event) => {
         if (event.target === modal) {
-            modal.style.display = 'none';
+            closeDieselDetailsModal();
         }
     };
+    
+    // Add popstate event listener for browser back button
+    window.addEventListener('popstate', function(event) {
+        if (modal.style.display === 'block') {
+            closeDieselDetailsModal();
+        }
+    });
 }
 
 // Close diesel details modal
 function closeDieselDetailsModal() {
-    document.getElementById('dieselDetailsModal').style.display = 'none';
+    const modal = document.getElementById('dieselDetailsModal');
+    modal.style.display = 'none';
+    
+    // Only go back if we're in a modal state
+    if (history.state && history.state.dieselModalOpen) {
+        history.back();
+    }
 }
-
 // Open diesel details modal
 async function openDieselDetailsModal(dieselId) {
     currentDieselId = dieselId;
@@ -158,7 +170,12 @@ async function openDieselDetailsModal(dieselId) {
         const modalContent = generateDieselModalContent(dieselItem);
         document.getElementById('dieselModalContent').innerHTML = modalContent;
         
+        // Show modal
         modal.style.display = 'block';
+        
+        // Push state to history for back button functionality
+        history.pushState({ dieselModalOpen: true }, '', '');
+        
     } catch (error) {
         console.error('Error loading diesel details:', error);
         showErrorModal('Error loading diesel details: ' + error.message);
