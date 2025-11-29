@@ -769,10 +769,10 @@ function displayAllowances(allowances) {
             <thead>
                 <tr>
                     <th>Source</th>
-                    <th>Destination</th>
-                    <th>Driver's Posho</th>
-                    <th>T/Boy's Posho</th>
-                    <th>Comments</th>
+                    <th>DESTINATION</th>
+                    <th>DRIVER'S POSHO</th>
+                    <th>T/BOY'S POSHO</th>
+                    <th>COMMENTS</th>
                 </tr>
             </thead>
             <tbody>

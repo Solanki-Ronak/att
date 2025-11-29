@@ -91,10 +91,10 @@ function displayDieselData(dieselData) {
         <table class="diesel-table">
             <thead>
                 <tr>
-                    <th>Source</th>
-                    <th>Destination</th>
-                    <th>Load</th>
-                    <th style="width: 160px;">Actions</th>
+                    <th>SOURCE</th>
+                    <th>DESTINATION</th>
+                    <th>LOAD</th>
+                    <th style="width: 160px;">ACTIONS</th>
                 </tr>
             </thead>
             <tbody>
