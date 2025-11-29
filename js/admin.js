@@ -664,12 +664,12 @@ function displayAllowances(allowances) {
         <table class="allowances-table">
             <thead>
                 <tr>
-                    <th>Source</th>
-                    <th>Destination</th>
-                    <th>Driver's Posho</th>
-                    <th>T/Boy's Posho</th>
-                    <th>Comments</th>
-                    <th style="width: 140px;">Actions</th>
+                    <th>SOURCE</th>
+                    <th>DESTINATION</th>
+                    <th>DRIVER'S POSHO</th>
+                    <th>T/BOY'S POSHO</th>
+                    <th>COMMENTS</th>
+                    <th style="width: 140px;">ACTIONS</th>
                 </tr>
             </thead>
             <tbody>
@@ -678,11 +678,11 @@ function displayAllowances(allowances) {
     allowances.forEach(allowance => {
         tableHTML += `
             <tr>
-                <td>${allowance.source}</td>
-                <td>${allowance.destination}</td>
+                <td>${allowance.source ? allowance.source.toUpperCase() : ''}</td>
+                <td>${allowance.destination ? allowance.destination.toUpperCase() : ''}</td>
                 <td class="amount-cell">${formatCurrency(allowance.driver_posho)}</td>
                 <td class="amount-cell">${formatCurrency(allowance.tboy_posho)}</td>
-                <td class="comments-cell" title="${allowance.comments || 'None'}">${allowance.comments || 'None'}</td>
+                <td class="comments-cell" title="${allowance.comments || 'None'}">${allowance.comments ? allowance.comments.toUpperCase() : 'NONE'}</td>
                 <td>
                     <div class="allowance-actions">
                         <button class="btn btn-edit" onclick="openEditAllowanceModal('${allowance.id}')">Edit</button>
@@ -739,11 +739,12 @@ async function openEditAllowanceModal(allowanceId) {
 async function handleAddAllowanceSubmit(event) {
     event.preventDefault();
     
-    const source = document.getElementById('addSource').value;
-    const destination = document.getElementById('addDestination').value;
+    const source = document.getElementById('addSource').value.toUpperCase();
+const destination = document.getElementById('addDestination').value.toUpperCase();
+const comments = (document.getElementById('addComments').value || 'None').toUpperCase();
     const driverPosho = parseInt(document.getElementById('addDriverPosho').value);
     const tboyPosho = parseInt(document.getElementById('addTboyPosho').value);
-    const comments = document.getElementById('addComments').value || 'None';
+  
     
     const submitBtn = event.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
@@ -781,11 +782,12 @@ async function handleAddAllowanceSubmit(event) {
 async function handleEditAllowanceSubmit(event) {
     event.preventDefault();
     
-    const source = document.getElementById('editSource').value;
-    const destination = document.getElementById('editDestination').value;
+    const source = document.getElementById('editSource').value.toUpperCase();
+const destination = document.getElementById('editDestination').value.toUpperCase();
+const comments = (document.getElementById('editComments').value || 'None').toUpperCase();
     const driverPosho = parseInt(document.getElementById('editDriverPosho').value);
     const tboyPosho = parseInt(document.getElementById('editTboyPosho').value);
-    const comments = document.getElementById('editComments').value || 'None';
+  
     
     const submitBtn = event.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;

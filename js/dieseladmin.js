@@ -101,16 +101,21 @@ function displayDieselData(dieselData) {
     `;
 
     dieselData.forEach(item => {
+        // CONVERT TO UPPERCASE FOR DISPLAY
+        const source = (item.source || '').toUpperCase();
+        const destination = (item.destination || '').toUpperCase();
+        const load = (item.load || '').toUpperCase();
+        
         tableHTML += `
             <tr>
-                <td>${item.source || ''}</td>
-                <td>${item.destination || ''}</td>
-                <td>${item.load || ''}</td>
+                <td>${source}</td>
+                <td>${destination}</td>
+                <td>${load}</td>
                 <td>
                     <div class="diesel-actions">
                         <button class="btn btn-view" onclick="openDieselDetailsModal('${item.id}')">View</button>
                         <button class="btn btn-edit" onclick="openEditDieselModal('${item.id}')">Edit</button>
-                        <button class="btn btn-delete" onclick="confirmDeleteDiesel('${item.id}', '${item.source}', '${item.destination}')">Delete</button>
+                        <button class="btn btn-delete" onclick="confirmDeleteDiesel('${item.id}', '${source}', '${destination}')">Delete</button>
                     </div>
                 </td>
             </tr>
@@ -192,10 +197,15 @@ async function openDieselDetailsModal(dieselId) {
         showErrorModal('Error loading diesel details: ' + error.message);
     }
 }
-// Generate diesel modal content for view - SHOWS ALL TRUCK TYPES EVEN IF EMPTY
+// Generate diesel modal content for view - UPDATED WITH UPPERCASE ONLY
 function generateDieselModalContent(dieselItem) {
-    const mainHeading = `${dieselItem.source} TO ${dieselItem.destination}`;
-    const subHeading = `${dieselItem.load}`;
+    // CONVERT TO UPPERCASE FOR DISPLAY
+    const source = (dieselItem.source || '').toUpperCase();
+    const destination = (dieselItem.destination || '').toUpperCase();
+    const load = (dieselItem.load || '').toUpperCase();
+    
+    const mainHeading = `${source} TO ${destination}`;
+    const subHeading = `${load}`;
     
     const truckTypes = [
         { key: 'km', label: 'KM', value: dieselItem.km, comment: dieselItem.km_comment },
@@ -215,7 +225,8 @@ function generateDieselModalContent(dieselItem) {
     truckTypes.forEach(truck => {
         // ALWAYS show the row, even if value is null/empty
         const displayValue = truck.value !== null && truck.value !== '' ? truck.value : '---';
-        const displayComment = truck.comment || '---';
+        // CONVERT COMMENTS TO UPPERCASE
+        const displayComment = truck.comment ? truck.comment.toUpperCase() : '---';
         
         truckRowsHTML += `
             <tr>
@@ -370,7 +381,7 @@ document.getElementById('editDieselForm')?.addEventListener('submit', async func
     e.preventDefault();
     await saveDieselData('edit');
 });
-// Save diesel data - CORRECTED VERSION
+// Save diesel data - UPDATED VERSION WITH UPPERCASE ONLY
 async function saveDieselData(action) {
     const formId = action === 'add' ? 'addDieselForm' : 'editDieselForm';
     const form = document.getElementById(formId);
@@ -390,16 +401,16 @@ async function saveDieselData(action) {
         let source, destination, load;
         
         if (action === 'add') {
-            source = document.getElementById('addSource1')?.value.trim(); // Changed to addSource1
-            destination = document.getElementById('addDestination1')?.value.trim(); // Changed to addDestination1
-            load = document.getElementById('addLoad')?.value.trim();
+            source = document.getElementById('addSource1')?.value.trim().toUpperCase(); // ADDED .toUpperCase()
+            destination = document.getElementById('addDestination1')?.value.trim().toUpperCase(); // ADDED .toUpperCase()
+            load = document.getElementById('addLoad')?.value.trim().toUpperCase(); // ADDED .toUpperCase()
         } else {
-            source = document.getElementById('editSource1')?.value.trim();
-            destination = document.getElementById('editDestination1')?.value.trim();
-            load = document.getElementById('editLoad')?.value.trim();
+            source = document.getElementById('editSource1')?.value.trim().toUpperCase(); // ADDED .toUpperCase()
+            destination = document.getElementById('editDestination1')?.value.trim().toUpperCase(); // ADDED .toUpperCase()
+            load = document.getElementById('editLoad')?.value.trim().toUpperCase(); // ADDED .toUpperCase()
         }
         
-        console.log('Form values:', { source, destination, load, action }); // Debug log
+        console.log('Form values:', { source, destination, load, action });
         
         if (!source || !destination || !load) {
             throw new Error('Source, Destination, and Load are required fields');
@@ -410,30 +421,30 @@ async function saveDieselData(action) {
             destination: destination,
             load: load,
             km: parseInt(document.getElementById(action + 'Km')?.value) || null,
-            km_comment: document.getElementById(action + 'KmComment')?.value.trim() || null,
+            km_comment: document.getElementById(action + 'KmComment')?.value.trim().toUpperCase() || null, // ADDED .toUpperCase()
             p360: parseInt(document.getElementById(action + 'p360')?.value) || null,
-            p360_comment: document.getElementById(action + 'p360_comment')?.value.trim() || null,
+            p360_comment: document.getElementById(action + 'p360_comment')?.value.trim().toUpperCase() || null, // ADDED .toUpperCase()
             howo: parseInt(document.getElementById(action + 'howo')?.value) || null,
-            howo_comment: document.getElementById(action + 'howo_comment')?.value.trim() || null,
+            howo_comment: document.getElementById(action + 'howo_comment')?.value.trim().toUpperCase() || null, // ADDED .toUpperCase()
             truck_114: parseInt(document.getElementById(action + 'truck_114')?.value) || null,
-            truck_114_comment: document.getElementById(action + 'truck_114_comment')?.value.trim() || null,
+            truck_114_comment: document.getElementById(action + 'truck_114_comment')?.value.trim().toUpperCase() || null, // ADDED .toUpperCase()
             shacman_pulling: parseInt(document.getElementById(action + 'shacman_pulling')?.value) || null,
-            shacman_pulling_comment: document.getElementById(action + 'shacman_pulling_comment')?.value.trim() || null,
+            shacman_pulling_comment: document.getElementById(action + 'shacman_pulling_comment')?.value.trim().toUpperCase() || null, // ADDED .toUpperCase()
             truck_113: parseInt(document.getElementById(action + 'truck_113')?.value) || null,
-            truck_113_comment: document.getElementById(action + 'truck_113_comment')?.value.trim() || null,
+            truck_113_comment: document.getElementById(action + 'truck_113_comment')?.value.trim().toUpperCase() || null, // ADDED .toUpperCase()
             semi_scania: parseInt(document.getElementById(action + 'semi_scania')?.value) || null,
-            semi_scania_comment: document.getElementById(action + 'semi_scania_comment')?.value.trim() || null,
+            semi_scania_comment: document.getElementById(action + 'semi_scania_comment')?.value.trim().toUpperCase() || null, // ADDED .toUpperCase()
             semi_shacman_container: parseInt(document.getElementById(action + 'semi_shacman_container')?.value) || null,
-            semi_shacman_container_comment: document.getElementById(action + 'semi_shacman_container_comment')?.value.trim() || null,
+            semi_shacman_container_comment: document.getElementById(action + 'semi_shacman_container_comment')?.value.trim().toUpperCase() || null, // ADDED .toUpperCase()
             semi_shacman_flatbed: parseInt(document.getElementById(action + 'semi_shacman_flatbed')?.value) || null,
-            semi_shacman_flatbed_comment: document.getElementById(action + 'semi_shacman_flatbed_comment')?.value.trim() || null,
+            semi_shacman_flatbed_comment: document.getElementById(action + 'semi_shacman_flatbed_comment')?.value.trim().toUpperCase() || null, // ADDED .toUpperCase()
             semi_howo_container: parseInt(document.getElementById(action + 'semi_howo_container')?.value) || null,
-            semi_howo_container_comment: document.getElementById(action + 'semi_howo_container_comment')?.value.trim() || null,
+            semi_howo_container_comment: document.getElementById(action + 'semi_howo_container_comment')?.value.trim().toUpperCase() || null, // ADDED .toUpperCase()
             semi_howo_flatbed: parseInt(document.getElementById(action + 'semi_howo_flatbed')?.value) || null,
-            semi_howo_flatbed_comment: document.getElementById(action + 'semi_howo_flatbed_comment')?.value.trim() || null
+            semi_howo_flatbed_comment: document.getElementById(action + 'semi_howo_flatbed_comment')?.value.trim().toUpperCase() || null // ADDED .toUpperCase()
         };
         
-        console.log('Form data to save:', formData); // Debug log
+        console.log('Form data to save:', formData);
         
         let result;
         if (action === 'add') {
@@ -457,7 +468,6 @@ async function saveDieselData(action) {
         submitBtn.textContent = action === 'add' ? '➕ Add Diesel Data' : '💾 Save Changes';
     }
 }
-
 // Utility functions
 function showSuccessModal(message) {
     const modal = document.getElementById('successModal');

@@ -87,10 +87,10 @@ function displayDieselData(dieselData) {
        <table class="diesel-table">
             <thead>
                 <tr>
-                    <th>Source</th>
-                    <th>Destination</th>
-                    <th>Load</th>
-                    <th style="width: 80px;">Actions</th>
+                    <th>SOURCE</th>
+                    <th>DESTINATION</th>
+                    <th>LOAD</th>
+                    <th style="width: 80px;">ACTIONS</th>
                 </tr>
             </thead>
             <tbody>
@@ -99,9 +99,9 @@ function displayDieselData(dieselData) {
     dieselData.forEach(item => {
         tableHTML += `
             <tr>
-                <td>${item.source}</td>
-                <td>${item.destination}</td>
-                <td>${item.load}</td>
+                <td>${item.source ? item.source.toUpperCase() : ''}</td>
+                <td>${item.destination ? item.destination.toUpperCase() : ''}</td>
+                <td>${item.load ? item.load.toUpperCase() : ''}</td>
                 <td>
                     <div class="diesel-actions">
                         <button class="btn btn-view" onclick="openDieselDetailsModal('${item.id}')">View</button>
@@ -166,8 +166,8 @@ async function openDieselDetailsModal(dieselId) {
 }
 // Generate diesel modal content for view - SHOWS ALL TRUCK TYPES EVEN IF EMPTY
 function generateDieselModalContent(dieselItem) {
-    const mainHeading = `${dieselItem.source} TO ${dieselItem.destination}`;
-    const subHeading = `${dieselItem.load}`;
+    const mainHeading = `${dieselItem.source ? dieselItem.source.toUpperCase() : ''} TO ${dieselItem.destination ? dieselItem.destination.toUpperCase() : ''}`;
+    const subHeading = `${dieselItem.load ? dieselItem.load.toUpperCase() : ''}`;
     
     const truckTypes = [
         { key: 'km', label: 'KM', value: dieselItem.km, comment: dieselItem.km_comment },
@@ -187,7 +187,7 @@ function generateDieselModalContent(dieselItem) {
     truckTypes.forEach(truck => {
         // ALWAYS show the row, even if value is null/empty
         const displayValue = truck.value !== null && truck.value !== '' ? truck.value : '---';
-        const displayComment = truck.comment || '---';
+        const displayComment = truck.comment ? truck.comment.toUpperCase() : '---';
         
         truckRowsHTML += `
             <tr>
@@ -208,9 +208,9 @@ function generateDieselModalContent(dieselItem) {
             <table class="diesel-details-table">
                 <thead>
                     <tr>
-                        <th>Truck Type</th>
-                        <th>Value</th>
-                        <th>Comments</th>
+                        <th>TRUCK TYPE</th>
+                        <th>VALUE</th>
+                        <th>COMMENTS</th>
                     </tr>
                 </thead>
                 <tbody>

@@ -779,13 +779,18 @@ function displayAllowances(allowances) {
     `;
 
     allowances.forEach(allowance => {
+        // Capitalize source, destination, and comments
+        const source = allowance.source ? allowance.source.toUpperCase() : '';
+        const destination = allowance.destination ? allowance.destination.toUpperCase() : '';
+        const comments = allowance.comments ? allowance.comments.toUpperCase() : 'NONE';
+        
         tableHTML += `
             <tr>
-                <td>${allowance.source}</td>
-                <td>${allowance.destination}</td>
+                <td>${source}</td>
+                <td>${destination}</td>
                 <td class="amount-cell">${formatCurrency(allowance.driver_posho)}</td>
                 <td class="amount-cell">${formatCurrency(allowance.tboy_posho)}</td>
-                <td class="comments-cell" title="${allowance.comments || 'None'}">${allowance.comments || 'None'}</td>
+                <td class="comments-cell" title="${comments}">${comments}</td>
             </tr>
         `;
     });

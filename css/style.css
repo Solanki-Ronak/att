@@ -2557,24 +2557,25 @@
             background-color: #f8f9fa;
         }
 
-        .diesel-actions .btn {
-            padding: 8px 16px;
-            font-size: 0.75rem;
-            background: linear-gradient(135deg, #00509e, #003366);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            box-shadow: 0 4px 8px rgba(0, 80, 158, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .diesel-actions .btn:hover {
-            background: linear-gradient(135deg, #003366, #001f3f);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 80, 158, 0.4);
-        }
+        .diesel-actions .btn-view {
+    padding: 8px 14px; /* Match the edit/delete button padding */
+    font-size: 0.85rem; /* Match the edit/delete button font size */
+    background: linear-gradient(135deg, #00509e, #003366);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(0, 80, 158, 0.3);
+    transition: all 0.3s ease;
+    width: auto; /* Ensure it doesn't take full width */
+    min-width: auto; /* Remove any minimum width constraint */
+}
+.diesel-actions .btn-view:hover {
+    background: linear-gradient(135deg, #003366, #001f3f);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 80, 158, 0.4);
+}
 
         /* Diesel Modal Styling */
         .diesel-modal-header {
@@ -2728,13 +2729,12 @@
             }
         }
 
-        /* Diesel Actions Buttons */
-        .diesel-actions {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            align-items: center;
-        }
+.diesel-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
 
         .allowance-actions {
             font-size: 0.75rem;
@@ -2747,25 +2747,43 @@
             font-size: 0.75rem;
         }
 
-        .diesel-actions .btn-edit {
-            background: linear-gradient(135deg, #ff9800, #f57c00);
-            color: white;
-            padding: 7px 14px;
-            font-size: 0.85rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+      .diesel-actions .btn-edit {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+    transition: all 0.3s ease;
+}
 
-        .diesel-actions .btn-delete {
-            background: linear-gradient(135deg, #dc3545, #c82333);
-            color: white;
-            padding: 7px 14px;
-            font-size: 0.85rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+       .diesel-actions .btn-edit:hover {
+    background: linear-gradient(135deg, #f57c00, #e65100);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(255, 152, 0, 0.4);
+}
+
+.diesel-actions .btn-delete {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    transition: all 0.3s ease;
+}
+
+.diesel-actions .btn-delete:hover {
+    background: linear-gradient(135deg, #c82333, #bd2130);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(220, 53, 69, 0.4);
+}
 
         .btn-edit:hover {
             background: linear-gradient(135deg, #f57c00, #e65100);
