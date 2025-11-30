@@ -16,15 +16,11 @@ function setupDieselSearch() {
         searchInput.addEventListener('input', handleDieselSearch);
     }
 }
+
 // Handle diesel search
 function handleDieselSearch(event) {
     const searchTerm = event.target.value.toLowerCase().trim();
     const resultsCount = document.getElementById('dieselSearchResultsCount');
-    
-    // If search is being cleared, manage history state
-    if (searchTerm === '' && history.state && history.state.backAction === 'search') {
-        history.back();
-    }
     
     if (searchTerm === '') {
         displayDieselData(allDieselData);
@@ -32,11 +28,6 @@ function handleDieselSearch(event) {
             resultsCount.textContent = `Showing all ${allDieselData.length} records`;
         }
         return;
-    }
-    
-    // Push state when starting a search
-    if (searchTerm !== '' && (!history.state || history.state.backAction !== 'search')) {
-        history.pushState({ backAction: 'search' }, '', '');
     }
     
     const filteredData = allDieselData.filter(item => {
@@ -145,46 +136,18 @@ function setupDieselModal() {
     
     // Add popstate event listener for browser back button
     window.addEventListener('popstate', function(event) {
-        handleBackButton();
+        if (modal.style.display === 'block') {
+            closeDieselDetailsModal();
+        }
     });
 }
-// Handle back button with priority hierarchy
-function handleBackButton() {
-    const modal = document.getElementById('dieselDetailsModal');
-    const searchInput = document.getElementById('dieselSearchInput');
-    const currentTab = document.querySelector('.nav-tab.active');
-    const currentTabId = currentTab ? currentTab.getAttribute('onclick') : '';
-
-    // LEVEL 1: Modal is open - Close modal only
-    if (modal.style.display === 'block') {
-        closeDieselDetailsModal();
-        return;
-    }
-    
-    // LEVEL 2: Search has text - Clear search only
-    if (searchInput && searchInput.value.trim() !== '') {
-        searchInput.value = '';
-        handleDieselSearch({ target: searchInput }); // Trigger search to show all records
-        return;
-    }
-    
-    // LEVEL 3: Normal state on Diesel tab - Switch to Truck List tab
-    if (currentTabId && currentTabId.includes('diesel')) {
-        // Find and click the Truck List tab
-        const truckListTab = document.querySelector('.nav-tab[onclick*="truck-list"]');
-        if (truckListTab) {
-            truckListTab.click();
-        }
-    }
-}
-
 // Close diesel details modal
 function closeDieselDetailsModal() {
     const modal = document.getElementById('dieselDetailsModal');
     modal.style.display = 'none';
     
     // Only go back if we're in a modal state
-    if (history.state && history.state.backAction === 'modal') {
+    if (history.state && history.state.dieselModalOpen) {
         history.back();
     }
 }
@@ -210,7 +173,7 @@ async function openDieselDetailsModal(dieselId) {
         modal.style.display = 'block';
         
         // Push state to history for back button functionality
-        history.pushState({ backAction: 'modal' }, '', '');
+        history.pushState({ dieselModalOpen: true }, '', '');
         
     } catch (error) {
         console.error('Error loading diesel details:', error);
@@ -273,6 +236,8 @@ function generateDieselModalContent(dieselItem) {
         </div>
     `;
 }
+// Update the openTab function to initialize diesel tab
+// Add this to your existing openTab function:
 function openTab(tabName) {
     const tabContents = document.querySelectorAll('.tab-content');
     tabContents.forEach(tab => tab.classList.remove('active'));
@@ -282,11 +247,6 @@ function openTab(tabName) {
 
     document.getElementById(tabName).classList.add('active');
     event.currentTarget.classList.add('active');
-
-    // Push state when switching to diesel tab (for back button)
-    if (tabName === 'diesel') {
-        history.pushState({ backAction: 'tab' }, '', '');
-    }
 
     // Load data when specific tabs are opened
     if (tabName === 'allowances') {
@@ -300,6 +260,7 @@ function openTab(tabName) {
     // Display last updated date for the active tab
     displayLastUpdatedDate(tabName);
 }
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Add diesel initialization to your existing DOMContentLoaded function
