@@ -227,8 +227,9 @@ function createTruckCard(truck, index) {
         // Generate contacts HTML
         const contactsHtml = generateContactsHtml(truck.driver_contacts || []);
         
-        // Prepare contacts text for copying
+        // Prepare contacts text for copying - SINGLE LINE ONLY
         const contactsText = getContactsTextFromTruck(truck);
+        const escapedContacts = contactsText.replace(/'/g, "\\'");
         
         card.innerHTML = `
             <div class="card-number">${index + 1}</div>
@@ -241,15 +242,15 @@ function createTruckCard(truck, index) {
                     <span class="info-label">Name:</span>
                     <span class="info-value">${truck.driver_name}</span>
                     <div class="copy-call-buttons">
-                        <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_name}')">📋</button>
+                        <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_name.replace(/'/g, "\\'")}')">📋</button>
                     </div>
                 </div>
                 
                 <div class="info-row">
-                    <span class="info-label">License:</span>
+                  <span class="info-label">D/License:</span>
                     <span class="info-value">${truck.driver_license}</span>
                     <div class="copy-call-buttons">
-                        <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license}')">📋</button>
+                        <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license.replace(/'/g, "\\'")}')">📋</button>
                     </div>
                 </div>
                 
@@ -264,7 +265,7 @@ function createTruckCard(truck, index) {
             </div>
             
             <div class="button-row">
-                <button class="btn btn-copy" onclick="copyTruckDetails('NO ASSIGNED TRUCK', '${truck.driver_name}', '${truck.driver_license}', '${contactsText.replace(/'/g, "\\'")}')">
+                <button class="btn btn-copy" onclick="copyTruckDetails('NO ASSIGNED TRUCK', '${truck.driver_name.replace(/'/g, "\\'")}', '${truck.driver_license.replace(/'/g, "\\'")}', '${escapedContacts}')">
                     📋 Copy Details
                 </button>
                 <button class="btn btn-details" onclick="openEmployeeDriverNoTruckDetails('${truck.id}')">
@@ -286,8 +287,9 @@ function createTruckCard(truck, index) {
         // Generate contacts HTML
         const contactsHtml = generateContactsHtml(truck.driver_contacts || []);
         
-        // Prepare contacts text for copying
+        // Prepare contacts text for copying - SINGLE LINE ONLY
         const contactsText = getContactsTextFromTruck(truck);
+        const escapedContacts = contactsText.replace(/'/g, "\\'");
         
         card.innerHTML = `
             <div class="card-number">${index + 1}</div>
@@ -300,15 +302,15 @@ function createTruckCard(truck, index) {
                     <span class="info-label">Name:</span>
                     <span class="info-value">${truck.driver_name}</span>
                     <div class="copy-call-buttons">
-                        <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_name}')">📋</button>
+                        <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_name.replace(/'/g, "\\'")}')">📋</button>
                     </div>
                 </div>
                 
                 <div class="info-row">
-                    <span class="info-label">License:</span>
+                <span class="info-label">D/License:</span>
                     <span class="info-value">${truck.driver_license}</span>
                     <div class="copy-call-buttons">
-                        <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license}')">📋</button>
+                        <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license.replace(/'/g, "\\'")}')">📋</button>
                     </div>
                 </div>
                 
@@ -323,7 +325,7 @@ function createTruckCard(truck, index) {
             </div>
             
             <div class="button-row">
-                <button class="btn btn-copy" onclick="copyTruckDetails('LEFT COMPANY', '${truck.driver_name}', '${truck.driver_license}', '${contactsText.replace(/'/g, "\\'")}')">
+                <button class="btn btn-copy" onclick="copyTruckDetails('LEFT COMPANY', '${truck.driver_name.replace(/'/g, "\\'")}', '${truck.driver_license.replace(/'/g, "\\'")}', '${escapedContacts}')">
                     📋 Copy Details
                 </button>
                 <button class="btn btn-details" onclick="openEmployeeDriverNoTruckDetails('${truck.id}')">
@@ -333,7 +335,6 @@ function createTruckCard(truck, index) {
         `;
         
     } else {
-        // ... rest of your existing code for active drivers and NO DRIVER trucks remains the same
         // Active driver-truck pair OR truck with NO DRIVER
         const hasDriverImage = truck.driver_image_url && truck.driver_image_url !== '';
         
@@ -356,7 +357,7 @@ function createTruckCard(truck, index) {
                     </div>
                     
                     <div class="info-row">
-                        <span class="info-label">License:</span>
+                      <span class="info-label">D/License:</span>
                         <span class="info-value empty-field">-</span>
                     </div>
                     
@@ -367,7 +368,7 @@ function createTruckCard(truck, index) {
                 </div>
                 
                 <div class="button-row">
-                    <button class="btn btn-copy" onclick="copyTruckDetails('${truck.truck_number}', 'NO DRIVER', '', '')">
+                    <button class="btn btn-copy" onclick="copyTruckDetails('${truck.truck_number.replace(/'/g, "\\'")}', 'NO DRIVER', '', '')">
                         📋 Copy Details
                     </button>
                     <button class="btn btn-details" onclick="openEmployeeNoDriverDetails('${truck.id}')">
@@ -380,8 +381,9 @@ function createTruckCard(truck, index) {
             // Generate contacts HTML
             const contactsHtml = generateContactsHtml(truck.driver_contacts || []);
             
-            // Prepare contacts text for copying
+            // Prepare contacts text for copying - SINGLE LINE ONLY
             const contactsText = getContactsTextFromTruck(truck);
+            const escapedContacts = contactsText.replace(/'/g, "\\'");
             
             card.innerHTML = `
                 <div class="card-number">${index + 1}</div>
@@ -394,7 +396,7 @@ function createTruckCard(truck, index) {
                         <span class="info-label">Name:</span>
                         <span class="info-value">${truck.driver_name}</span>
                         <div class="copy-call-buttons">
-                            <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_name}')">📋</button>
+                            <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_name.replace(/'/g, "\\'")}')">📋</button>
                         </div>
                     </div>
                     
@@ -402,7 +404,7 @@ function createTruckCard(truck, index) {
                         <span class="info-label">License:</span>
                         <span class="info-value">${truck.driver_license}</span>
                         <div class="copy-call-buttons">
-                            <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license}')">📋</button>
+                            <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license.replace(/'/g, "\\'")}')">📋</button>
                         </div>
                     </div>
                     
@@ -410,7 +412,7 @@ function createTruckCard(truck, index) {
                 </div>
                 
                 <div class="button-row">
-                    <button class="btn btn-copy" onclick="copyTruckDetails('${truck.truck_number}', '${truck.driver_name}', '${truck.driver_license}', '${contactsText.replace(/'/g, "\\'")}')">
+                    <button class="btn btn-copy" onclick="copyTruckDetails('${truck.truck_number.replace(/'/g, "\\'")}', '${truck.driver_name.replace(/'/g, "\\'")}', '${truck.driver_license.replace(/'/g, "\\'")}', '${escapedContacts}')">
                         📋 Copy Details
                     </button>
                     <button class="btn btn-details" onclick="openDetailsModal('${truck.id}')">
@@ -423,7 +425,6 @@ function createTruckCard(truck, index) {
     
     return card;
 }
-
 // NEW FUNCTION: Format previous trucks as numbered vertical list for cards
 function formatPreviousTrucksForCards(previousTrucks) {
     if (!previousTrucks) {
@@ -453,27 +454,27 @@ function generateContactsHtml(contacts) {
     let contactsHtml = '';
     
     if (contacts.length === 1) {
-        // Single contact
+        // Single contact - show as "Contact: 07531123213"
         contactsHtml = `
             <div class="info-row">
                 <span class="info-label">Contact:</span>
                 <span class="info-value">${contacts[0].phone_number}</span>
                 <div class="copy-call-buttons">
-                    <button class="btn btn-copy" onclick="copyToClipboard('${contacts[0].phone_number}')">📋</button>
-                    <button class="btn btn-call" onclick="callDriver('${contacts[0].phone_number}')">📞</button>
+                    <button class="btn btn-copy" onclick="copyToClipboard('${contacts[0].phone_number.replace(/'/g, "\\'")}')">📋</button>
+                    <button class="btn btn-call" onclick="callDriver('${contacts[0].phone_number.replace(/'/g, "\\'")}')">📞</button>
                 </div>
             </div>
         `;
     } else {
-        // Multiple contacts
+        // Multiple contacts - show each individually with numbers
         contacts.forEach((contact, index) => {
             contactsHtml += `
                 <div class="info-row">
                     <span class="info-label">Contact ${index + 1}:</span>
                     <span class="info-value">${contact.phone_number}</span>
                     <div class="copy-call-buttons">
-                        <button class="btn btn-copy" onclick="copyToClipboard('${contact.phone_number}')">📋</button>
-                        <button class="btn btn-call" onclick="callDriver('${contact.phone_number}')">📞</button>
+                        <button class="btn btn-copy" onclick="copyToClipboard('${contact.phone_number.replace(/'/g, "\\'")}')">📋</button>
+                        <button class="btn btn-call" onclick="callDriver('${contact.phone_number.replace(/'/g, "\\'")}')">📞</button>
                     </div>
                 </div>
             `;
@@ -482,19 +483,24 @@ function generateContactsHtml(contacts) {
     
     return contactsHtml;
 }
-
 function getContactsTextFromTruck(truck) {
-    if (!truck.driver_contacts || truck.driver_contacts.length === 0) {
+    if (!truck || !truck.driver_contacts || truck.driver_contacts.length === 0) {
         return 'No contacts';
     }
     
-    if (truck.driver_contacts.length === 1) {
-        return `Contact: ${truck.driver_contacts[0].phone_number}`;
-    } else {
-        return truck.driver_contacts.map((contact, index) => 
-            `Contact ${index + 1}: ${contact.phone_number}`
-        ).join('\n           ');
+    // Handle array of contacts
+    if (Array.isArray(truck.driver_contacts)) {
+        if (truck.driver_contacts.length === 1) {
+            // Single contact: "Contact: 07531123213"
+            return `Contact: ${truck.driver_contacts[0].phone_number}`;
+        } else {
+            // Multiple contacts: "Contacts: 07531123213, 0713123123"
+            const phoneNumbers = truck.driver_contacts.map(contact => contact.phone_number);
+            return `Contacts: ${phoneNumbers.join(', ')}`;
+        }
     }
+    
+    return 'No contacts';
 }
 // Helper function to get all contacts as text
 function getAllContactsText(contacts) {
@@ -502,9 +508,15 @@ function getAllContactsText(contacts) {
     return contacts.map(contact => contact.phone_number).join(', ');
 }
 function copyTruckDetails(truckNumber, name, license, contacts) {
-    // Decode the contacts string (it might be encoded for the onclick)
-    const decodedContacts = contacts.replace(/\\'/g, "'");
-    const details = `Truck: ${truckNumber}\nName: ${name}\nLicense: ${license}\n${decodedContacts}`;
+    console.log("Copying:", { truckNumber, name, license, contacts });
+    
+    // Convert contacts back to multi-line if needed
+    let formattedContacts = contacts;
+    if (contacts.includes(' | ')) {
+        formattedContacts = contacts.replace(/\s*\|\s*/g, '\n');
+    }
+    
+   const details = `Truck: ${truckNumber}\nName: ${name}\nD/License: ${license}\n${formattedContacts}`;
     
     navigator.clipboard.writeText(details).then(() => {
         showNotification('All details copied to clipboard!');
@@ -513,6 +525,7 @@ function copyTruckDetails(truckNumber, name, license, contacts) {
         showNotification('Failed to copy details');
     });
 }
+
 async function openEmployeeNoDriverDetails(truckId) {
     try {
         const { data: truck, error } = await supabase
@@ -808,16 +821,22 @@ function formatCurrency(amount) {
     return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-
 function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
+    if (!text || text === '-' || text === '') {
+        showNotification('Nothing to copy');
+        return;
+    }
+    
+    // Clean up text
+    const cleanedText = text.replace(/\\'/g, "'");
+    
+    navigator.clipboard.writeText(cleanedText).then(() => {
         showNotification('Copied to clipboard!');
     }).catch(err => {
         console.error('Failed to copy: ', err);
         showNotification('Failed to copy to clipboard');
     });
 }
-
 function copyAllDetails(truckNumber, name, license, phone) {
     const details = `${truckNumber}\nName: ${name}\nLicense: ${license}\nContact: ${phone}`;
     navigator.clipboard.writeText(details).then(() => {
@@ -1123,7 +1142,7 @@ function toggleFilterDropdown() {
         filterTimeout = setTimeout(() => {
             dropdown.classList.remove('active');
             filterTimeout = null;
-        }, 4000); 
+        }, 3000); 
     }
 }
 
@@ -1162,7 +1181,7 @@ document.addEventListener('click', function(event) {
         filterTimeout = setTimeout(() => {
             dropdown.classList.remove('active');
             filterTimeout = null;
-        }, 4000);
+        }, 3000);
     }
 });
 // Toggle individual filter

@@ -1613,7 +1613,7 @@ function createAdminTruckCard(truck) {
             </div>
             
             <div class="info-row">
-                <span class="info-label">License:</span>
+                <span class="info-label">D/License:</span>
                 <span class="info-value">${truck.driver_license}</span>
                 <div class="copy-call-buttons">
                     <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license}')">📋</button>
@@ -1667,8 +1667,20 @@ function callDriver(phone) {
     window.open(`tel:${phone}`, '_self');
 }
 function copyTruckDetails(truckNumber, name, license, contacts) {
-    const contactsText = Array.isArray(contacts) ? contacts.join('\n                 ') : contacts;
-    const details = `Truck: ${truckNumber}\nName: ${name}\nLicense: ${license}\nContacts: ${contactsText}`;
+    // Format the contacts properly
+    let contactsText;
+    
+    if (contacts === 'No contacts') {
+        contactsText = 'No contacts';
+    } else if (contacts.includes(', ')) {
+        // Multiple contacts
+        contactsText = `Contacts: ${contacts}`;
+    } else {
+        // Single contact
+        contactsText = `Contact: ${contacts}`;
+    }
+    
+    const details = `Truck: ${truckNumber}\nName: ${name}\nD/License: ${license}\n${contactsText}`; // CHANGED License: to D/License:
     navigator.clipboard.writeText(details).then(() => {
         showNotification('All details copied to clipboard!');
     }).catch(err => {
@@ -1933,8 +1945,8 @@ function createActiveDriverCard(truck, index) {
     
     const hasDriverImage = truck.driver_image_url && truck.driver_image_url !== '';
     
-    // Generate contacts HTML first
-    const contactsHtml = generateContactsHtml(truck.driver_contacts);
+    // Generate contacts HTML first - FIXED
+    const contactsHtml = generateContactsHtmlForCard(truck.driver_contacts); // Changed function name
     
     const imageHtml = hasDriverImage ? 
         `<img src="${truck.driver_image_url}" alt="${truck.driver_name}" class="driver-image">` : '';
@@ -1955,14 +1967,14 @@ function createActiveDriverCard(truck, index) {
             </div>
             
             <div class="info-row">
-                <span class="info-label">License:</span>
+                <span class="info-label">D/License:</span> 
                 <span class="info-value">${truck.driver_license}</span>
                 <div class="copy-call-buttons">
                     <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license}')">📋</button>
                 </div>
             </div>
             
-            ${contactsHtml}
+            ${contactsHtml} <!-- This will use the new format -->
         </div>
         
         <div class="admin-card-actions">
@@ -1976,6 +1988,49 @@ function createActiveDriverCard(truck, index) {
     `;
     
     return card;
+}
+
+// NEW FUNCTION: Generate contacts HTML for cards with correct formatting
+function generateContactsHtmlForCard(contacts) {
+    if (!contacts || contacts.length === 0) {
+        return `
+            <div class="info-row">
+                <span class="info-label">Contact:</span>
+                <span class="info-value empty-field">-</span>
+            </div>
+        `;
+    }
+    
+    let contactsHtml = '';
+    
+    if (contacts.length === 1) {
+        // Single contact - use "Contact:" singular
+        contactsHtml = `
+            <div class="info-row">
+                <span class="info-label">Contact:</span>
+                <span class="info-value">${contacts[0].phone_number}</span>
+                <div class="copy-call-buttons">
+                    <button class="btn btn-copy" onclick="copyToClipboard('${contacts[0].phone_number}')">📋</button>
+                    <button class="btn btn-call" onclick="callDriver('${contacts[0].phone_number}')">📞</button>
+                </div>
+            </div>
+        `;
+    } else {
+        // Multiple contacts - use "Contacts:" plural with comma-separated values
+        const contactNumbers = contacts.map(contact => contact.phone_number).join(', ');
+        contactsHtml = `
+            <div class="info-row">
+                <span class="info-label">Contacts:</span>
+                <span class="info-value">${contactNumbers}</span>
+                <div class="copy-call-buttons">
+                    <button class="btn btn-copy" onclick="copyToClipboard('${contactNumbers}')">📋</button>
+                    <button class="btn btn-call" onclick="callDriver('${contacts[0].phone_number}')">📞</button>
+                </div>
+            </div>
+        `;
+    }
+    
+    return contactsHtml;
 }
 function createNoDriverCard(truck, index) {
     const card = document.createElement('div');
@@ -2044,7 +2099,7 @@ function createDriverNoTruckCard(truck, index) {
             </div>
             
             <div class="info-row">
-                <span class="info-label">License:</span>
+                <span class="info-label">D/License:</span>
                 <span class="info-value">${truck.driver_license}</span>
                 <div class="copy-call-buttons">
                     <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license}')">📋</button>
@@ -2121,7 +2176,7 @@ function createDriverLeftCard(truck, index) {
             </div>
             
             <div class="info-row">
-                <span class="info-label">License:</span>
+                <span class="info-label">D/License:</span>
                 <span class="info-value">${truck.driver_license}</span>
                 <div class="copy-call-buttons">
                     <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license}')">📋</button>
@@ -2557,7 +2612,7 @@ function toggleAdminFilterDropdown() {
         adminFilterTimeout = setTimeout(() => {
             dropdown.classList.remove('active');
             adminFilterTimeout = null;
-        }, 4000); 
+        }, 3000); 
     }
 }
 
@@ -3135,15 +3190,7 @@ function generateContactsHtml(contacts) {
     
     return contactsHtml;
 }
-function copyTruckDetails(truckNumber, name, license, contacts) {
-    const details = `Truck: ${truckNumber}\nName: ${name}\nLicense: ${license}\n${contacts}`;
-    navigator.clipboard.writeText(details).then(() => {
-        showNotification('All details copied to clipboard!');
-    }).catch(err => {
-        console.error('Failed to copy: ', err);
-        showNotification('Failed to copy details');
-    });
-}
+
 
 function generateDetailsContactsHtml(contacts) {
     if (!contacts || contacts.length === 0) {
@@ -3198,11 +3245,11 @@ function getContactsText(truckId) {
     }
     
     if (truck.driver_contacts.length === 1) {
-        return `Contact: ${truck.driver_contacts[0].phone_number}`;
+        // Single contact format - JUST the phone number
+        return truck.driver_contacts[0].phone_number;
     } else {
-        return truck.driver_contacts.map((contact, index) => 
-            `Contact ${index + 1}: ${contact.phone_number}`
-        ).join('\n           ');
+        // Multiple contacts format - comma separated phone numbers
+        return truck.driver_contacts.map(contact => contact.phone_number).join(', ');
     }
 }
 
