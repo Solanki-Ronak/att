@@ -525,7 +525,6 @@ function copyTruckDetails(truckNumber, name, license, contacts) {
         showNotification('Failed to copy details');
     });
 }
-
 async function openEmployeeNoDriverDetails(truckId) {
     try {
         const { data: truck, error } = await supabase
@@ -560,7 +559,7 @@ async function openEmployeeNoDriverDetails(truckId) {
 
         modal.innerHTML = `
             <div class="modal-content modal-large">
-                <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                <span class="close" onclick="closeModalWithBackButton()">&times;</span>
                 <h2>🚛 Truck Details - No Driver Assigned</h2>
                 <div class="details-grid">
                     <div class="detail-section no-image">
@@ -625,10 +624,13 @@ async function openEmployeeNoDriverDetails(truckId) {
         
         document.body.appendChild(modal);
         
+        // Add back button functionality
+        openModalWithBackButton(modal, 'no-driver-details');
+        
         // Close modal when clicking outside
         modal.onclick = function(event) {
             if (event.target === modal) {
-                modal.remove();
+                closeModalWithBackButton();
             }
         };
         
@@ -685,7 +687,7 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
         
         modal.innerHTML = `
             <div class="modal-content modal-large">
-                <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                <span class="close" onclick="closeModalWithBackButton()">&times;</span>
                 <h2>👨‍💼 Driver Details - ${statusTitle}</h2>
                 <div class="details-grid">
                     <div class="detail-section ${!hasDriverImage ? 'no-image' : ''}">
@@ -710,11 +712,11 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
                     <div class="detail-section no-image">
                         <h3>Additional Information</h3>
                         <div class="detail-item full-width">
-    <div class="previous-trucks-heading">Previous Trucks</div>
-    <div class="previous-trucks-list">
-        ${formatPreviousTrucksForDetails(truck.previous_trucks)}
-    </div>
-</div>
+                            <div class="previous-trucks-heading">Previous Trucks</div>
+                            <div class="previous-trucks-list">
+                                ${formatPreviousTrucksForDetails(truck.previous_trucks)}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -722,10 +724,13 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
         
         document.body.appendChild(modal);
         
+        // Add back button functionality
+        openModalWithBackButton(modal, 'no-truck-details');
+        
         // Close modal when clicking outside
         modal.onclick = function(event) {
             if (event.target === modal) {
-                modal.remove();
+                closeModalWithBackButton();
             }
         };
         
@@ -990,6 +995,10 @@ async function openDetailsModal(truckId) {
         `;
         
         modal.style.display = 'block';
+        
+        // Add back button functionality
+        openModalWithBackButton(modal, 'truck-details');
+        
     } catch (error) {
         console.error('Error loading truck details:', error);
         alert('Error loading truck details');
@@ -1000,8 +1009,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeBtn = document.querySelector('#detailsModal .close');
     if (closeBtn) {
         closeBtn.onclick = function() {
-            const modal = document.getElementById('detailsModal');
-            if (modal) modal.style.display = 'none';
+            closeModalWithBackButton();
         }
     }
 });
@@ -1009,7 +1017,7 @@ document.addEventListener('DOMContentLoaded', function() {
 window.onclick = function(event) {
     const modal = document.getElementById('detailsModal');
     if (event.target === modal) {
-        modal.style.display = 'none';
+        closeModalWithBackButton();
     }
 }
 
@@ -1563,6 +1571,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadAllowances();
     setupSearch();
     setupAllowanceSearch();
+     setupModalBackButton();
     
     console.log('Employee portal initialized with filters');
 });
@@ -1623,4 +1632,50 @@ async function refreshEmployeeView() {
     }
     
     console.log('Employee view refreshed with new order');
+}
+
+// Modal state management for back button functionality
+const modalState = {
+    currentModal: null,
+    isModalOpen: false
+};
+
+// Function to open modal with back button support
+function openModalWithBackButton(modalElement, modalType) {
+    modalState.currentModal = modalElement;
+    modalState.isModalOpen = true;
+    modalState.modalType = modalType;
+    
+    // Push state to history for back button functionality
+    history.pushState({ modalOpen: true, modalType: modalType }, '', '');
+}
+
+// Function to close modal with back button support
+function closeModalWithBackButton() {
+    if (modalState.currentModal) {
+        modalState.currentModal.style.display = 'none';
+        
+        // If modal was created dynamically, remove it from DOM
+        if (modalState.currentModal.classList.contains('modal') && 
+            modalState.currentModal.parentNode) {
+            modalState.currentModal.remove();
+        }
+    }
+    
+    modalState.currentModal = null;
+    modalState.isModalOpen = false;
+    
+    // Remove modal state from history
+    if (history.state && history.state.modalOpen) {
+        history.back();
+    }
+}
+
+// Setup back button handler for all modals
+function setupModalBackButton() {
+    window.addEventListener('popstate', function(event) {
+        if (modalState.isModalOpen && modalState.currentModal) {
+            closeModalWithBackButton();
+        }
+    });
 }
