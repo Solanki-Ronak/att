@@ -525,7 +525,6 @@ function copyTruckDetails(truckNumber, name, license, contacts) {
         showNotification('Failed to copy details');
     });
 }
-
 async function openEmployeeNoDriverDetails(truckId) {
     try {
         const { data: truck, error } = await supabase
@@ -539,6 +538,14 @@ async function openEmployeeNoDriverDetails(truckId) {
         const modal = document.createElement('div');
         modal.className = 'modal';
         modal.style.display = 'block';
+        
+        // Add a class to make modal content scrollable at container level
+        modal.innerHTML = `
+            <div class="modal-content modal-large">
+                <span class="close" onclick="closeCurrentModal()">&times;</span>
+                <h2>🚛 Truck Details - No Driver Assigned</h2>
+                <div class="modal-scroll-container" style="max-height: 80vh; overflow-y: auto;">
+        `;
         
         const hasTruckImage = truck.truck_image_url && truck.truck_image_url !== '';
         
@@ -558,80 +565,91 @@ async function openEmployeeNoDriverDetails(truckId) {
                 <span class="detail-value">${truck.c28_expiry ? formatDate(truck.c28_expiry) : 'Not set'}</span>
             </div>` : '';
 
-        modal.innerHTML = `
-            <div class="modal-content modal-large">
-                <span class="close" onclick="closeCurrentModal()">&times;</span> <!-- CHANGED HERE -->
-                <h2>🚛 Truck Details - No Driver Assigned</h2>
-                <div class="details-grid">
-                    <div class="detail-section no-image">
-                        <h3>Truck Information</h3>
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Truck Number:</span>
-                            <span class="detail-value">${truck.truck_number}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Driver Name:</span>
-                            <span class="detail-value no-driver-text">NO DRIVER</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">License:</span>
-                            <span class="detail-value empty-field">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Driving License :</span>
-                            <span class="detail-value empty-field">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Contact:</span>
-                            <span class="detail-value empty-field">-</span>
-                        </div>
-                    </div>
-                    
-                    <div class="detail-section ${!hasTruckImage ? 'no-image' : ''}">
-                        <h3>Truck Specifications</h3>
-                        ${truckImageHtml}
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Truck Type:</span>
-                            <span class="detail-value">${truck.truck_type || 'N/A'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Truck Body:</span>
-                            <span class="detail-value">${truck.truck_body || 'N/A'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Make:</span>
-                            <span class="detail-value">${truck.truck_make || 'N/A'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Tons:</span>
-                            <span class="detail-value">${truck.truck_tons || 'N/A'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">COMESA:</span>
-                            <span class="detail-value">${truck.comesa || 'NO'}</span>
-                        </div>
-                        ${comesaExpiryHtml}
-                        <div class="detail-item">
-                            <span class="detail-label">C28:</span>
-                            <span class="detail-value">${truck.c28 || 'NO'}</span>
-                        </div>
-                        ${c28ExpiryHtml}
-                    </div>
+        const modalBody = document.createElement('div');
+        modalBody.className = 'details-grid';
+        modalBody.innerHTML = `
+            <div class="detail-section no-image">
+                <h3>Truck Information</h3>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Truck Number:</span>
+                    <span class="detail-value">${truck.truck_number}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Driver Name:</span>
+                    <span class="detail-value no-driver-text">NO DRIVER</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">License:</span>
+                    <span class="detail-value empty-field">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Driving License :</span>
+                    <span class="detail-value empty-field">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Contact:</span>
+                    <span class="detail-value empty-field">-</span>
                 </div>
             </div>
+            
+            <div class="detail-section ${!hasTruckImage ? 'no-image' : ''}">
+                <h3>Truck Specifications</h3>
+                ${truckImageHtml}
+                
+                <div class="detail-item">
+                    <span class="detail-label">Truck Type:</span>
+                    <span class="detail-value">${truck.truck_type || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Truck Body:</span>
+                    <span class="detail-value">${truck.truck_body || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Make:</span>
+                    <span class="detail-value">${truck.truck_make || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Tons:</span>
+                    <span class="detail-value">${truck.truck_tons || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">COMESA:</span>
+                    <span class="detail-value">${truck.comesa || 'NO'}</span>
+                </div>
+                ${comesaExpiryHtml}
+                <div class="detail-item">
+                    <span class="detail-label">C28:</span>
+                    <span class="detail-value">${truck.c28 || 'NO'}</span>
+                </div>
+                ${c28ExpiryHtml}
+            </div>
         `;
+        
+        // Close the modal-scroll-container div and modal-content div
+        const scrollContainer = modal.querySelector('.modal-scroll-container');
+        scrollContainer.appendChild(modalBody);
+        
+        const closeDiv = document.createElement('div');
+        closeDiv.innerHTML = `</div></div>`;
+        scrollContainer.parentNode.appendChild(closeDiv);
         
         document.body.appendChild(modal);
         
         // Track this modal for back button functionality
-        trackModalCreation(modal); // ADD THIS LINE
+        trackModalCreation(modal);
+        
+        // Reset scroll position
+        setTimeout(() => {
+            if (scrollContainer) {
+                scrollContainer.scrollTop = 0;
+            }
+        }, 10);
         
         // Close modal when clicking outside
         modal.onclick = function(event) {
             if (event.target === modal) {
-                closeCurrentModal(); // CHANGED HERE
+                closeCurrentModal();
             }
         };
         
@@ -657,6 +675,14 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
         modal.className = 'modal';
         modal.style.display = 'block';
         
+        // Add scrollable container structure
+        modal.innerHTML = `
+            <div class="modal-content modal-large">
+                <span class="close" onclick="closeCurrentModal()">&times;</span>
+                <h2>👨‍💼 Driver Details - ${truck.status === 'no_truck' ? 'No Truck Assigned' : 'Left Company'}</h2>
+                <div class="modal-scroll-container" style="max-height: 80vh; overflow-y: auto;">
+        `;
+        
         const hasDriverImage = truck.driver_image_url && truck.driver_image_url !== '';
         const hasLicenseDoc = truck.driver_license_url && truck.driver_license_url !== '';
         
@@ -673,65 +699,63 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
         // Generate contacts HTML for details modal
         const contactsHtml = generateDetailsContactsHtml(truck.driver_contacts);
         
-        // SIMPLE previous trucks list
-        let previousTrucksHtml = '<div class="no-results">No previous trucks</div>';
-        if (truck.previous_trucks) {
-            const trucksArray = truck.previous_trucks.split(', ').filter(t => t.trim() !== '');
-            if (trucksArray.length > 0) {
-                previousTrucksHtml = trucksArray.map((truckNum, index) => 
-                    `<div>${index + 1}. ${truckNum}</div>`
-                ).join('');
-            }
-        }
-
-        const statusTitle = truck.status === 'no_truck' ? 'No Truck Assigned' : 'Left Company';
-        
-        modal.innerHTML = `
-            <div class="modal-content modal-large">
-                <span class="close" onclick="closeCurrentModal()">&times;</span> <!-- CHANGED HERE -->
-                <h2>👨‍💼 Driver Details - ${statusTitle}</h2>
-                <div class="details-grid">
-                    <div class="detail-section ${!hasDriverImage ? 'no-image' : ''}">
-                        <h3>Driver Information</h3>
-                        ${driverImageHtml}
-                        
-                        <div class="detail-item">
-                            <span class="detail-label">Driver Name:</span>
-                            <span class="detail-value">${truck.driver_name}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">License:</span>
-                            <span class="detail-value">${truck.driver_license}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Driving License :</span>
-                            <span class="detail-value">${licenseActionsHtml}</span>
-                        </div>
-                        ${contactsHtml}
-                    </div>
-                    
-                    <div class="detail-section no-image">
-                        <h3>Additional Information</h3>
-                        <div class="detail-item full-width">
-                            <div class="previous-trucks-heading">Previous Trucks</div>
-                            <div class="previous-trucks-list">
-                                ${formatPreviousTrucksForDetails(truck.previous_trucks)}
-                            </div>
-                        </div>
+        const modalBody = document.createElement('div');
+        modalBody.className = 'details-grid';
+        modalBody.innerHTML = `
+            <div class="detail-section ${!hasDriverImage ? 'no-image' : ''}">
+                <h3>Driver Information</h3>
+                ${driverImageHtml}
+                
+                <div class="detail-item">
+                    <span class="detail-label">Driver Name:</span>
+                    <span class="detail-value">${truck.driver_name}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">License:</span>
+                    <span class="detail-value">${truck.driver_license}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Driving License :</span>
+                    <span class="detail-value">${licenseActionsHtml}</span>
+                </div>
+                ${contactsHtml}
+            </div>
+            
+            <div class="detail-section no-image">
+                <h3>Additional Information</h3>
+                <div class="detail-item full-width">
+                    <div class="previous-trucks-heading">Previous Trucks</div>
+                    <div class="previous-trucks-list">
+                        ${formatPreviousTrucksForDetails(truck.previous_trucks)}
                     </div>
                 </div>
             </div>
         `;
         
+        // Close the modal-scroll-container div and modal-content div
+        const scrollContainer = modal.querySelector('.modal-scroll-container');
+        scrollContainer.appendChild(modalBody);
+        
+        const closeDiv = document.createElement('div');
+        closeDiv.innerHTML = `</div></div>`;
+        scrollContainer.parentNode.appendChild(closeDiv);
+        
         document.body.appendChild(modal);
         
         // Track this modal for back button functionality
-        trackModalCreation(modal); // ADD THIS LINE
+        trackModalCreation(modal);
+        
+        // Reset scroll position
+        setTimeout(() => {
+            if (scrollContainer) {
+                scrollContainer.scrollTop = 0;
+            }
+        }, 10);
         
         // Close modal when clicking outside
         modal.onclick = function(event) {
             if (event.target === modal) {
-                closeCurrentModal(); // CHANGED HERE
+                closeCurrentModal();
             }
         };
         
@@ -915,7 +939,6 @@ function closeDetailsModal() {
     }
 }
 
-// Update openDetailsModal to push history state
 async function openDetailsModal(truckId) {
     const modal = document.getElementById('detailsModal');
     const modalContent = document.getElementById('modalContent');
@@ -923,6 +946,10 @@ async function openDetailsModal(truckId) {
     if (!modal || !modalContent) return;
     
     try {
+        // Reset scroll position before opening
+        modal.scrollTop = 0;
+        modalContent.scrollTop = 0;
+        
         const { data: truck, error } = await supabase
             .from('trucks')
             .select(`
@@ -1029,15 +1056,20 @@ async function openDetailsModal(truckId) {
         
         modal.style.display = 'block';
         
+        // Reset scroll position after showing modal
+        setTimeout(() => {
+            modal.scrollTop = 0;
+            modalContent.scrollTop = 0;
+        }, 10);
+        
         // Push state to history for back button functionality
-        history.pushState({ modalOpen: true }, '', ''); // ADD THIS LINE
+        history.pushState({ modalOpen: true }, '', '');
         
     } catch (error) {
         console.error('Error loading truck details:', error);
         alert('Error loading truck details');
     }
 }
-
 // Update the window.onclick function
 window.onclick = function(event) {
     const modal = document.getElementById('detailsModal');
@@ -1695,12 +1727,33 @@ function setupModalBackButton() {
     });
 }
 
-// Close current modal and clean up
+// Update modal creation to track current modal
+function trackModalCreation(modalElement) {
+    currentModalOpen = true;
+    currentModalElement = modalElement;
+    
+    // Reset scroll position to top for the modal content
+    const modalContent = modalElement.querySelector('.modal-content');
+    if (modalContent) {
+        modalContent.scrollTop = 0;
+    }
+    
+    // Reset body scroll if needed
+    document.body.style.overflow = 'hidden';
+    
+    // Push state to history for back button functionality
+    history.pushState({ modalOpen: true }, '', '');
+}
+
+// Also update the close function to restore body overflow
 function closeCurrentModal() {
     if (currentModalElement) {
         currentModalElement.remove();
         currentModalOpen = false;
         currentModalElement = null;
+        
+        // Restore body overflow
+        document.body.style.overflow = '';
         
         // Only go back if we're in a modal state
         if (history.state && history.state.modalOpen) {
@@ -1709,11 +1762,3 @@ function closeCurrentModal() {
     }
 }
 
-// Update modal creation to track current modal
-function trackModalCreation(modalElement) {
-    currentModalOpen = true;
-    currentModalElement = modalElement;
-    
-    // Push state to history for back button functionality
-    history.pushState({ modalOpen: true }, '', '');
-}
