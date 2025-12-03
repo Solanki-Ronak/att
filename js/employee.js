@@ -664,8 +664,8 @@ setTimeout(() => {
         container.scrollTop = 0;
     });
     
-    // Also reset window scroll
-    window.scrollTo(0, 0);
+  
+ 
 }, 10);
         
         // Close modal when clicking outside
@@ -794,8 +794,7 @@ setTimeout(() => {
         container.scrollTop = 0;
     });
     
-    // Also reset window scroll
-    window.scrollTo(0, 0);
+   
 }, 10);
         
         // Close modal when clicking outside
@@ -1108,8 +1107,7 @@ setTimeout(() => {
         container.scrollTop = 0;
     });
     
-    // Also reset window scroll
-    window.scrollTo(0, 0);
+   
 }, 10);
         
         // Push state to history for back button functionality
@@ -1784,8 +1782,7 @@ function trackModalCreation(modalElement) {
     currentModalOpen = true;
     currentModalElement = modalElement;
     
-    // Reset body scroll if needed
-    document.body.style.overflow = 'hidden';
+   
     
     // Push state to history for back button functionality
     history.pushState({ modalOpen: true }, '', '');
@@ -1806,8 +1803,7 @@ function closeCurrentModal() {
         // Restore body overflow
         document.body.style.overflow = '';
         
-        // Reset window scroll
-        window.scrollTo(0, 0);
+     
         
         // Only go back if we're in a modal state
         if (history.state && history.state.modalOpen) {
@@ -1816,13 +1812,17 @@ function closeCurrentModal() {
     }
 }
 function resetModalScroll() {
-    // Reset scroll for all existing modals
+    // ONLY reset scroll for existing modals, not the window
     const existingModals = document.querySelectorAll('.modal');
     existingModals.forEach(modal => {
-        modal.scrollTop = 0;
+        // Reset modal wrapper
+        const modalWrappers = modal.querySelectorAll('.modal-wrapper');
+        modalWrappers.forEach(wrapper => {
+            wrapper.scrollTop = 0;
+        });
         
-        // Also reset any scroll containers inside
-        const scrollContainers = modal.querySelectorAll('.modal-scroll-container, .modal-content, .details-grid, .modal-wrapper');
+        // Reset modal scroll containers
+        const scrollContainers = modal.querySelectorAll('.modal-scroll-container, .modal-content, .details-grid');
         scrollContainers.forEach(container => {
             container.scrollTop = 0;
         });
@@ -1838,6 +1838,5 @@ function resetModalScroll() {
         }
     }
     
-    // Reset window scroll
-    window.scrollTo(0, 0);
+    
 }

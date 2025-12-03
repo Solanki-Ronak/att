@@ -3023,65 +3023,42 @@
 
         
 
-        /* ===== MODAL SCROLL RESET FIXES ===== */
+        /* ===== MODAL SCROLL RESET - ONLY AFFECTS MODAL CONTENT ===== */
 
-/* 1. Force all modals to start at the top when opened */
-.modal-content,
-.modal-scroll-container,
-.modal-wrapper,
-.details-grid {
-    scroll-behavior: auto !important;
-}
-
-/* 2. Explicitly reset scroll for fresh modals */
-.fresh-modal .modal-wrapper,
-.fresh-modal .modal-content,
-.fresh-modal .modal-scroll-container {
+/* 1. Force all modal scroll containers to start at top */
+.modal[style*="display: block"] .modal-scroll-container,
+.modal[style*="display: block"] .modal-content,
+.modal[style*="display: block"] .modal-wrapper {
     scroll-top: 0 !important;
 }
 
-/* 3. Ensure modal containers don't retain scroll position */
-.modal[style*="display: block"] .modal-scroll-container,
-.modal[style*="display: block"] .modal-content {
-    scroll-top: 0;
+/* 2. Reset for fresh modals */
+.fresh-modal .modal-scroll-container,
+.fresh-modal .modal-content {
+    scroll-behavior: auto !important;
 }
 
-/* 4. More specific targeting for the scrollable areas */
-.modal-wrapper .modal-scroll-container {
+/* 3. Ensure modal content containers don't retain scroll position */
+.modal-scroll-container,
+.modal-content {
+    overscroll-behavior: contain;
+}
+
+/* 4. Explicit reset for the scrollable area inside modals */
+.modal-scroll-container {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
 
-/* 5. Reset transform/translate properties that might affect positioning */
-.modal-content {
-    transform: translate(-50%, -50%);
-    top: 50%;
-    left: 50%;
-    position: absolute;
-}
-
-/* 6. Mobile-specific fixes */
+/* 5. Mobile-specific modal positioning (keeps background stable) */
 @media (max-width: 768px) {
     .modal-wrapper {
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
+        align-items: flex-start;
+        padding-top: 20px;
+        padding-bottom: 20px;
     }
     
     .modal-content {
-        transform: none;
-        top: 0;
-        left: 0;
-        position: relative;
-        margin: 20px auto;
+        margin: 0 auto;
     }
-}
-
-/* 7. Prevent any inherited scroll behavior */
-.modal {
-    overscroll-behavior: contain;
-}
-
-.modal-content,
-.modal-scroll-container {
-    overscroll-behavior-y: contain;
 }
