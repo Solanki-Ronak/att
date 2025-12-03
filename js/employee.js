@@ -527,6 +527,8 @@ function copyTruckDetails(truckNumber, name, license, contacts) {
 }
 async function openEmployeeNoDriverDetails(truckId) {
     try {
+
+        forceModalScrollToTop();
         const { data: truck, error } = await supabase
             .from('trucks')
             .select('*')
@@ -988,8 +990,9 @@ async function openDetailsModal(truckId) {
     if (!modal || !modalContent) return;
     
     try {
+         forceModalScrollToTop();
          resetModalScroll();
-        
+        modal.style.display = 'none';
         const { data: truck, error } = await supabase
             .from('trucks')
             .select(`
@@ -1770,7 +1773,7 @@ function setupModalBackButton() {
 function trackModalCreation(modalElement) {
     // Reset all modal scroll positions first
     resetModalScroll();
-    
+     forceModalScrollToTop();
     currentModalOpen = true;
     currentModalElement = modalElement;
     
@@ -1780,24 +1783,25 @@ function trackModalCreation(modalElement) {
     // Push state to history for back button functionality
     history.pushState({ modalOpen: true }, '', '');
 }
-// Close current modal and clean up
 function closeCurrentModal() {
     if (currentModalElement) {
-        // Remove any modal wrapper first
-        const modalWrapper = currentModalElement.querySelector('.modal-wrapper');
-        if (modalWrapper) {
-            modalWrapper.remove();
-        }
+        // Get the scroll position before opening modal
+        const scrollY = document.body.style.top;
         
+        // Remove the modal
         currentModalElement.remove();
         currentModalOpen = false;
         currentModalElement = null;
         
-        // Restore body overflow
+        // Restore body styles and scroll position
         document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
         
-        // Reset window scroll
-        window.scrollTo(0, 0);
+        if (scrollY) {
+            window.scrollTo(0, parseInt(scrollY || '0') * -1);
+        }
         
         // Only go back if we're in a modal state
         if (history.state && history.state.modalOpen) {
@@ -1805,7 +1809,28 @@ function closeCurrentModal() {
         }
     }
 }
-
+// Force scroll to top when opening any modal
+function forceModalScrollToTop() {
+    // Reset window scroll
+    window.scrollTo(0, 0);
+    
+    // Reset body scroll
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+    
+    // Reset all modal scrolls
+    const modals = document.querySelectorAll('.modal, .modal-content, .modal-wrapper');
+    modals.forEach(modal => {
+        if (modal) {
+            modal.scrollTop = 0;
+        }
+    });
+    
+    // Prevent any scroll retention
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+}
 // Add this function to reset modal scroll positions
 function resetModalScroll() {
     // Reset scroll for all existing modals
