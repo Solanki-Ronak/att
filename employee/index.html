@@ -3,6 +3,78 @@
 
 <html lang="en">
 <head>
+    <script>
+// Session timeout functionality
+let inactivityTimeout;
+const LOGIN_PAGE = 'employee-employeelogin.html';
+const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
+
+// Reset the inactivity timer
+function resetInactivityTimer() {
+    clearTimeout(inactivityTimeout);
+    inactivityTimeout = setTimeout(logoutDueToInactivity, INACTIVITY_TIMEOUT);
+}
+
+// Logout function
+function logoutDueToInactivity() {
+    // Clear any stored login data
+    localStorage.removeItem('employeeLoggedIn');
+    localStorage.removeItem('employeeUsername');
+    
+    // Show a message to the user (optional)
+    alert('Your session has expired due to inactivity. Please login again.');
+    
+    // Redirect to login page
+    window.location.href = LOGIN_PAGE;
+}
+
+// Manual logout function (if you want to add a logout button)
+function manualLogout() {
+    clearTimeout(inactivityTimeout);
+    localStorage.removeItem('employeeLoggedIn');
+    localStorage.removeItem('employeeUsername');
+    window.location.href = LOGIN_PAGE;
+}
+
+// Add event listeners for user activity
+function setupInactivityTracking() {
+    // Events that reset the timer
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    
+    events.forEach(event => {
+        document.addEventListener(event, resetInactivityTimer);
+    });
+    
+    // Also reset timer when window gains focus
+    window.addEventListener('focus', resetInactivityTimer);
+    
+    // Start the initial timer
+    resetInactivityTimer();
+}
+
+// Check authentication on page load
+function checkAuthentication() {
+    const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
+    
+    if (!isLoggedIn) {
+        // If not logged in, redirect to login page
+        window.location.href = LOGIN_PAGE;
+        return false;
+    }
+    
+    // Setup inactivity tracking
+    setupInactivityTracking();
+    return true;
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuthentication();
+});
+
+
+
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Portal - Truck Management</title>
@@ -13,9 +85,12 @@
 <body>
     <div class="container">
         <header>
-            <h1>👨‍💼 Employee Portal</h1>
-            <button onclick="window.location.href='../index.html'" class="btn btn-back">← Back</button>
-        </header>
+    <h1>👨‍💼 Employee Portal</h1>
+    <div style="display: flex; gap: 10px;">
+        <button onclick="manualLogout()" class="btn btn-logout" style="background: #ff4444; color: white;">Logout</button>
+        <button onclick="window.location.href='../index.html'" class="btn btn-back">← Back</button>
+    </div>
+</header>
 
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="openTab('truck-list')">🚛 Truck List</button>

@@ -423,6 +423,12 @@
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         document.addEventListener('DOMContentLoaded', function() {
+             const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
+    
+    if (isLoggedIn) {
+        // Already logged in, redirect to dashboard
+        window.location.href = 'index.html';
+    }
             const loginForm = document.getElementById('loginForm');
             const messageDiv = document.getElementById('message');
             

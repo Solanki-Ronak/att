@@ -3021,7 +3021,19 @@
         }
 
 
-        
+       .btn-logout {
+    background: #ff4444;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-logout:hover {
+    background: #cc0000;
+} 
 
         /* ===== MODAL SCROLL RESET - ONLY AFFECTS MODAL CONTENT ===== */
 
@@ -3062,3 +3074,4 @@
         margin: 0 auto;
     }
 }
+
