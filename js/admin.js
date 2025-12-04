@@ -1641,15 +1641,16 @@ function createAdminTruckCard(truck) {
     
     return card;
 }
-
-// Copy individual field to clipboard
 function copyToClipboard(text) {
-    if (!text) {
-        showNotification('No text to copy');
+    if (!text || text === '-' || text === '') {
+        showNotification('Nothing to copy');
         return;
     }
     
-    navigator.clipboard.writeText(text).then(() => {
+    // Clean up text - add this line if not present
+    const cleanedText = text.replace(/\\'/g, "'");
+    
+    navigator.clipboard.writeText(cleanedText).then(() => {
         showNotification('Copied to clipboard!');
     }).catch(err => {
         console.error('Failed to copy: ', err);
@@ -1666,21 +1667,83 @@ function callDriver(phone) {
     // Open phone dialpad directly without confirmation
     window.open(`tel:${phone}`, '_self');
 }
-function copyTruckDetails(truckNumber, name, license, contacts) {
-    // Format the contacts properly
-    let contactsText;
-    
-    if (contacts === 'No contacts') {
-        contactsText = 'No contacts';
-    } else if (contacts.includes(', ')) {
-        // Multiple contacts
-        contactsText = `Contacts: ${contacts}`;
-    } else {
-        // Single contact
-        contactsText = `Contact: ${contacts}`;
+// Helper function to generate contacts HTML with the employee format
+function generateContactsHtmlForCard(contacts) {
+    if (!contacts || contacts.length === 0) {
+        return `
+            <div class="info-row">
+                <span class="info-label">Contact:</span>
+                <span class="info-value empty-field">-</span>
+            </div>
+        `;
     }
     
-    const details = `Truck: ${truckNumber}\nName: ${name}\nD/License: ${license}\n${contactsText}`; // CHANGED License: to D/License:
+    let contactsHtml = '';
+    
+    if (contacts.length === 1) {
+        // Single contact - show as "Contact: 07531123213"
+        contactsHtml = `
+            <div class="info-row">
+                <span class="info-label">Contact:</span>
+                <span class="info-value">${contacts[0].phone_number}</span>
+                <div class="copy-call-buttons">
+                    <button class="btn btn-copy" onclick="copyToClipboard('${contacts[0].phone_number.replace(/'/g, "\\'")}')">📋</button>
+                    <button class="btn btn-call" onclick="callDriver('${contacts[0].phone_number.replace(/'/g, "\\'")}')">📞</button>
+                </div>
+            </div>
+        `;
+    } else {
+        // Multiple contacts - show each individually with numbers
+        contacts.forEach((contact, index) => {
+            contactsHtml += `
+                <div class="info-row">
+                    <span class="info-label">Contact ${index + 1}:</span>
+                    <span class="info-value">${contact.phone_number}</span>
+                    <div class="copy-call-buttons">
+                        <button class="btn btn-copy" onclick="copyToClipboard('${contact.phone_number.replace(/'/g, "\\'")}')">📋</button>
+                        <button class="btn btn-call" onclick="callDriver('${contact.phone_number.replace(/'/g, "\\'")}')">📞</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    return contactsHtml;
+}
+
+// Helper function to get contacts text from truck (for copy details)
+function getContactsTextFromTruck(truck) {
+    if (!truck || !truck.driver_contacts || truck.driver_contacts.length === 0) {
+        return 'No contacts';
+    }
+    
+    // Handle array of contacts
+    if (Array.isArray(truck.driver_contacts)) {
+        if (truck.driver_contacts.length === 1) {
+            // Single contact: "Contact: 07531123213"
+            return `Contact: ${truck.driver_contacts[0].phone_number}`;
+        } else {
+            // Multiple contacts: "Contacts: 07531123213, 0713123123"
+            const phoneNumbers = truck.driver_contacts.map(contact => contact.phone_number);
+            return `Contacts: ${phoneNumbers.join(', ')}`;
+        }
+    }
+    
+    return 'No contacts';
+}
+
+// Update the copyTruckDetails function to match employee format
+function copyTruckDetails(truckNumber, name, license, contacts) {
+    console.log("Copying:", { truckNumber, name, license, contacts });
+    
+    // Convert contacts back to multi-line if needed
+    let formattedContacts = contacts;
+    if (contacts.includes(' | ')) {
+        formattedContacts = contacts.replace(/\s*\|\s*/g, '\n');
+    }
+    
+    const details = `Truck: ${truckNumber}\nName: ${name}\nD/License: ${license}\n${formattedContacts}`;
+    
     navigator.clipboard.writeText(details).then(() => {
         showNotification('All details copied to clipboard!');
     }).catch(err => {
@@ -1945,11 +2008,15 @@ function createActiveDriverCard(truck, index) {
     
     const hasDriverImage = truck.driver_image_url && truck.driver_image_url !== '';
     
-    // Generate contacts HTML first - FIXED
-    const contactsHtml = generateContactsHtmlForCard(truck.driver_contacts); // Changed function name
+    // Generate contacts HTML using the employee format
+    const contactsHtml = generateContactsHtmlForCard(truck.driver_contacts);
     
     const imageHtml = hasDriverImage ? 
         `<img src="${truck.driver_image_url}" alt="${truck.driver_name}" class="driver-image">` : '';
+    
+    // Prepare contacts text for copying - SINGLE LINE ONLY
+    const contactsText = getContactsTextFromTruck(truck);
+    const escapedContacts = contactsText.replace(/'/g, "\\'");
     
     card.innerHTML = `
         <div class="card-number">${index + 1}</div>
@@ -1962,15 +2029,15 @@ function createActiveDriverCard(truck, index) {
                 <span class="info-label">Name:</span>
                 <span class="info-value">${truck.driver_name}</span>
                 <div class="copy-call-buttons">
-                    <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_name}')">📋</button>
+                    <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_name.replace(/'/g, "\\'")}')">📋</button>
                 </div>
             </div>
             
             <div class="info-row">
-                <span class="info-label">D/License:</span> 
+                <span class="info-label">License:</span> 
                 <span class="info-value">${truck.driver_license}</span>
                 <div class="copy-call-buttons">
-                    <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license}')">📋</button>
+                    <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license.replace(/'/g, "\\'")}')">📋</button>
                 </div>
             </div>
             
@@ -1978,60 +2045,20 @@ function createActiveDriverCard(truck, index) {
         </div>
         
         <div class="admin-card-actions">
-            <button class="btn btn-copy" onclick="copyTruckDetails('${truck.truck_number}', '${truck.driver_name}', '${truck.driver_license}', getContactsText('${truck.id}'))">📋 Copy Details</button>
+            <button class="btn btn-copy" onclick="copyTruckDetails('${truck.truck_number.replace(/'/g, "\\'")}', '${truck.driver_name.replace(/'/g, "\\'")}', '${truck.driver_license.replace(/'/g, "\\'")}', '${escapedContacts}')">
+                📋 Copy Details
+            </button>
             <button class="btn btn-edit" onclick="openEditModal('${truck.id}')">✏️ Edit Details</button>
             <button class="btn btn-details" onclick="openAdminDetailsModal('${truck.id}')">ℹ️ View Details</button>
             <button class="btn btn-warning" onclick="confirmChangeStatus('${truck.id}', 'no_truck')">🚫 No Driver</button>
             <button class="btn btn-danger" onclick="confirmChangeStatus('${truck.id}', 'left')">👋 Driver Left</button>
-            <button class="btn btn-delete" onclick="confirmDeleteTruck('${truck.id}', '${truck.truck_number}', '${truck.driver_name}')">🗑️ Delete</button>
+            <button class="btn btn-delete" onclick="confirmDeleteTruck('${truck.id}', '${truck.truck_number.replace(/'/g, "\\'")}', '${truck.driver_name.replace(/'/g, "\\'")}')">🗑️ Delete</button>
         </div>
     `;
     
     return card;
 }
 
-// NEW FUNCTION: Generate contacts HTML for cards with correct formatting
-function generateContactsHtmlForCard(contacts) {
-    if (!contacts || contacts.length === 0) {
-        return `
-            <div class="info-row">
-                <span class="info-label">Contact:</span>
-                <span class="info-value empty-field">-</span>
-            </div>
-        `;
-    }
-    
-    let contactsHtml = '';
-    
-    if (contacts.length === 1) {
-        // Single contact - use "Contact:" singular
-        contactsHtml = `
-            <div class="info-row">
-                <span class="info-label">Contact:</span>
-                <span class="info-value">${contacts[0].phone_number}</span>
-                <div class="copy-call-buttons">
-                    <button class="btn btn-copy" onclick="copyToClipboard('${contacts[0].phone_number}')">📋</button>
-                    <button class="btn btn-call" onclick="callDriver('${contacts[0].phone_number}')">📞</button>
-                </div>
-            </div>
-        `;
-    } else {
-        // Multiple contacts - use "Contacts:" plural with comma-separated values
-        const contactNumbers = contacts.map(contact => contact.phone_number).join(', ');
-        contactsHtml = `
-            <div class="info-row">
-                <span class="info-label">Contacts:</span>
-                <span class="info-value">${contactNumbers}</span>
-                <div class="copy-call-buttons">
-                    <button class="btn btn-copy" onclick="copyToClipboard('${contactNumbers}')">📋</button>
-                    <button class="btn btn-call" onclick="callDriver('${contacts[0].phone_number}')">📞</button>
-                </div>
-            </div>
-        `;
-    }
-    
-    return contactsHtml;
-}
 function createNoDriverCard(truck, index) {
     const card = document.createElement('div');
     card.className = 'truck-card admin-card no-driver-card';
@@ -2080,8 +2107,12 @@ function createDriverNoTruckCard(truck, index) {
     // FORMAT PREVIOUS TRUCKS AS NUMBERED VERTICAL LIST
     const previousTrucksHtml = formatPreviousTrucksForCards(truck.previous_trucks);
     
-    // Generate contacts HTML
-    const contactsHtml = generateContactsHtml(truck.driver_contacts);
+    // Generate contacts HTML using employee format
+    const contactsHtml = generateContactsHtmlForCard(truck.driver_contacts);
+    
+    // Prepare contacts text for copying - SINGLE LINE ONLY
+    const contactsText = getContactsTextFromTruck(truck);
+    const escapedContacts = contactsText.replace(/'/g, "\\'");
     
     card.innerHTML = `
         <div class="card-number">${index + 1}</div>
@@ -2094,7 +2125,7 @@ function createDriverNoTruckCard(truck, index) {
                 <span class="info-label">Name:</span>
                 <span class="info-value">${truck.driver_name}</span>
                 <div class="copy-call-buttons">
-                    <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_name}')">📋</button>
+                    <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_name.replace(/'/g, "\\'")}')">📋</button>
                 </div>
             </div>
             
@@ -2102,7 +2133,7 @@ function createDriverNoTruckCard(truck, index) {
                 <span class="info-label">D/License:</span>
                 <span class="info-value">${truck.driver_license}</span>
                 <div class="copy-call-buttons">
-                    <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license}')">📋</button>
+                    <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license.replace(/'/g, "\\'")}')">📋</button>
                 </div>
             </div>
             
@@ -2117,28 +2148,29 @@ function createDriverNoTruckCard(truck, index) {
         </div>
         
         <div class="admin-card-actions">
-            <button class="btn btn-copy" onclick="copyTruckDetails('NO ASSIGNED TRUCK', '${truck.driver_name}', '${truck.driver_license}', getContactsText('${truck.id}'))">📋 Copy Details</button>
+            <button class="btn btn-copy" onclick="copyTruckDetails('NO ASSIGNED TRUCK', '${truck.driver_name.replace(/'/g, "\\'")}', '${truck.driver_license.replace(/'/g, "\\'")}', '${escapedContacts}')">
+                📋 Copy Details
+            </button>
             <button class="btn btn-edit" onclick="openEditDriverModal('${truck.id}')">✏️ Edit Details</button>
             <button class="btn btn-details" onclick="openDriverNoTruckDetailsModal('${truck.id}')">ℹ️ View Details</button>
             <button class="btn btn-primary" onclick="openAssignTruckModal('${truck.id}')">🚛 Assign Truck</button>
             <button class="btn btn-danger" onclick="confirmMoveToLeft('${truck.id}')">👋 Driver Left</button>
-            <button class="btn btn-delete" onclick="confirmDeleteTruck('${truck.id}', 'NO ASSIGNED TRUCK', '${truck.driver_name}')">🗑️ Delete</button>
+            <button class="btn btn-delete" onclick="confirmDeleteTruck('${truck.id}', 'NO ASSIGNED TRUCK', '${truck.driver_name.replace(/'/g, "\\'")}')">🗑️ Delete</button>
         </div>
     `;
     
     return card;
 }
-
 // NEW FUNCTION: Format previous trucks as numbered vertical list for cards
 function formatPreviousTrucksForCards(previousTrucks) {
     if (!previousTrucks) {
-        return '<div class="no-previous-trucks">No previous trucks</div>';
+        return '<span class="no-previous-trucks">No previous trucks</span>';
     }
     
     const trucksArray = previousTrucks.split(', ').filter(t => t.trim() !== '');
     
     if (trucksArray.length === 0) {
-        return '<div class="no-previous-trucks">No previous trucks</div>';
+        return '<span class="no-previous-trucks">No previous trucks</span>';
     }
     
     return trucksArray.map((truckNum, index) => 
@@ -2157,8 +2189,12 @@ function createDriverLeftCard(truck, index) {
     // FORMAT PREVIOUS TRUCKS AS NUMBERED VERTICAL LIST
     const previousTrucksHtml = formatPreviousTrucksForCards(truck.previous_trucks);
     
-    // Generate contacts HTML
-    const contactsHtml = generateContactsHtml(truck.driver_contacts);
+    // Generate contacts HTML using employee format
+    const contactsHtml = generateContactsHtmlForCard(truck.driver_contacts);
+    
+    // Prepare contacts text for copying - SINGLE LINE ONLY
+    const contactsText = getContactsTextFromTruck(truck);
+    const escapedContacts = contactsText.replace(/'/g, "\\'");
     
     card.innerHTML = `
         <div class="card-number">${index + 1}</div>
@@ -2171,7 +2207,7 @@ function createDriverLeftCard(truck, index) {
                 <span class="info-label">Name:</span>
                 <span class="info-value">${truck.driver_name}</span>
                 <div class="copy-call-buttons">
-                    <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_name}')">📋</button>
+                    <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_name.replace(/'/g, "\\'")}')">📋</button>
                 </div>
             </div>
             
@@ -2179,7 +2215,7 @@ function createDriverLeftCard(truck, index) {
                 <span class="info-label">D/License:</span>
                 <span class="info-value">${truck.driver_license}</span>
                 <div class="copy-call-buttons">
-                    <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license}')">📋</button>
+                    <button class="btn btn-copy" onclick="copyToClipboard('${truck.driver_license.replace(/'/g, "\\'")}')">📋</button>
                 </div>
             </div>
             
@@ -2194,11 +2230,13 @@ function createDriverLeftCard(truck, index) {
         </div>
         
         <div class="admin-card-actions">
-            <button class="btn btn-copy" onclick="copyTruckDetails('LEFT COMPANY', '${truck.driver_name}', '${truck.driver_license}', getContactsText('${truck.id}'))">📋 Copy Details</button>
+            <button class="btn btn-copy" onclick="copyTruckDetails('LEFT COMPANY', '${truck.driver_name.replace(/'/g, "\\'")}', '${truck.driver_license.replace(/'/g, "\\'")}', '${escapedContacts}')">
+                📋 Copy Details
+            </button>
             <button class="btn btn-edit" onclick="openEditDriverModal('${truck.id}')">✏️ Edit Details</button>
             <button class="btn btn-details" onclick="openDriverLeftDetailsModal('${truck.id}')">ℹ️ View Details</button>
-            <button class="btn btn-primary" onclick="openReactivateModal('${truck.id}', '${truck.driver_name}')">↩️ Reactivate Driver</button>
-            <button class="btn btn-delete" onclick="confirmDeleteTruck('${truck.id}', 'LEFT COMPANY', '${truck.driver_name}')">🗑️ Delete</button>
+            <button class="btn btn-primary" onclick="openReactivateModal('${truck.id}', '${truck.driver_name.replace(/'/g, "\\'")}')">↩️ Reactivate Driver</button>
+            <button class="btn btn-delete" onclick="confirmDeleteTruck('${truck.id}', 'LEFT COMPANY', '${truck.driver_name.replace(/'/g, "\\'")}')">🗑️ Delete</button>
         </div>
     `;
     
