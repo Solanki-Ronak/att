@@ -3,9 +3,197 @@
 
 <html lang="en">
 <head>
+    <script>
+// Session timeout functionality
+let inactivityTimeout;
+const LOGIN_PAGE = 'employeelogin.html';
+const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
+
+// Store last activity time
+function updateLastActivityTime() {
+    localStorage.setItem('lastActivityTime', Date.now());
+}
+
+// Check if session is expired
+function checkSessionExpiry() {
+    const lastActivityTime = localStorage.getItem('lastActivityTime');
+    const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
+    
+    if (!isLoggedIn) {
+        return true; // Already logged out
+    }
+    
+    if (lastActivityTime) {
+        const currentTime = Date.now();
+        const timeDifference = currentTime - parseInt(lastActivityTime);
+        
+        if (timeDifference > INACTIVITY_TIMEOUT) {
+            return true; // Session expired
+        }
+    }
+    return false; // Session still valid
+}
+
+// Reset the inactivity timer
+function resetInactivityTimer() {
+    clearTimeout(inactivityTimeout);
+    updateLastActivityTime(); // Update timestamp
+    
+    // Set new timeout
+    inactivityTimeout = setTimeout(() => {
+        logoutDueToInactivity();
+    }, INACTIVITY_TIMEOUT);
+}
+
+// Logout function
+function logoutDueToInactivity() {
+    // Clear any stored login data
+    localStorage.removeItem('employeeLoggedIn');
+    localStorage.removeItem('employeeUsername');
+    localStorage.removeItem('lastActivityTime');
+    
+    // Redirect to login page
+    window.location.href = LOGIN_PAGE;
+}
+
+// Manual logout function
+function manualLogout() {
+    clearTimeout(inactivityTimeout);
+    localStorage.removeItem('employeeLoggedIn');
+    localStorage.removeItem('employeeUsername');
+    localStorage.removeItem('lastActivityTime');
+    window.location.href = LOGIN_PAGE;
+}
+
+// Add event listeners for user activity
+function setupInactivityTracking() {
+    // Events that reset the timer
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click', 'keydown'];
+    
+    events.forEach(event => {
+        document.addEventListener(event, resetInactivityTimer);
+    });
+    
+    // Also reset timer when window gains focus
+    window.addEventListener('focus', resetInactivityTimer);
+    window.addEventListener('blur', updateLastActivityTime);
+    
+    // Listen for visibility change (tab switch)
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            // Tab became visible again
+            if (checkSessionExpiry()) {
+                logoutDueToInactivity();
+            } else {
+                resetInactivityTimer();
+            }
+        } else {
+            // Tab hidden, just update time
+            updateLastActivityTime();
+        }
+    });
+    
+    // Start the initial timer
+    resetInactivityTimer();
+}
+
+// Check authentication on page load
+function checkAuthentication() {
+    // First check if session expired
+    if (checkSessionExpiry()) {
+        logoutDueToInactivity();
+        return false;
+    }
+    
+    const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
+    
+    if (!isLoggedIn) {
+        // If not logged in, redirect to login page
+        window.location.href = LOGIN_PAGE;
+        return false;
+    }
+    
+    // Setup inactivity tracking
+    setupInactivityTracking();
+    return true;
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Check authentication first
+    if (checkAuthentication()) {
+        // Only proceed if authenticated
+        console.log('User authenticated, session tracking active');
+        
+        // Update the header to show username and logout button
+        updateHeaderWithUserInfo();
+    }
+});
+
+// Update header with user info and logout button
+function updateHeaderWithUserInfo() {
+    const header = document.querySelector('header');
+    if (!header) return;
+    
+    const username = localStorage.getItem('employeeUsername') || 'User';
+    const currentBackButton = header.querySelector('.btn-back');
+    
+    // Create logout button
+    const logoutBtn = document.createElement('button');
+    logoutBtn.className = 'btn btn-logout';
+    logoutBtn.innerHTML = '🚪 Logout';
+    logoutBtn.onclick = manualLogout;
+    logoutBtn.style.cssText = `
+        background: #ff4444;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-left: 10px;
+        transition: background 0.3s;
+    `;
+    
+    // Create user info span
+    const userInfo = document.createElement('span');
+    userInfo.innerHTML = `👤 ${username}`;
+    userInfo.style.cssText = `
+        color: white;
+        margin-right: 10px;
+        font-weight: bold;
+    `;
+    
+    // Update header structure
+    const headerContent = document.createElement('div');
+    headerContent.style.cssText = `
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: auto;
+    `;
+    
+    headerContent.appendChild(userInfo);
+    headerContent.appendChild(logoutBtn);
+    
+    if (currentBackButton) {
+        currentBackButton.parentNode.insertBefore(headerContent, currentBackButton);
+    } else {
+        header.appendChild(headerContent);
+    }
+    
+    // Add hover effect for logout button
+    logoutBtn.addEventListener('mouseover', function() {
+        this.style.background = '#cc0000';
+    });
+    logoutBtn.addEventListener('mouseout', function() {
+        this.style.background = '#ff4444';
+    });
+}
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Portal - Truck Management</title>
+    <title>Employee Portal - Truck Manazgement</title>
     <link rel="stylesheet" href="../css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase.js"></script>
