@@ -3120,3 +3120,53 @@
         transform: translateY(20px); 
     }
 }
+
+
+/* Responsive profile icon */
+@media (max-width: 768px) {
+    .profile-icon {
+        width: 40px !important;
+        height: 40px !important;
+        border: 2px solid #00509e !important;
+    }
+    
+    .user-initial {
+        font-size: 16px !important;
+    }
+    
+    .power-icon {
+        width: 18px !important;
+        height: 18px !important;
+        font-size: 10px !important;
+        border: 1.5px solid white !important;
+        bottom: -4px !important;
+        right: -4px !important;
+    }
+    
+    .logout-dropdown {
+        top: 50px !important;
+        min-width: 180px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-icon {
+        width: 35px !important;
+        height: 35px !important;
+    }
+    
+    .user-initial {
+        font-size: 14px !important;
+    }
+    
+    .power-icon {
+        width: 16px !important;
+        height: 16px !important;
+        font-size: 9px !important;
+    }
+    
+    .logout-dropdown {
+        top: 45px !important;
+        min-width: 160px !important;
+    }
+}
