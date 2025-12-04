@@ -26,9 +26,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 0px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
+           
         }
 
         h1 {
@@ -3063,24 +3063,60 @@
     }
 }
 
-.btn-logout {
-    background: #ff4444;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-left: 10px;
-    transition: background 0.3s;
+/* Profile Icon Hover Effects */
+.profile-icon:hover {
+    transform: scale(1.1);
+    background: #003f7f !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
-.btn-logout:hover {
-    background: #cc0000;
+/* Dropdown item hover effects */
+.dropdown-item:hover {
+    background: #f5f5f5;
 }
 
-.user-info {
-    color: white;
-    margin-right: 10px;
-    font-weight: bold;
+.logout-dropdown-btn:hover {
+    background: #fff5f5 !important;
+}
+
+/* Modal button hover effects */
+#confirmLogoutBtn:hover {
+    background: #cc0000 !important;
+}
+
+#cancelLogoutBtn:hover {
+    background: #545b62 !important;
+}
+
+/* Add to your existing CSS */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0); 
+    }
+}
+
+@keyframes slideDown {
+    from { 
+        opacity: 1;
+        transform: translateY(0); 
+    }
+    to { 
+        opacity: 0;
+        transform: translateY(20px); 
+    }
 }

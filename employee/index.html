@@ -8,7 +8,7 @@
 let inactivityTimeout;
 let warningTimeout;
 const LOGIN_PAGE = 'employeelogin.html';
-const INACTIVITY_TIMEOUT = 1 * 60 * 1000; // 1 minute in milliseconds
+const INACTIVITY_TIMEOUT = 5 * 60 * 1000; 
 const WARNING_TIME = 10000; // Show warning 10 seconds before expiry
 
 // Store session state
@@ -149,9 +149,365 @@ function logoutDueToInactivity() {
     clearTimeout(inactivityTimeout);
     clearTimeout(warningTimeout);
 }
+// Update header with user profile icon and logout functionality
+function updateHeaderWithUserInfo() {
+    if (isSessionExpiredModalShowing) return;
+    
+    const header = document.querySelector('header');
+    if (!header) return;
+    
+    const username = localStorage.getItem('employeeUsername') || 'User';
+    // Get first letter for the icon
+    const userInitial = username.charAt(0).toUpperCase();
+    
+    // Create profile container
+    const profileContainer = document.createElement('div');
+    profileContainer.className = 'profile-container';
+    profileContainer.style.cssText = `
+        display: flex;
+        align-items: center;
+        margin-left: auto;
+        position: relative;
+    `;
+    
+    // Create profile icon with user initial
+    const profileIcon = document.createElement('div');
+    profileIcon.className = 'profile-icon';
+    profileIcon.innerHTML = `
+        <div class="user-initial">${userInitial}</div>
+        <div class="power-icon">⏻</div>
+    `;
+    profileIcon.style.cssText = `
+        width: 50px;
+        height: 50px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: relative;
+        border: 3px solid #00509e;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    `;
+    
+    // Style for user initial and power icon
+    const userInitialStyle = document.createElement('style');
+    userInitialStyle.textContent = `
+        .user-initial {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00509e;
+            transition: all 0.3s ease;
+            z-index: 1;
+            position: relative;
+        }
+        
+        .power-icon {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background: #00509e;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border: 2px solid white;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+        
+        .profile-icon:hover {
+            background: rgba(0, 80, 158, 0.1) !important;
+            border-color: #003f7f;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .profile-icon:hover .user-initial {
+            color: #003f7f;
+            transform: scale(1.1);
+        }
+        
+        .profile-icon:hover .power-icon {
+            opacity: 1;
+            transform: scale(1);
+            background: #003f7f;
+        }
+    `;
+    document.head.appendChild(userInitialStyle);
+    
+    // Create logout dropdown (hidden by default)
+    const logoutDropdown = document.createElement('div');
+    logoutDropdown.className = 'logout-dropdown';
+    logoutDropdown.style.cssText = `
+        position: absolute;
+        top: 60px;
+        right: 0;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        min-width: 200px;
+        z-index: 1000;
+        display: none;
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+        animation: dropdownFadeIn 0.2s ease;
+    `;
+    
+    // Add dropdown animation
+    const dropdownAnimation = document.createElement('style');
+    dropdownAnimation.textContent = `
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(dropdownAnimation);
+    
+    // Create dropdown items
+    const userInfoItem = document.createElement('div');
+    userInfoItem.className = 'dropdown-item';
+    userInfoItem.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px; padding: 15px; background: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+            <div style="width: 40px; height: 40px; background: #00509e; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; font-weight: bold;">${userInitial}</div>
+            <div style="flex: 1;">
+                <div style="font-weight: bold; color: #333; font-size: 15px;">${username}</div>
+                <div style="font-size: 12px; color: #6c757d; margin-top: 2px;">Employee Account</div>
+            </div>
+        </div>
+    `;
+    
+    const logoutItem = document.createElement('div');
+    logoutItem.className = 'dropdown-item';
+    logoutItem.innerHTML = `
+        <button class="logout-dropdown-btn" style="width: 100%; padding: 12px 15px; background: transparent; border: none; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; color: #dc3545; font-weight: bold; font-size: 14px; transition: all 0.2s;">
+            <span style="font-size: 16px; background: #dc3545; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">⏻</span>
+            <span>Logout</span>
+        </button>
+    `;
+    
+    logoutDropdown.appendChild(userInfoItem);
+    logoutDropdown.appendChild(logoutItem);
+    
+    profileContainer.appendChild(profileIcon);
+    profileContainer.appendChild(logoutDropdown);
+    header.appendChild(profileContainer);
+    
+    // Toggle dropdown on icon click
+    profileIcon.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const isVisible = logoutDropdown.style.display === 'block';
+        logoutDropdown.style.display = isVisible ? 'none' : 'block';
+    });
+    
+    // Logout button in dropdown
+    const logoutBtn = logoutItem.querySelector('.logout-dropdown-btn');
+    logoutBtn.addEventListener('click', function() {
+        logoutDropdown.style.display = 'none';
+        showLogoutConfirmation();
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!profileContainer.contains(e.target)) {
+            logoutDropdown.style.display = 'none';
+        }
+    });
+    
+    // Add hover effects for dropdown items
+    logoutBtn.addEventListener('mouseenter', function() {
+        this.style.background = '#f8f9fa';
+    });
+    
+    logoutBtn.addEventListener('mouseleave', function() {
+        this.style.background = 'transparent';
+    });
+    
+    // Prevent icon from becoming too dark on hover
+    profileIcon.addEventListener('mouseenter', function() {
+        // This is now handled by CSS
+    });
+    
+    profileIcon.addEventListener('mouseleave', function() {
+        // This is now handled by CSS
+    });
+}
+// Show centered logout confirmation modal
+function showLogoutConfirmation() {
+    // Create modal overlay
+    const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'logoutConfirmModal';
+    modalOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    // Create modal content
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 400px;
+        overflow: hidden;
+        animation: slideUp 0.3s ease;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    `;
+    
+    const username = localStorage.getItem('employeeUsername') || 'User';
+    const userInitial = username.charAt(0).toUpperCase();
+    
+    modalContent.innerHTML = `
+        <div style="padding: 30px; text-align: center;">
+            <div style="position: relative; display: inline-block; margin-bottom: 20px;">
+                <div style="width: 80px; height: 80px; background: #f8f9fa; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 3px solid #e9ecef;">
+                    <div style="font-size: 32px; font-weight: bold; color: #00509e;">${userInitial}</div>
+                </div>
+                <div style="position: absolute; bottom: 0; right: 0; background: #dc3545; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; border: 3px solid white;">⏻</div>
+            </div>
+            
+            <h2 style="color: #333; margin-bottom: 10px; font-size: 24px;">Logout Confirmation</h2>
+            <p style="color: #666; margin-bottom: 25px; font-size: 16px; line-height: 1.5;">
+                <span style="font-weight: bold; color: #00509e;">${username}</span>, are you sure you want to logout?
+            </p>
+            
+            <div style="display: flex; gap: 15px; margin-top: 25px;">
+                <button id="cancelLogoutBtn" class="btn" style="flex: 1; background: #6c757d; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; transition: all 0.3s;">
+                    Cancel
+                </button>
+                <button id="confirmLogoutBtn" class="btn" style="flex: 1; background: #dc3545; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; transition: all 0.3s;">
+                    Logout
+                </button>
+            </div>
+        </div>
+    `;
+    
+    modalOverlay.appendChild(modalContent);
+    document.body.appendChild(modalOverlay);
+    
+    // Add fadeIn animation
+    const fadeInStyle = document.createElement('style');
+    fadeInStyle.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0); 
+            }
+        }
+        
+        #confirmLogoutBtn:hover {
+            background: #c82333 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+        
+        #cancelLogoutBtn:hover {
+            background: #545b62 !important;
+            transform: translateY(-2px);
+        }
+    `;
+    document.head.appendChild(fadeInStyle);
+    
+    // Add event listeners
+    document.getElementById('confirmLogoutBtn').addEventListener('click', function() {
+        modalOverlay.style.animation = 'fadeOut 0.3s ease';
+        modalContent.style.animation = 'slideDown 0.3s ease';
+        
+        setTimeout(() => {
+            if (modalOverlay.parentNode) {
+                document.body.removeChild(modalOverlay);
+            }
+            manualLogout();
+        }, 200);
+    });
+    
+    document.getElementById('cancelLogoutBtn').addEventListener('click', function() {
+        modalOverlay.style.animation = 'fadeOut 0.3s ease';
+        modalContent.style.animation = 'slideDown 0.3s ease';
+        
+        setTimeout(() => {
+            if (modalOverlay.parentNode) {
+                document.body.removeChild(modalOverlay);
+            }
+        }, 200);
+    });
+    
+    // Close when clicking outside modal
+    modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) {
+            modalOverlay.style.animation = 'fadeOut 0.3s ease';
+            modalContent.style.animation = 'slideDown 0.3s ease';
+            
+            setTimeout(() => {
+                if (modalOverlay.parentNode) {
+                    document.body.removeChild(modalOverlay);
+                }
+            }, 200);
+        }
+    });
+    
+    // Add fadeOut animation
+    const fadeOutStyle = document.createElement('style');
+    fadeOutStyle.textContent = `
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        @keyframes slideDown {
+            from { 
+                opacity: 1;
+                transform: translateY(0); 
+            }
+            to { 
+                opacity: 0;
+                transform: translateY(20px); 
+            }
+        }
+    `;
+    document.head.appendChild(fadeOutStyle);
+}
 
-// Manual logout function
+// Update the manualLogout function to also remove the confirmation modal if exists
 function manualLogout() {
+    // Remove logout confirmation modal if exists
+    const logoutModal = document.getElementById('logoutConfirmModal');
+    if (logoutModal) {
+        document.body.removeChild(logoutModal);
+    }
+    
     clearTimeout(inactivityTimeout);
     clearTimeout(warningTimeout);
     localStorage.removeItem('employeeLoggedIn');
@@ -162,7 +518,6 @@ function manualLogout() {
     restorePageActivities();
     window.location.href = LOGIN_PAGE;
 }
-
 // Modal login button handler
 function setupModalLoginButton() {
     const modalLoginBtn = document.getElementById('modalLoginBtn');
@@ -241,68 +596,6 @@ function checkAuthentication() {
     return true;
 }
 
-// Update header with user info and logout button
-function updateHeaderWithUserInfo() {
-    if (isSessionExpiredModalShowing) return; // Don't update header if modal is showing
-    
-    const header = document.querySelector('header');
-    if (!header) return;
-    
-    const username = localStorage.getItem('employeeUsername') || 'User';
-    const currentBackButton = header.querySelector('.btn-back');
-    
-    // Create logout button
-    const logoutBtn = document.createElement('button');
-    logoutBtn.className = 'btn btn-logout';
-    logoutBtn.innerHTML = '🚪 Logout';
-    logoutBtn.onclick = manualLogout;
-    logoutBtn.style.cssText = `
-        background: #ff4444;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-        margin-left: 10px;
-        transition: background 0.3s;
-    `;
-    
-    // Create user info span
-    const userInfo = document.createElement('span');
-    userInfo.innerHTML = `👤 ${username}`;
-    userInfo.style.cssText = `
-        color: white;
-        margin-right: 10px;
-        font-weight: bold;
-    `;
-    
-    // Update header structure
-    const headerContent = document.createElement('div');
-    headerContent.style.cssText = `
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-left: auto;
-    `;
-    
-    headerContent.appendChild(userInfo);
-    headerContent.appendChild(logoutBtn);
-    
-    if (currentBackButton) {
-        currentBackButton.parentNode.insertBefore(headerContent, currentBackButton);
-    } else {
-        header.appendChild(headerContent);
-    }
-    
-    // Add hover effect for logout button
-    logoutBtn.addEventListener('mouseover', function() {
-        this.style.background = '#cc0000';
-    });
-    logoutBtn.addEventListener('mouseout', function() {
-        this.style.background = '#ff4444';
-    });
-}
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -357,7 +650,7 @@ document.addEventListener('click', function(e) {
     <div class="container">
         <header>
             <h1>👨‍💼 Employee Portal</h1>
-            <button onclick="window.location.href='../index.html'" class="btn btn-back">← Back</button>
+            
         </header>
 
         <div class="nav-tabs">
@@ -546,53 +839,7 @@ document.addEventListener('click', function(e) {
     </div>
 </div>
 
-<style>
-/* Add modal styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 10000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    animation: fadeIn 0.3s ease-out;
-    pointer-events: auto;
-}
 
-.modal-content {
-    animation: slideIn 0.3s ease-out;
-    pointer-events: auto;
-}
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideIn {
-    from { 
-        opacity: 0;
-        transform: translate(-50%, -60px);
-    }
-    to { 
-        opacity: 1;
-        transform: translate(-50%, -50%);
-    }
-}
-
-/* Overlay to block interaction with background */
-.modal::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.9);
-    pointer-events: auto;
-}
-</style>
 </body>
 </html>
