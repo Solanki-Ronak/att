@@ -496,21 +496,23 @@
                     console.log('User found:', data.username);
                     
                     // Check if password matches
-                    if (data.password === password) {
-                        // Successful login
-                        messageDiv.textContent = 'Login successful! Redirecting...';
-                        messageDiv.className = 'message success';
-                        messageDiv.style.display = 'block';
-                        
-                        // Store login state in localStorage
-                        localStorage.setItem('adminLoggedIn', 'true');
-                        localStorage.setItem('adminUsername', username);
-                        
-                        // Redirect to admin dashboard
-                        setTimeout(function() {
-                            window.location.href = 'index.html';
-                        }, 1000);
-                    } else {
+                   // Check if password matches
+if (data.password === password) {
+    // Successful login
+    messageDiv.textContent = 'Login successful! Redirecting...';
+    messageDiv.className = 'message success';
+    messageDiv.style.display = 'block';
+    
+    // Store login state in localStorage
+    localStorage.setItem('adminLoggedIn', 'true');
+    localStorage.setItem('adminUsername', username);
+    localStorage.setItem('adminLastActivityTime', Date.now());
+    
+    // Redirect to admin dashboard
+    setTimeout(function() {
+        window.location.href = 'index.html';
+    }, 1000);
+} else {
                         throw new Error('Invalid username or password!');
                     }
                     

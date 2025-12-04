@@ -385,7 +385,7 @@ function updateHeaderWithUserInfo() {
         }
     });
 }
-// Show centered logout confirmation modal
+// Show centered logout confirmation modal for Employee
 function showLogoutConfirmation() {
     // Create modal overlay
     const modalOverlay = document.createElement('div');
@@ -421,16 +421,15 @@ function showLogoutConfirmation() {
     
     modalContent.innerHTML = `
         <div style="padding: 30px; text-align: center;">
-            <div style="position: relative; display: inline-block; margin-bottom: 20px;">
+            <div style="margin-bottom: 20px;">
                 <div style="width: 80px; height: 80px; background: #f8f9fa; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 3px solid #e9ecef;">
                     <div style="font-size: 32px; font-weight: bold; color: #00509e;">${userInitial}</div>
                 </div>
-                <div style="position: absolute; bottom: 0; right: 0; background: #dc3545; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; border: 3px solid white;"></div>
             </div>
             
             <h2 style="color: #333; margin-bottom: 10px; font-size: 24px;">Logout Confirmation</h2>
             <p style="color: #666; margin-bottom: 25px; font-size: 16px; line-height: 1.5;">
-                <span style="font-weight: bold; color: #00509e;"></span>Are you sure you want to logout?
+                Are you sure you want to logout?
             </p>
             
             <div style="display: flex; gap: 15px; margin-top: 25px;">
@@ -463,6 +462,22 @@ function showLogoutConfirmation() {
             to { 
                 opacity: 1;
                 transform: translateY(0); 
+            }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        @keyframes slideDown {
+            from { 
+                opacity: 1;
+                transform: translateY(0); 
+            }
+            to { 
+                opacity: 0;
+                transform: translateY(20px); 
             }
         }
         
@@ -517,28 +532,20 @@ function showLogoutConfirmation() {
         }
     });
     
-    // Add fadeOut animation
-    const fadeOutStyle = document.createElement('style');
-    fadeOutStyle.textContent = `
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
+    // Also close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.getElementById('logoutConfirmModal')) {
+            modalOverlay.style.animation = 'fadeOut 0.3s ease';
+            modalContent.style.animation = 'slideDown 0.3s ease';
+            
+            setTimeout(() => {
+                if (modalOverlay.parentNode) {
+                    document.body.removeChild(modalOverlay);
+                }
+            }, 200);
         }
-        
-        @keyframes slideDown {
-            from { 
-                opacity: 1;
-                transform: translateY(0); 
-            }
-            to { 
-                opacity: 0;
-                transform: translateY(20px); 
-            }
-        }
-    `;
-    document.head.appendChild(fadeOutStyle);
+    });
 }
-
 // Update the manualLogout function to also remove the confirmation modal if exists
 function manualLogout() {
     // Remove logout confirmation modal if exists

@@ -584,10 +584,10 @@ async function openEmployeeNoDriverDetails(truckId) {
             </div>` : '';
 
         modalWrapper.innerHTML = `
-            <div class="modal-content modal-large" style="margin: auto 20px; max-height: 90vh; overflow: hidden;">
+            <div class="modal-content modal-large" style="margin: auto 0px; max-height: 90vh; overflow: hidden;">
                 <span class="close" onclick="closeCurrentModal()" style="position: absolute; top: 10px; right: 20px; z-index: 1001;">&times;</span>
                 <h2 style="margin-top: 10px;">🚛 Truck Details - No Driver Assigned</h2>
-                <div class="modal-scroll-container" style="max-height: calc(90vh - 100px); overflow-y: auto;">
+               <div class="modal-scroll-container" style="max-height: 60vh; overflow-y: auto; ">
                     <div class="details-grid">
                         <div class="detail-section no-image">
                             <h3>Truck Information</h3>
@@ -742,10 +742,10 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
         const statusTitle = truck.status === 'no_truck' ? 'No Truck Assigned' : 'Left Company';
         
         modalWrapper.innerHTML = `
-            <div class="modal-content modal-large" style="margin: auto 20px; max-height: 90vh; overflow: hidden;">
+            <div class="modal-content modal-large" style="margin: auto 0px; max-height: 90vh; overflow: hidden;">
                 <span class="close" onclick="closeCurrentModal()" style="position: absolute; top: 10px; right: 20px; z-index: 1001;">&times;</span>
                 <h2 style="margin-top: 10px;">👨‍💼 Driver Details - ${statusTitle}</h2>
-                <div class="modal-scroll-container" style="max-height: calc(90vh - 100px); overflow-y: auto;">
+                <div class="modal-scroll-container" style="max-height: 60vh; overflow-y: auto; ">
                     <div class="details-grid">
                         <div class="detail-section ${!hasDriverImage ? 'no-image' : ''}">
                             <h3>Driver Information</h3>

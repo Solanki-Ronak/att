@@ -1,6 +1,669 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+    <script>
+// Session timeout functionality for Admin
+let inactivityTimeout;
+let warningTimeout;
+const ADMIN_LOGIN_PAGE = 'adminlogin.html';
+const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+const WARNING_TIME = 10000; // Show warning 10 seconds before expiry
+
+// Store session state
+const ADMIN_SESSION_EXPIRED_KEY = 'adminSessionExpired';
+let isAdminSessionExpiredModalShowing = false;
+
+// Show session expired modal
+function showAdminSessionExpiredModal() {
+    if (isAdminSessionExpiredModalShowing) return;
+    
+    const modal = document.getElementById('adminSessionExpiredModal');
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        
+        // Make modal unclosable
+        modal.style.pointerEvents = 'auto';
+        modal.querySelector('.modal-content').style.pointerEvents = 'auto';
+        
+        // Stop all background activities
+        stopAllAdminPageActivities();
+        
+        isAdminSessionExpiredModalShowing = true;
+    }
+}
+
+// Hide session expired modal
+function hideAdminSessionExpiredModal() {
+    const modal = document.getElementById('adminSessionExpiredModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        isAdminSessionExpiredModalShowing = false;
+    }
+}
+
+// Stop all page activities when session expires
+function stopAllAdminPageActivities() {
+    // Clear all timeouts
+    clearTimeout(inactivityTimeout);
+    clearTimeout(warningTimeout);
+    
+    // Clear all intervals
+    const highestIntervalId = setInterval(() => {}, 0);
+    for (let i = 0; i < highestIntervalId; i++) {
+        clearInterval(i);
+    }
+    
+    // Disable all clickable elements except modal button
+    document.querySelectorAll('button, a, input, select').forEach(element => {
+        if (element.id !== 'adminModalLoginBtn') {
+            element.style.pointerEvents = 'none';
+            element.style.opacity = '0.5';
+        }
+    });
+    
+    // Hide all modals except session expired modal
+    document.querySelectorAll('.modal').forEach(modal => {
+        if (modal.id !== 'adminSessionExpiredModal') {
+            modal.style.display = 'none';
+        }
+    });
+}
+
+// Restore page activities
+function restoreAdminPageActivities() {
+    document.querySelectorAll('button, a, input, select').forEach(element => {
+        element.style.pointerEvents = '';
+        element.style.opacity = '';
+    });
+}
+
+// Store last activity time
+function updateAdminLastActivityTime() {
+    if (isAdminSessionExpiredModalShowing) return;
+    
+    localStorage.setItem('adminLastActivityTime', Date.now());
+    localStorage.removeItem(ADMIN_SESSION_EXPIRED_KEY);
+}
+
+// Check if session is expired
+function checkAdminSessionExpiry() {
+    const lastActivityTime = localStorage.getItem('adminLastActivityTime');
+    const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+    const sessionExpiredFlag = localStorage.getItem(ADMIN_SESSION_EXPIRED_KEY);
+    
+    if (sessionExpiredFlag === 'true') {
+        return true;
+    }
+    
+    if (!isLoggedIn) {
+        return true;
+    }
+    
+    if (lastActivityTime) {
+        const currentTime = Date.now();
+        const timeDifference = currentTime - parseInt(lastActivityTime);
+        
+        if (timeDifference > INACTIVITY_TIMEOUT) {
+            localStorage.setItem(ADMIN_SESSION_EXPIRED_KEY, 'true');
+            return true;
+        }
+    }
+    return false;
+}
+
+// Reset the inactivity timer
+function resetAdminInactivityTimer() {
+    if (isAdminSessionExpiredModalShowing) return;
+    
+    clearTimeout(inactivityTimeout);
+    clearTimeout(warningTimeout);
+    updateAdminLastActivityTime();
+    
+    inactivityTimeout = setTimeout(() => {
+        adminLogoutDueToInactivity();
+    }, INACTIVITY_TIMEOUT);
+}
+
+// Logout function for inactivity
+function adminLogoutDueToInactivity() {
+    if (isAdminSessionExpiredModalShowing) return;
+    
+    localStorage.setItem(ADMIN_SESSION_EXPIRED_KEY, 'true');
+    localStorage.removeItem('adminLoggedIn');
+    localStorage.removeItem('adminUsername');
+    localStorage.removeItem('adminLastActivityTime');
+    
+    showAdminSessionExpiredModal();
+    
+    clearTimeout(inactivityTimeout);
+    clearTimeout(warningTimeout);
+}
+// Show centered logout confirmation modal for Admin
+function showAdminLogoutConfirmation() {
+    // Create modal overlay
+    const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'adminLogoutConfirmModal';
+    modalOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: adminFadeIn 0.3s ease;
+    `;
+    
+    // Create modal content
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 400px;
+        overflow: hidden;
+        animation: adminSlideUp 0.3s ease;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    `;
+    
+    const username = localStorage.getItem('adminUsername') || 'Admin';
+    const userInitial = username.charAt(0).toUpperCase();
+    
+    modalContent.innerHTML = `
+        <div style="padding: 30px; text-align: center;">
+            <div style="margin-bottom: 20px;">
+                <div style="width: 80px; height: 80px; background: #f8f9fa; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 3px solid #e9ecef;">
+                    <div style="font-size: 32px; font-weight: bold; color: #001f3f;">${userInitial}</div>
+                </div>
+            </div>
+            
+            <h2 style="color: #333; margin-bottom: 10px; font-size: 24px;">Logout Confirmation</h2>
+            <p style="color: #666; margin-bottom: 25px; font-size: 16px; line-height: 1.5;">
+                Are you sure you want to logout?
+            </p>
+            
+            <div style="display: flex; gap: 15px; margin-top: 25px;">
+                <button id="adminCancelLogoutBtn" class="btn" style="flex: 1; background: #6c757d; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; transition: all 0.3s;">
+                    Cancel
+                </button>
+                <button id="adminConfirmLogoutBtn" class="btn" style="flex: 1; background: #dc3545; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; transition: all 0.3s;">
+                    Logout
+                </button>
+            </div>
+        </div>
+    `;
+    
+    modalOverlay.appendChild(modalContent);
+    document.body.appendChild(modalOverlay);
+    
+    // Add fadeIn animation
+    const fadeInStyle = document.createElement('style');
+    fadeInStyle.textContent = `
+        @keyframes adminFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes adminSlideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0); 
+            }
+        }
+        
+        @keyframes adminFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        @keyframes adminSlideDown {
+            from { 
+                opacity: 1;
+                transform: translateY(0); 
+            }
+            to { 
+                opacity: 0;
+                transform: translateY(20px); 
+            }
+        }
+        
+        #adminConfirmLogoutBtn:hover {
+            background: #c82333 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+        
+        #adminCancelLogoutBtn:hover {
+            background: #545b62 !important;
+            transform: translateY(-2px);
+        }
+    `;
+    document.head.appendChild(fadeInStyle);
+    
+    // Add event listeners
+    document.getElementById('adminConfirmLogoutBtn').addEventListener('click', function() {
+        modalOverlay.style.animation = 'adminFadeOut 0.3s ease';
+        modalContent.style.animation = 'adminSlideDown 0.3s ease';
+        
+        setTimeout(() => {
+            if (modalOverlay.parentNode) {
+                document.body.removeChild(modalOverlay);
+            }
+            adminManualLogout();
+        }, 200);
+    });
+    
+    document.getElementById('adminCancelLogoutBtn').addEventListener('click', function() {
+        modalOverlay.style.animation = 'adminFadeOut 0.3s ease';
+        modalContent.style.animation = 'adminSlideDown 0.3s ease';
+        
+        setTimeout(() => {
+            if (modalOverlay.parentNode) {
+                document.body.removeChild(modalOverlay);
+            }
+        }, 200);
+    });
+    
+    // Close when clicking outside modal
+    modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) {
+            modalOverlay.style.animation = 'adminFadeOut 0.3s ease';
+            modalContent.style.animation = 'adminSlideDown 0.3s ease';
+            
+            setTimeout(() => {
+                if (modalOverlay.parentNode) {
+                    document.body.removeChild(modalOverlay);
+                }
+            }, 200);
+        }
+    });
+    
+    // Also close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.getElementById('adminLogoutConfirmModal')) {
+            modalOverlay.style.animation = 'adminFadeOut 0.3s ease';
+            modalContent.style.animation = 'adminSlideDown 0.3s ease';
+            
+            setTimeout(() => {
+                if (modalOverlay.parentNode) {
+                    document.body.removeChild(modalOverlay);
+                }
+            }, 200);
+        }
+    });
+}
+// Manual logout function for Admin
+function adminManualLogout() {
+    // Remove logout confirmation modal if exists
+    const logoutModal = document.getElementById('adminLogoutConfirmModal');
+    if (logoutModal) {
+        document.body.removeChild(logoutModal);
+    }
+    
+    clearTimeout(inactivityTimeout);
+    clearTimeout(warningTimeout);
+    localStorage.removeItem('adminLoggedIn');
+    localStorage.removeItem('adminUsername');
+    localStorage.removeItem('adminLastActivityTime');
+    localStorage.removeItem(ADMIN_SESSION_EXPIRED_KEY);
+    hideAdminSessionExpiredModal();
+    restoreAdminPageActivities();
+    window.location.href = ADMIN_LOGIN_PAGE;
+}
+// Setup modal login button handler
+function setupAdminModalLoginButton() {
+    const modalLoginBtn = document.getElementById('adminModalLoginBtn');
+    if (modalLoginBtn) {
+        modalLoginBtn.onclick = function() {
+            localStorage.removeItem('adminLoggedIn');
+            localStorage.removeItem('adminUsername');
+            localStorage.removeItem('adminLastActivityTime');
+            localStorage.removeItem(ADMIN_SESSION_EXPIRED_KEY);
+            
+            restoreAdminPageActivities();
+            window.location.href = ADMIN_LOGIN_PAGE;
+        };
+    }
+}
+
+// Add event listeners for user activity
+function setupAdminInactivityTracking() {
+    if (isAdminSessionExpiredModalShowing) return;
+    
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click', 'keydown', 'input'];
+    
+    events.forEach(event => {
+        document.addEventListener(event, resetAdminInactivityTimer, { passive: true });
+    });
+    
+    window.addEventListener('focus', resetAdminInactivityTimer);
+    window.addEventListener('blur', updateAdminLastActivityTime);
+    
+    document.addEventListener('visibilitychange', function() {
+        if (isAdminSessionExpiredModalShowing) return;
+        
+        if (!document.hidden) {
+            if (checkAdminSessionExpiry()) {
+                adminLogoutDueToInactivity();
+            } else {
+                resetAdminInactivityTimer();
+            }
+        } else {
+            updateAdminLastActivityTime();
+        }
+    });
+    
+    resetAdminInactivityTimer();
+}
+
+// Check authentication on page load
+function checkAdminAuthentication() {
+    if (checkAdminSessionExpiry()) {
+        adminLogoutDueToInactivity();
+        return false;
+    }
+    
+    const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+    
+    if (!isLoggedIn) {
+        window.location.href = ADMIN_LOGIN_PAGE;
+        return false;
+    }
+    
+    setupAdminInactivityTracking();
+    return true;
+}
+
+// Update header with user profile icon and logout functionality
+function updateAdminHeaderWithUserInfo() {
+    if (isAdminSessionExpiredModalShowing) return;
+    
+    const header = document.querySelector('header');
+    if (!header) return;
+    
+    const username = localStorage.getItem('adminUsername') || 'Admin';
+    const userInitial = username.charAt(0).toUpperCase();
+    
+    // Remove existing profile container if exists
+    const existingProfile = header.querySelector('.admin-profile-container');
+    if (existingProfile) {
+        existingProfile.remove();
+    }
+    
+    // Create profile container
+    const profileContainer = document.createElement('div');
+    profileContainer.className = 'admin-profile-container';
+    profileContainer.style.cssText = `
+        display: flex;
+        align-items: center;
+        margin-left: auto;
+        position: relative;
+        margin-right: 20px;
+    `;
+    
+    // Create profile icon with user initial
+    const profileIcon = document.createElement('div');
+    profileIcon.className = 'admin-profile-icon';
+    profileIcon.innerHTML = `
+        <div class="admin-user-initial">${userInitial}</div>
+    `;
+    profileIcon.style.cssText = `
+        width: 50px;
+        height: 50px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: relative;
+        border: 3px solid #001f3f;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    `;
+    
+    // Style for user initial
+    const userInitialStyle = document.createElement('style');
+    userInitialStyle.textContent = `
+        .admin-user-initial {
+            font-size: 20px;
+            font-weight: bold;
+            color: #001f3f;
+            transition: all 0.3s ease;
+            z-index: 1;
+            position: relative;
+        }
+        
+        .admin-profile-icon:hover {
+            background: rgba(0, 31, 63, 0.1) !important;
+            border-color: #001020;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .admin-profile-icon:hover .admin-user-initial {
+            color: #001020;
+            transform: scale(1.1);
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .admin-profile-icon {
+                width: 40px !important;
+                height: 40px !important;
+                border: 2px solid #001f3f !important;
+            }
+            
+            .admin-user-initial {
+                font-size: 16px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .admin-profile-icon {
+                width: 35px !important;
+                height: 35px !important;
+            }
+            
+            .admin-user-initial {
+                font-size: 14px !important;
+            }
+        }
+    `;
+    document.head.appendChild(userInitialStyle);
+    
+    // Create logout dropdown (hidden by default)
+    const logoutDropdown = document.createElement('div');
+    logoutDropdown.className = 'admin-logout-dropdown';
+    logoutDropdown.style.cssText = `
+        position: absolute;
+        top: 60px;
+        right: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        min-width: 180px;
+        z-index: 1000;
+        display: none;
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+        animation: adminDropdownFadeIn 0.2s ease;
+        padding: 15px;
+    `;
+    
+    // Add dropdown animation
+    const dropdownAnimation = document.createElement('style');
+    dropdownAnimation.textContent = `
+        @keyframes adminDropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsive dropdown */
+        @media (max-width: 768px) {
+            .admin-logout-dropdown {
+                top: 50px !important;
+                min-width: 160px !important;
+                padding: 12px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .admin-logout-dropdown {
+                top: 45px !important;
+                min-width: 140px !important;
+                padding: 10px !important;
+            }
+        }
+    `;
+    document.head.appendChild(dropdownAnimation);
+    
+    // Create dropdown items - User Info at top
+    const userInfoItem = document.createElement('div');
+    userInfoItem.className = 'admin-dropdown-item';
+    userInfoItem.style.cssText = `
+        margin-bottom: 15px;
+    `;
+    userInfoItem.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 35px; height: 35px; background: #001f3f; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: bold;">${userInitial}</div>
+            <div style="flex: 1;">
+                <div style="font-weight: bold; color: #333; font-size: 14px;">${username}</div>
+                <div style="font-size: 11px; color: #6c757d; margin-top: 2px;">Administrator</div>
+            </div>
+        </div>
+    `;
+    
+    // Create Logout Button
+    const logoutButton = document.createElement('button');
+    logoutButton.className = 'admin-logout-button';
+    logoutButton.style.cssText = `
+        width: 100%;
+        padding: 8px 15px;
+        background: white;
+        color: #dc3545;
+        border: 2px solid #dc3545;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        margin-top: 5px;
+    `;
+    logoutButton.innerHTML = `
+        <span style="font-size: 14px;">🚪</span>
+        <span>Logout</span>
+    `;
+    
+    // Add hover effect for logout button
+    logoutButton.addEventListener('mouseenter', function() {
+        this.style.background = '#dc3545';
+        this.style.color = 'white';
+        this.style.transform = 'translateY(-2px)';
+        this.style.boxShadow = '0 4px 8px rgba(220, 53, 69, 0.3)';
+    });
+    
+    logoutButton.addEventListener('mouseleave', function() {
+        this.style.background = 'white';
+        this.style.color = '#dc3545';
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = 'none';
+    });
+    
+    // Add click event for logout button
+    logoutButton.addEventListener('click', function() {
+        logoutDropdown.style.display = 'none';
+        showAdminLogoutConfirmation();
+    });
+    
+    // Add items to dropdown
+    logoutDropdown.appendChild(userInfoItem);
+    logoutDropdown.appendChild(logoutButton);
+    
+    profileContainer.appendChild(profileIcon);
+    profileContainer.appendChild(logoutDropdown);
+    header.appendChild(profileContainer);
+    
+    // Toggle dropdown on icon click
+    profileIcon.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const isVisible = logoutDropdown.style.display === 'block';
+        logoutDropdown.style.display = isVisible ? 'none' : 'block';
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!profileContainer.contains(e.target)) {
+            logoutDropdown.style.display = 'none';
+        }
+    });
+    
+    // Close dropdown on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            logoutDropdown.style.display = 'none';
+        }
+    });
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setupAdminModalLoginButton();
+    
+    if (checkAdminAuthentication()) {
+        console.log('Admin authenticated, session tracking active');
+        updateAdminHeaderWithUserInfo();
+    }
+});
+
+// Handle page refresh
+window.addEventListener('load', function() {
+    if (localStorage.getItem(ADMIN_SESSION_EXPIRED_KEY) === 'true') {
+        setTimeout(() => {
+            adminLogoutDueToInactivity();
+        }, 500);
+    }
+});
+
+// Prevent any key/mouse events when modal is showing
+document.addEventListener('keydown', function(e) {
+    if (isAdminSessionExpiredModalShowing && e.target.id !== 'adminModalLoginBtn') {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+});
+
+document.addEventListener('click', function(e) {
+    if (isAdminSessionExpiredModalShowing && e.target.id !== 'adminModalLoginBtn') {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+});
+</script>
+
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Portal - Truck Management</title>
@@ -17,7 +680,7 @@
     <div class="container">
         <header>
             <h1>🔧 Admin Portal</h1>
-            <button onclick="window.location.href='../index.html'" class="btn btn-back">← Back</button>
+            
         </header>
 
         <div class="nav-tabs">
@@ -1146,6 +1809,25 @@
 
 <script src="../js/dieseladmin.js"></script>
     <script src="../js/admin.js"></script>
-    
+    <!-- Admin Session Expired Modal -->
+<div id="adminSessionExpiredModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 400px; text-align: center; background: white; color: #333; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10001;">
+        <div style="padding: 30px;">
+            <div style="font-size: 60px; margin-bottom: 20px; color: #ff4444;">⏰</div>
+            <h2 style="color: #ff4444; margin-bottom: 15px;">Session Expired</h2>
+            <p style="margin-bottom: 25px; font-size: 16px; color: #666;">
+                Your admin session has expired due to inactivity.<br>
+                Please login again to continue.
+            </p>
+            <button id="adminModalLoginBtn" class="btn btn-primary" 
+                    style="background: #001f3f; color: white; border: none; 
+                           padding: 12px 30px; border-radius: 8px; 
+                           font-size: 16px; cursor: pointer; 
+                           font-weight: bold; width: 100%;">
+                🔐 Login Again
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
