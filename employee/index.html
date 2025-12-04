@@ -149,6 +149,7 @@ function logoutDueToInactivity() {
     clearTimeout(inactivityTimeout);
     clearTimeout(warningTimeout);
 }
+
 // Update header with user profile icon and logout functionality
 function updateHeaderWithUserInfo() {
     if (isSessionExpiredModalShowing) return;
@@ -173,10 +174,9 @@ function updateHeaderWithUserInfo() {
     // Create profile icon with user initial
     const profileIcon = document.createElement('div');
     profileIcon.className = 'profile-icon';
-profileIcon.innerHTML = `
-    <div class="user-initial">${userInitial}</div>
-    <div class="power-icon">&#x23FB;</div> 
-`;
+    profileIcon.innerHTML = `
+        <div class="user-initial">${userInitial}</div>
+    `;
     profileIcon.style.cssText = `
         width: 50px;
         height: 50px;
@@ -192,7 +192,7 @@ profileIcon.innerHTML = `
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     `;
     
-    // Style for user initial and power icon
+    // Style for user initial
     const userInitialStyle = document.createElement('style');
     userInitialStyle.textContent = `
         .user-initial {
@@ -202,26 +202,6 @@ profileIcon.innerHTML = `
             transition: all 0.3s ease;
             z-index: 1;
             position: relative;
-        }
-        
-        .power-icon {
-            position: absolute;
-            bottom: -5px;
-            right: -5px;
-            background: #00509e;
-            color: white;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            border: 2px solid white;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: all 0.3s ease;
-            z-index: 2;
         }
         
         .profile-icon:hover {
@@ -236,10 +216,28 @@ profileIcon.innerHTML = `
             transform: scale(1.1);
         }
         
-        .profile-icon:hover .power-icon {
-            opacity: 1;
-            transform: scale(1);
-            background: #003f7f;
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .profile-icon {
+                width: 40px !important;
+                height: 40px !important;
+                border: 2px solid #00509e !important;
+            }
+            
+            .user-initial {
+                font-size: 16px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .profile-icon {
+                width: 35px !important;
+                height: 35px !important;
+            }
+            
+            .user-initial {
+                font-size: 14px !important;
+            }
         }
     `;
     document.head.appendChild(userInitialStyle);
@@ -252,14 +250,15 @@ profileIcon.innerHTML = `
         top: 60px;
         right: 0;
         background: white;
-        border-radius: 10px;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        min-width: 200px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        min-width: 180px;
         z-index: 1000;
         display: none;
         overflow: hidden;
         border: 1px solid #e0e0e0;
         animation: dropdownFadeIn 0.2s ease;
+        padding: 15px;
     `;
     
     // Add dropdown animation
@@ -275,33 +274,91 @@ profileIcon.innerHTML = `
                 transform: translateY(0);
             }
         }
+        
+        /* Responsive dropdown */
+        @media (max-width: 768px) {
+            .logout-dropdown {
+                top: 50px !important;
+                min-width: 160px !important;
+                padding: 12px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logout-dropdown {
+                top: 45px !important;
+                min-width: 140px !important;
+                padding: 10px !important;
+            }
+        }
     `;
     document.head.appendChild(dropdownAnimation);
     
-    // Create dropdown items
+    // Create dropdown items - User Info at top
     const userInfoItem = document.createElement('div');
     userInfoItem.className = 'dropdown-item';
+    userInfoItem.style.cssText = `
+        margin-bottom: 15px;
+    `;
     userInfoItem.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 12px; padding: 15px; background: #f8f9fa; border-bottom: 1px solid #e9ecef;">
-            <div style="width: 40px; height: 40px; background: #00509e; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; font-weight: bold;">${userInitial}</div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 35px; height: 35px; background: #00509e; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: bold;">${userInitial}</div>
             <div style="flex: 1;">
-                <div style="font-weight: bold; color: #333; font-size: 15px;">${username}</div>
-                <div style="font-size: 12px; color: #6c757d; margin-top: 2px;">Employee Account</div>
+                <div style="font-weight: bold; color: #333; font-size: 14px;">${username}</div>
+                <div style="font-size: 11px; color: #6c757d; margin-top: 2px;">Employee</div>
             </div>
         </div>
     `;
     
-    const logoutItem = document.createElement('div');
-    logoutItem.className = 'dropdown-item';
-   logoutItem.innerHTML = `
-    <button class="logout-dropdown-btn" style="width: 100%; padding: 12px 15px; background: transparent; border: none; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; color: #dc3545; font-weight: bold; font-size: 14px; transition: all 0.2s;">
-        <span style="font-size: 16px; background: #dc3545; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">&#x23FB;</span>
+    // Create Logout Button with border (not full width)
+    const logoutButton = document.createElement('button');
+    logoutButton.className = 'logout-button';
+    logoutButton.style.cssText = `
+        width: 100%;
+        padding: 8px 15px;
+        background: white;
+        color: #dc3545;
+        border: 2px solid #dc3545;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        margin-top: 5px;
+    `;
+    logoutButton.innerHTML = `
+        <span style="font-size: 14px;">🚪</span>
         <span>Logout</span>
-    </button>
-`;
+    `;
     
+    // Add hover effect for logout button
+    logoutButton.addEventListener('mouseenter', function() {
+        this.style.background = '#dc3545';
+        this.style.color = 'white';
+        this.style.transform = 'translateY(-2px)';
+        this.style.boxShadow = '0 4px 8px rgba(220, 53, 69, 0.3)';
+    });
+    
+    logoutButton.addEventListener('mouseleave', function() {
+        this.style.background = 'white';
+        this.style.color = '#dc3545';
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = 'none';
+    });
+    
+    // Add click event for logout button
+    logoutButton.addEventListener('click', function() {
+        logoutDropdown.style.display = 'none';
+        showLogoutConfirmation();
+    });
+    
+    // Add items to dropdown
     logoutDropdown.appendChild(userInfoItem);
-    logoutDropdown.appendChild(logoutItem);
+    logoutDropdown.appendChild(logoutButton);
     
     profileContainer.appendChild(profileIcon);
     profileContainer.appendChild(logoutDropdown);
@@ -314,13 +371,6 @@ profileIcon.innerHTML = `
         logoutDropdown.style.display = isVisible ? 'none' : 'block';
     });
     
-    // Logout button in dropdown
-    const logoutBtn = logoutItem.querySelector('.logout-dropdown-btn');
-    logoutBtn.addEventListener('click', function() {
-        logoutDropdown.style.display = 'none';
-        showLogoutConfirmation();
-    });
-    
     // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
         if (!profileContainer.contains(e.target)) {
@@ -328,22 +378,11 @@ profileIcon.innerHTML = `
         }
     });
     
-    // Add hover effects for dropdown items
-    logoutBtn.addEventListener('mouseenter', function() {
-        this.style.background = '#f8f9fa';
-    });
-    
-    logoutBtn.addEventListener('mouseleave', function() {
-        this.style.background = 'transparent';
-    });
-    
-    // Prevent icon from becoming too dark on hover
-    profileIcon.addEventListener('mouseenter', function() {
-        // This is now handled by CSS
-    });
-    
-    profileIcon.addEventListener('mouseleave', function() {
-        // This is now handled by CSS
+    // Close dropdown on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            logoutDropdown.style.display = 'none';
+        }
     });
 }
 // Show centered logout confirmation modal
@@ -382,12 +421,12 @@ function showLogoutConfirmation() {
     
     modalContent.innerHTML = `
         <div style="padding: 30px; text-align: center;">
-        <div style="position: relative; display: inline-block; margin-bottom: 20px;">
-            <div style="width: 80px; height: 80px; background: #f8f9fa; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 3px solid #e9ecef;">
-                <div style="font-size: 32px; font-weight: bold; color: #00509e;">${userInitial}</div>
+            <div style="position: relative; display: inline-block; margin-bottom: 20px;">
+                <div style="width: 80px; height: 80px; background: #f8f9fa; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 3px solid #e9ecef;">
+                    <div style="font-size: 32px; font-weight: bold; color: #00509e;">${userInitial}</div>
+                </div>
+                <div style="position: absolute; bottom: 0; right: 0; background: #dc3545; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; border: 3px solid white;"></div>
             </div>
-            <div style="position: absolute; bottom: 0; right: 0; background: #dc3545; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; border: 3px solid white;">&#x23FB;</div>
-        </div>
             
             <h2 style="color: #333; margin-bottom: 10px; font-size: 24px;">Logout Confirmation</h2>
             <p style="color: #666; margin-bottom: 25px; font-size: 16px; line-height: 1.5;">
