@@ -6,18 +6,99 @@
     <script>
 // Session timeout functionality
 let inactivityTimeout;
+let warningTimeout;
 const LOGIN_PAGE = 'employeelogin.html';
-const INACTIVITY_TIMEOUT = 1 * 60 * 1000; // 10 minutes in milliseconds
+const INACTIVITY_TIMEOUT = 1 * 60 * 1000; // 1 minute in milliseconds
+const WARNING_TIME = 10000; // Show warning 10 seconds before expiry
+
+// Store session state
+const SESSION_EXPIRED_KEY = 'employeeSessionExpired';
+let isSessionExpiredModalShowing = false;
+
+// Show session expired modal
+function showSessionExpiredModal() {
+    if (isSessionExpiredModalShowing) return; // Already showing
+    
+    const modal = document.getElementById('sessionExpiredModal');
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+        
+        // Make modal unclosable
+        modal.style.pointerEvents = 'auto';
+        modal.querySelector('.modal-content').style.pointerEvents = 'auto';
+        
+        // Stop all background activities
+        stopAllPageActivities();
+        
+        isSessionExpiredModalShowing = true;
+    }
+}
+
+// Hide session expired modal (only when user logs in again)
+function hideSessionExpiredModal() {
+    const modal = document.getElementById('sessionExpiredModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = ''; // Restore scrolling
+        isSessionExpiredModalShowing = false;
+    }
+}
+
+// Stop all page activities when session expires
+function stopAllPageActivities() {
+    // Clear all timeouts
+    clearTimeout(inactivityTimeout);
+    clearTimeout(warningTimeout);
+    
+    // Clear all intervals
+    const highestIntervalId = setInterval(() => {}, 0);
+    for (let i = 0; i < highestIntervalId; i++) {
+        clearInterval(i);
+    }
+    
+    // Disable all clickable elements except modal button
+    document.querySelectorAll('button, a, input, select').forEach(element => {
+        if (element.id !== 'modalLoginBtn') {
+            element.style.pointerEvents = 'none';
+            element.style.opacity = '0.5';
+        }
+    });
+    
+    // Hide all modals except session expired modal
+    document.querySelectorAll('.modal').forEach(modal => {
+        if (modal.id !== 'sessionExpiredModal') {
+            modal.style.display = 'none';
+        }
+    });
+}
+
+// Restore page activities (when user logs back in)
+function restorePageActivities() {
+    document.querySelectorAll('button, a, input, select').forEach(element => {
+        element.style.pointerEvents = '';
+        element.style.opacity = '';
+    });
+}
 
 // Store last activity time
 function updateLastActivityTime() {
+    if (isSessionExpiredModalShowing) return; // Don't update if modal is showing
+    
     localStorage.setItem('lastActivityTime', Date.now());
+    // Clear expired flag if user is active
+    localStorage.removeItem(SESSION_EXPIRED_KEY);
 }
 
 // Check if session is expired
 function checkSessionExpiry() {
     const lastActivityTime = localStorage.getItem('lastActivityTime');
     const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
+    const sessionExpiredFlag = localStorage.getItem(SESSION_EXPIRED_KEY);
+    
+    if (sessionExpiredFlag === 'true') {
+        return true; // Session already marked as expired
+    }
     
     if (!isLoggedIn) {
         return true; // Already logged out
@@ -28,6 +109,7 @@ function checkSessionExpiry() {
         const timeDifference = currentTime - parseInt(lastActivityTime);
         
         if (timeDifference > INACTIVITY_TIMEOUT) {
+            localStorage.setItem(SESSION_EXPIRED_KEY, 'true');
             return true; // Session expired
         }
     }
@@ -36,7 +118,10 @@ function checkSessionExpiry() {
 
 // Reset the inactivity timer
 function resetInactivityTimer() {
+    if (isSessionExpiredModalShowing) return; // Don't reset if modal is showing
+    
     clearTimeout(inactivityTimeout);
+    clearTimeout(warningTimeout);
     updateLastActivityTime(); // Update timestamp
     
     // Set new timeout
@@ -47,31 +132,66 @@ function resetInactivityTimer() {
 
 // Logout function
 function logoutDueToInactivity() {
-    // Clear any stored login data
+    if (isSessionExpiredModalShowing) return; // Already showing
+    
+    // Mark session as expired
+    localStorage.setItem(SESSION_EXPIRED_KEY, 'true');
+    
+    // Clear any stored login data (but keep flag)
     localStorage.removeItem('employeeLoggedIn');
     localStorage.removeItem('employeeUsername');
     localStorage.removeItem('lastActivityTime');
     
-    // Redirect to login page
-    window.location.href = LOGIN_PAGE;
+    // Show the session expired modal
+    showSessionExpiredModal();
+    
+    // Clear any remaining timeouts
+    clearTimeout(inactivityTimeout);
+    clearTimeout(warningTimeout);
 }
 
 // Manual logout function
 function manualLogout() {
     clearTimeout(inactivityTimeout);
+    clearTimeout(warningTimeout);
     localStorage.removeItem('employeeLoggedIn');
     localStorage.removeItem('employeeUsername');
     localStorage.removeItem('lastActivityTime');
+    localStorage.removeItem(SESSION_EXPIRED_KEY);
+    hideSessionExpiredModal();
+    restorePageActivities();
     window.location.href = LOGIN_PAGE;
+}
+
+// Modal login button handler
+function setupModalLoginButton() {
+    const modalLoginBtn = document.getElementById('modalLoginBtn');
+    if (modalLoginBtn) {
+        modalLoginBtn.onclick = function() {
+            // Clear all session data
+            localStorage.removeItem('employeeLoggedIn');
+            localStorage.removeItem('employeeUsername');
+            localStorage.removeItem('lastActivityTime');
+            localStorage.removeItem(SESSION_EXPIRED_KEY);
+            
+            // Restore page activities
+            restorePageActivities();
+            
+            // Redirect to login page
+            window.location.href = LOGIN_PAGE;
+        };
+    }
 }
 
 // Add event listeners for user activity
 function setupInactivityTracking() {
+    if (isSessionExpiredModalShowing) return; // Don't setup if modal is showing
+    
     // Events that reset the timer
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click', 'keydown'];
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click', 'keydown', 'input'];
     
     events.forEach(event => {
-        document.addEventListener(event, resetInactivityTimer);
+        document.addEventListener(event, resetInactivityTimer, { passive: true });
     });
     
     // Also reset timer when window gains focus
@@ -80,6 +200,8 @@ function setupInactivityTracking() {
     
     // Listen for visibility change (tab switch)
     document.addEventListener('visibilitychange', function() {
+        if (isSessionExpiredModalShowing) return;
+        
         if (!document.hidden) {
             // Tab became visible again
             if (checkSessionExpiry()) {
@@ -99,8 +221,9 @@ function setupInactivityTracking() {
 
 // Check authentication on page load
 function checkAuthentication() {
-    // First check if session expired
+    // Check if session expired
     if (checkSessionExpiry()) {
+        // Show modal immediately
         logoutDueToInactivity();
         return false;
     }
@@ -118,20 +241,10 @@ function checkAuthentication() {
     return true;
 }
 
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Check authentication first
-    if (checkAuthentication()) {
-        // Only proceed if authenticated
-        console.log('User authenticated, session tracking active');
-        
-        // Update the header to show username and logout button
-        updateHeaderWithUserInfo();
-    }
-});
-
 // Update header with user info and logout button
 function updateHeaderWithUserInfo() {
+    if (isSessionExpiredModalShowing) return; // Don't update header if modal is showing
+    
     const header = document.querySelector('header');
     if (!header) return;
     
@@ -190,6 +303,48 @@ function updateHeaderWithUserInfo() {
         this.style.background = '#ff4444';
     });
 }
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup modal login button
+    setupModalLoginButton();
+    
+    // Check authentication first
+    if (checkAuthentication()) {
+        // Only proceed if authenticated
+        console.log('User authenticated, session tracking active');
+        
+        // Update the header to show username and logout button
+        updateHeaderWithUserInfo();
+    }
+});
+
+// Handle page refresh - if session expired, show modal immediately
+window.addEventListener('load', function() {
+    if (localStorage.getItem(SESSION_EXPIRED_KEY) === 'true') {
+        // Show modal after page fully loads
+        setTimeout(() => {
+            logoutDueToInactivity();
+        }, 500);
+    }
+});
+
+// Prevent any key/mouse events when modal is showing
+document.addEventListener('keydown', function(e) {
+    if (isSessionExpiredModalShowing && e.target.id !== 'modalLoginBtn') {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+});
+
+document.addEventListener('click', function(e) {
+    if (isSessionExpiredModalShowing && e.target.id !== 'modalLoginBtn') {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+});
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -369,5 +524,75 @@ function updateHeaderWithUserInfo() {
 </div>
 <script src="../js/dieselemployee.js"></script>
     <script src="../js/employee.js"></script>
+
+<!-- Session Expired Modal -->
+<div id="sessionExpiredModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 400px; text-align: center; background: white; color: #333; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10001;">
+        <div style="padding: 30px;">
+            <div style="font-size: 60px; margin-bottom: 20px; color: #ff4444;">⏰</div>
+            <h2 style="color: #ff4444; margin-bottom: 15px;">Session Expired</h2>
+            <p style="margin-bottom: 25px; font-size: 16px; color: #666;">
+                Your session has expired due to inactivity.<br>
+                Please login again to continue.
+            </p>
+            <button id="modalLoginBtn" class="btn btn-primary" 
+                    style="background: #00509e; color: white; border: none; 
+                           padding: 12px 30px; border-radius: 8px; 
+                           font-size: 16px; cursor: pointer; 
+                           font-weight: bold; width: 100%;">
+                🔐 Login Again
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Add modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    animation: fadeIn 0.3s ease-out;
+    pointer-events: auto;
+}
+
+.modal-content {
+    animation: slideIn 0.3s ease-out;
+    pointer-events: auto;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0;
+        transform: translate(-50%, -60px);
+    }
+    to { 
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Overlay to block interaction with background */
+.modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    pointer-events: auto;
+}
+</style>
 </body>
 </html>

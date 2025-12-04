@@ -424,7 +424,11 @@
 
         document.addEventListener('DOMContentLoaded', function() {
 
-            const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
+            localStorage.removeItem('employeeSessionExpired');
+    
+    // ========== AUTHENTICATION CHECK ==========
+    // Check if already logged in
+    const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
     
     if (isLoggedIn) {
         // Already logged in, redirect to dashboard
