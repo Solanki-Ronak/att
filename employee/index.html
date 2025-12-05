@@ -8,7 +8,7 @@
 let inactivityTimeout;
 let warningTimeout;
 const LOGIN_PAGE = 'employeelogin.html';
-const INACTIVITY_TIMEOUT = 5 * 60 * 1000; 
+const INACTIVITY_TIMEOUT = 1 * 60 * 1000; 
 const WARNING_TIME = 10000; // Show warning 10 seconds before expiry
 
 // Store session state
@@ -89,40 +89,45 @@ function updateLastActivityTime() {
     // Clear expired flag if user is active
     localStorage.removeItem(SESSION_EXPIRED_KEY);
 }
-
 // Check if session is expired
 function checkSessionExpiry() {
     const lastActivityTime = localStorage.getItem('lastActivityTime');
     const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
     const sessionExpiredFlag = localStorage.getItem(SESSION_EXPIRED_KEY);
     
+    // First check if session was already marked as expired
     if (sessionExpiredFlag === 'true') {
-        return true; // Session already marked as expired
+        return true;
     }
     
+    // If not logged in, session is expired
     if (!isLoggedIn) {
-        return true; // Already logged out
+        return true;
     }
     
+    // Check inactivity only if we have a last activity time
     if (lastActivityTime) {
         const currentTime = Date.now();
         const timeDifference = currentTime - parseInt(lastActivityTime);
         
+        // Only mark as expired if inactive for longer than timeout
         if (timeDifference > INACTIVITY_TIMEOUT) {
             localStorage.setItem(SESSION_EXPIRED_KEY, 'true');
-            return true; // Session expired
+            return true;
         }
     }
+    
     return false; // Session still valid
 }
-
 // Reset the inactivity timer
 function resetInactivityTimer() {
-    if (isSessionExpiredModalShowing) return; // Don't reset if modal is showing
+    if (isSessionExpiredModalShowing) return;
     
     clearTimeout(inactivityTimeout);
     clearTimeout(warningTimeout);
-    updateLastActivityTime(); // Update timestamp
+    
+    // Update timestamp
+    updateLastActivityTime();
     
     // Set new timeout
     inactivityTimeout = setTimeout(() => {
@@ -622,13 +627,6 @@ function setupInactivityTracking() {
 
 // Check authentication on page load
 function checkAuthentication() {
-    // Check if session expired
-    if (checkSessionExpiry()) {
-        // Show modal immediately
-        logoutDueToInactivity();
-        return false;
-    }
-    
     const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
     
     if (!isLoggedIn) {
@@ -637,14 +635,37 @@ function checkAuthentication() {
         return false;
     }
     
+    // IMPORTANT: Check if session was marked as expired from previous session
+    // Only show expired modal if session was already expired from inactivity
+    const wasSessionExpired = localStorage.getItem(SESSION_EXPIRED_KEY) === 'true';
+    
+    if (wasSessionExpired) {
+        // User was previously inactive and session expired
+        // Show modal immediately and don't setup tracking
+        logoutDueToInactivity();
+        return false;
+    }
+    
+    // Set initial activity time if not set
+    if (!localStorage.getItem('lastActivityTime')) {
+        localStorage.setItem('lastActivityTime', Date.now());
+    }
+    
     // Setup inactivity tracking
     setupInactivityTracking();
     return true;
 }
-
-
-// Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    // Clear any stale session expired flags on page load
+    // This prevents showing modal immediately on fresh login
+    const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
+    
+    if (isLoggedIn && !localStorage.getItem('lastActivityTime')) {
+        // This is a fresh login, set initial activity time
+        localStorage.setItem('lastActivityTime', Date.now());
+        localStorage.removeItem(SESSION_EXPIRED_KEY);
+    }
+    
     // Setup modal login button
     setupModalLoginButton();
     
@@ -658,15 +679,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Handle page refresh - if session expired, show modal immediately
-window.addEventListener('load', function() {
-    if (localStorage.getItem(SESSION_EXPIRED_KEY) === 'true') {
-        // Show modal after page fully loads
-        setTimeout(() => {
-            logoutDueToInactivity();
-        }, 500);
-    }
-});
 
 // Prevent any key/mouse events when modal is showing
 document.addEventListener('keydown', function(e) {

@@ -496,7 +496,7 @@
                     console.log('User found:', data.username);
                     
                     // Check if password matches
-                   // Check if password matches
+ // In adminlogin.html, modify the successful login section:
 if (data.password === password) {
     // Successful login
     messageDiv.textContent = 'Login successful! Redirecting...';
@@ -506,6 +506,11 @@ if (data.password === password) {
     // Store login state in localStorage
     localStorage.setItem('adminLoggedIn', 'true');
     localStorage.setItem('adminUsername', username);
+    
+    // CRITICAL: Clear any existing admin session expired flag
+    localStorage.removeItem('adminSessionExpired');
+    
+    // Set current time as last activity time
     localStorage.setItem('adminLastActivityTime', Date.now());
     
     // Redirect to admin dashboard

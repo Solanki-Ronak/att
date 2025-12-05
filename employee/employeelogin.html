@@ -508,21 +508,28 @@
                     console.log('User found:', data.username);
                     
                     // Check if password matches
-                    if (data.password === password) {
-                        // Successful login
-                        messageDiv.textContent = 'Login successful! Redirecting...';
-                        messageDiv.className = 'message success';
-                        messageDiv.style.display = 'block';
-                        
-                        // Store login state in localStorage
-                        localStorage.setItem('employeeLoggedIn', 'true');
-                        localStorage.setItem('employeeUsername', username);
-                        
-                        // Redirect to employee dashboard
-                        setTimeout(function() {
-                            window.location.href = 'index.html';
-                        }, 1000);
-                    } else {
+                // In your employeelogin.html, modify the successful login section:
+if (data.password === password) {
+    // Successful login
+    messageDiv.textContent = 'Login successful! Redirecting...';
+    messageDiv.className = 'message success';
+    messageDiv.style.display = 'block';
+    
+    // Store login state in localStorage
+    localStorage.setItem('employeeLoggedIn', 'true');
+    localStorage.setItem('employeeUsername', username);
+    
+    // CRITICAL: Clear any existing session expired flag
+    localStorage.removeItem('employeeSessionExpired');
+    
+    // Set current time as last activity time
+    localStorage.setItem('lastActivityTime', Date.now());
+    
+    // Redirect to employee dashboard
+    setTimeout(function() {
+        window.location.href = 'index.html';
+    }, 1000);
+} else {
                         throw new Error('Invalid username or password!');
                     }
                     

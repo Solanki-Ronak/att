@@ -7,7 +7,7 @@
 let inactivityTimeout;
 let warningTimeout;
 const ADMIN_LOGIN_PAGE = 'adminlogin.html';
-const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+const INACTIVITY_TIMEOUT = 1 * 60 * 1000; // 5 minutes
 const WARNING_TIME = 10000; // Show warning 10 seconds before expiry
 
 // Store session state
@@ -87,41 +87,47 @@ function updateAdminLastActivityTime() {
     localStorage.setItem('adminLastActivityTime', Date.now());
     localStorage.removeItem(ADMIN_SESSION_EXPIRED_KEY);
 }
-
 // Check if session is expired
 function checkAdminSessionExpiry() {
     const lastActivityTime = localStorage.getItem('adminLastActivityTime');
     const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
     const sessionExpiredFlag = localStorage.getItem(ADMIN_SESSION_EXPIRED_KEY);
     
+    // First check if session was already marked as expired
     if (sessionExpiredFlag === 'true') {
         return true;
     }
     
+    // If not logged in, session is expired
     if (!isLoggedIn) {
         return true;
     }
     
+    // Check inactivity only if we have a last activity time
     if (lastActivityTime) {
         const currentTime = Date.now();
         const timeDifference = currentTime - parseInt(lastActivityTime);
         
+        // Only mark as expired if inactive for longer than timeout
         if (timeDifference > INACTIVITY_TIMEOUT) {
             localStorage.setItem(ADMIN_SESSION_EXPIRED_KEY, 'true');
             return true;
         }
     }
-    return false;
+    
+    return false; // Session still valid
 }
-
 // Reset the inactivity timer
 function resetAdminInactivityTimer() {
     if (isAdminSessionExpiredModalShowing) return;
     
     clearTimeout(inactivityTimeout);
     clearTimeout(warningTimeout);
+    
+    // Update timestamp
     updateAdminLastActivityTime();
     
+    // Set new timeout
     inactivityTimeout = setTimeout(() => {
         adminLogoutDueToInactivity();
     }, INACTIVITY_TIMEOUT);
@@ -368,11 +374,6 @@ function setupAdminInactivityTracking() {
 
 // Check authentication on page load
 function checkAdminAuthentication() {
-    if (checkAdminSessionExpiry()) {
-        adminLogoutDueToInactivity();
-        return false;
-    }
-    
     const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
     
     if (!isLoggedIn) {
@@ -380,10 +381,26 @@ function checkAdminAuthentication() {
         return false;
     }
     
+    // IMPORTANT: Check if session was marked as expired from previous session
+    // Only show expired modal if session was already expired from inactivity
+    const wasSessionExpired = localStorage.getItem(ADMIN_SESSION_EXPIRED_KEY) === 'true';
+    
+    if (wasSessionExpired) {
+        // User was previously inactive and session expired
+        // Show modal immediately and don't setup tracking
+        adminLogoutDueToInactivity();
+        return false;
+    }
+    
+    // Set initial activity time if not set
+    if (!localStorage.getItem('adminLastActivityTime')) {
+        localStorage.setItem('adminLastActivityTime', Date.now());
+    }
+    
+    // Setup inactivity tracking
     setupAdminInactivityTracking();
     return true;
 }
-
 // Update header with user profile icon and logout functionality
 function updateAdminHeaderWithUserInfo() {
     if (isAdminSessionExpiredModalShowing) return;
@@ -628,6 +645,16 @@ function updateAdminHeaderWithUserInfo() {
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    // Clear any stale admin session expired flags on page load
+    // This prevents showing modal immediately on fresh login
+    const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+    
+    if (isLoggedIn && !localStorage.getItem('adminLastActivityTime')) {
+        // This is a fresh login, set initial activity time
+        localStorage.setItem('adminLastActivityTime', Date.now());
+        localStorage.removeItem(ADMIN_SESSION_EXPIRED_KEY);
+    }
+    
     setupAdminModalLoginButton();
     
     if (checkAdminAuthentication()) {
@@ -636,14 +663,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Handle page refresh
-window.addEventListener('load', function() {
-    if (localStorage.getItem(ADMIN_SESSION_EXPIRED_KEY) === 'true') {
-        setTimeout(() => {
-            adminLogoutDueToInactivity();
-        }, 500);
-    }
-});
+
 
 // Prevent any key/mouse events when modal is showing
 document.addEventListener('keydown', function(e) {
