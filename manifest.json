@@ -1,0 +1,27 @@
+{
+  "name": "ATT PORTAL",
+  "short_name": "ATT Portal",
+  "description": "Truck Management System Portal",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#001f3f",
+  "theme_color": "#001f3f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "att.jpg",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "att.jpg",
+      "sizes": "512x512",
+      "type": "image/jpg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "en",
+  "dir": "ltr"
+}
