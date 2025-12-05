@@ -525,6 +525,8 @@ function copyTruckDetails(truckNumber, name, license, contacts) {
         showNotification('Failed to copy details');
     });
 }
+
+        
 async function openEmployeeNoDriverDetails(truckId) {
     try {
         const { data: truck, error } = await supabase
@@ -544,7 +546,7 @@ async function openEmployeeNoDriverDetails(truckId) {
         resetModalScroll();
         
         const modal = document.createElement('div');
-        modal.className = 'modal fresh-modal'; // Add fresh-modal class
+        modal.className = 'modal fresh-modal';
         modal.style.display = 'block';
         
         // Add a wrapper to control positioning
@@ -583,68 +585,66 @@ async function openEmployeeNoDriverDetails(truckId) {
                 <span class="detail-value">${truck.c28_expiry ? formatDate(truck.c28_expiry) : 'Not set'}</span>
             </div>` : '';
 
-       modalWrapper.innerHTML = `
-    <div class="modal-content modal-large" style="margin: auto 0px; height: 100%; max-height: 90vh; overflow: hidden;">
-        <span class="close" onclick="closeCurrentModal()" style="position: absolute; top: 10px; right: 20px; z-index: 1001;">&times;</span>
-        <div class="modal-scroll-container" style="height: 100%; max-height: 90vh; overflow-y: auto;">
-            <h2 style="margin-top: 10px; padding: 20px 0 10px 0;">🚛 Truck Details - No Driver Assigned</h2>
-            <div class="details-grid">
-                        <div class="detail-section no-image">
-                            <h3>Truck Information</h3>
-                            
-                            <div class="detail-item">
-                                <span class="detail-label">Truck Number:</span>
-                                <span class="detail-value">${truck.truck_number}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Driver Name:</span>
-                                <span class="detail-value no-driver-text">NO DRIVER</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">License:</span>
-                                <span class="detail-value empty-field">-</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Driving License :</span>
-                                <span class="detail-value empty-field">-</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Contact:</span>
-                                <span class="detail-value empty-field">-</span>
-                            </div>
-                        </div>
+        modalWrapper.innerHTML = `
+            <div class="modal-content modal-large">
+                <span class="close" onclick="closeCurrentModal()">&times;</span>
+                <h2 style="margin-top: 10px; padding: 20px 0 10px 0;">🚛 Truck Details - No Driver Assigned</h2>
+                <div class="details-grid">
+                    <div class="detail-section no-image">
+                        <h3>Truck Information</h3>
                         
-                        <div class="detail-section ${!hasTruckImage ? 'no-image' : ''}">
-                            <h3>Truck Specifications</h3>
-                            ${truckImageHtml}
-                            
-                            <div class="detail-item">
-                                <span class="detail-label">Truck Type:</span>
-                                <span class="detail-value">${truck.truck_type || 'N/A'}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Truck Body:</span>
-                                <span class="detail-value">${truck.truck_body || 'N/A'}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Make:</span>
-                                <span class="detail-value">${truck.truck_make || 'N/A'}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Tons:</span>
-                                <span class="detail-value">${truck.truck_tons || 'N/A'}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">COMESA:</span>
-                                <span class="detail-value">${truck.comesa || 'NO'}</span>
-                            </div>
-                            ${comesaExpiryHtml}
-                            <div class="detail-item">
-                                <span class="detail-label">C28:</span>
-                                <span class="detail-value">${truck.c28 || 'NO'}</span>
-                            </div>
-                            ${c28ExpiryHtml}
+                        <div class="detail-item">
+                            <span class="detail-label">Truck Number:</span>
+                            <span class="detail-value">${truck.truck_number}</span>
                         </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Driver Name:</span>
+                            <span class="detail-value no-driver-text">NO DRIVER</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">License:</span>
+                            <span class="detail-value empty-field">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Driving License :</span>
+                            <span class="detail-value empty-field">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Contact:</span>
+                            <span class="detail-value empty-field">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section ${!hasTruckImage ? 'no-image' : ''}">
+                        <h3>Truck Specifications</h3>
+                        ${truckImageHtml}
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Truck Type:</span>
+                            <span class="detail-value">${truck.truck_type || 'N/A'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Truck Body:</span>
+                            <span class="detail-value">${truck.truck_body || 'N/A'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Make:</span>
+                            <span class="detail-value">${truck.truck_make || 'N/A'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Tons:</span>
+                            <span class="detail-value">${truck.truck_tons || 'N/A'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">COMESA:</span>
+                            <span class="detail-value">${truck.comesa || 'NO'}</span>
+                        </div>
+                        ${comesaExpiryHtml}
+                        <div class="detail-item">
+                            <span class="detail-label">C28:</span>
+                            <span class="detail-value">${truck.c28 || 'NO'}</span>
+                        </div>
+                        ${c28ExpiryHtml}
                     </div>
                 </div>
             </div>
@@ -656,17 +656,14 @@ async function openEmployeeNoDriverDetails(truckId) {
         // Track this modal for back button functionality
         trackModalCreation(modal);
         
-       // Force scroll reset after modal is created
-setTimeout(() => {
-    // Reset all scrollable containers
-    const scrollContainers = modal.querySelectorAll('.modal-scroll-container, .modal-content, .modal-wrapper');
-    scrollContainers.forEach(container => {
-        container.scrollTop = 0;
-    });
-    
-  
- 
-}, 10);
+        // Force scroll reset after modal is created
+        setTimeout(() => {
+            // Reset all scrollable containers
+            const scrollContainers = modal.querySelectorAll('.modal-content, .modal-wrapper');
+            scrollContainers.forEach(container => {
+                container.scrollTop = 0;
+            });
+        }, 10);
         
         // Close modal when clicking outside
         modalWrapper.onclick = function(event) {
@@ -680,6 +677,7 @@ setTimeout(() => {
         alert('Error loading truck details');
     }
 }
+
 async function openEmployeeDriverNoTruckDetails(truckId) {
     try {
         const { data: truck, error } = await supabase
@@ -732,7 +730,7 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
         // Generate license actions HTML
         const licenseActionsHtml = hasLicenseDoc ? 
             `<div class="license-actions">
-                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View </button>
+                <button class="btn-view" onclick="viewLicenseDocumentFromUrl('${truck.driver_license_url}')">View</button>
              </div>` :
             '<span style="color: #666;"></span>';
         
@@ -741,38 +739,36 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
         
         const statusTitle = truck.status === 'no_truck' ? 'No Truck Assigned' : 'Left Company';
         
-     modalWrapper.innerHTML = `
-    <div class="modal-content modal-large" style="margin: auto 0px; height: 100%; max-height: 90vh; overflow: hidden;">
-        <span class="close" onclick="closeCurrentModal()" style="position: absolute; top: 10px; right: 20px; z-index: 1001;">&times;</span>
-        <div class="modal-scroll-container" style="height: 100%; max-height: 90vh; overflow-y: auto;">
-            <h2 style="margin-top: 10px; padding: 20px 0 10px 0;">👨‍💼 Driver Details - ${statusTitle}</h2>
-            <div class="details-grid">
-                        <div class="detail-section ${!hasDriverImage ? 'no-image' : ''}">
-                            <h3>Driver Information</h3>
-                            ${driverImageHtml}
-                            
-                            <div class="detail-item">
-                                <span class="detail-label">Driver Name:</span>
-                                <span class="detail-value">${truck.driver_name}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">License:</span>
-                                <span class="detail-value">${truck.driver_license}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Driving License :</span>
-                                <span class="detail-value">${licenseActionsHtml}</span>
-                            </div>
-                            ${contactsHtml}
-                        </div>
+        modalWrapper.innerHTML = `
+            <div class="modal-content modal-large">
+                <span class="close" onclick="closeCurrentModal()">&times;</span>
+                <h2 style="margin-top: 10px; padding: 20px 0 10px 0;">👨‍💼 Driver Details - ${statusTitle}</h2>
+                <div class="details-grid">
+                    <div class="detail-section ${!hasDriverImage ? 'no-image' : ''}">
+                        <h3>Driver Information</h3>
+                        ${driverImageHtml}
                         
-                        <div class="detail-section no-image">
-                            <h3>Additional Information</h3>
-                            <div class="detail-item full-width">
-                                <div class="previous-trucks-heading">Previous Trucks</div>
-                                <div class="previous-trucks-list">
-                                    ${formatPreviousTrucksForDetails(truck.previous_trucks)}
-                                </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Driver Name:</span>
+                            <span class="detail-value">${truck.driver_name}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">License:</span>
+                            <span class="detail-value">${truck.driver_license}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Driving License :</span>
+                            <span class="detail-value">${licenseActionsHtml}</span>
+                        </div>
+                        ${contactsHtml}
+                    </div>
+                    
+                    <div class="detail-section no-image">
+                        <h3>Additional Information</h3>
+                        <div class="detail-item full-width">
+                            <div class="previous-trucks-heading">Previous Trucks</div>
+                            <div class="previous-trucks-list">
+                                ${formatPreviousTrucksForDetails(truck.previous_trucks)}
                             </div>
                         </div>
                     </div>
@@ -786,16 +782,14 @@ async function openEmployeeDriverNoTruckDetails(truckId) {
         // Track this modal for back button functionality
         trackModalCreation(modal);
         
-     // Force scroll reset after modal is created
-setTimeout(() => {
-    // Reset all scrollable containers
-    const scrollContainers = modal.querySelectorAll('.modal-scroll-container, .modal-content, .modal-wrapper');
-    scrollContainers.forEach(container => {
-        container.scrollTop = 0;
-    });
-    
-   
-}, 10);
+        // Force scroll reset after modal is created
+        setTimeout(() => {
+            // Reset all scrollable containers
+            const scrollContainers = modal.querySelectorAll('.modal-content, .modal-wrapper');
+            scrollContainers.forEach(container => {
+                container.scrollTop = 0;
+            });
+        }, 10);
         
         // Close modal when clicking outside
         modalWrapper.onclick = function(event) {
