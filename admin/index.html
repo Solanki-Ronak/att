@@ -981,6 +981,19 @@ document.addEventListener('click', function(e) {
         <input type="date" id="editC28Expiry" style="display: none;" onchange="updateEditSaveButtonState()">
     </div>
 </div>
+
+
+<div class="form-row">
+    <div class="form-group full-width">
+        <label for="editAdditionalInformation">Additional Information:</label>
+        <textarea 
+            id="editAdditionalInformation" 
+            rows="4" 
+            placeholder="Enter any additional comments or information here. If none, keep 'None'"
+            oninput="autoResizeTextarea(this)"
+            style="text-align: left; text-align-last: left;">None</textarea>
+    </div>
+</div>
             
             <!-- Additional Information Section -->
             <div class="additional-section">
@@ -1165,6 +1178,19 @@ document.addEventListener('click', function(e) {
     <div class="form-group">
         <label for="addC28Expiry" style="display: none;">C28 Expiry:</label>
         <input type="date" id="addC28Expiry" style="display: none;" onchange="updateSaveButtonState()">
+    </div>
+</div>
+
+<!-- Additional Information Section - TEXT FIELD -->
+<div class="form-row">
+    <div class="form-group full-width">
+        <label for="addAdditionalInformation">Additional Information:</label>
+        <textarea 
+            id="addAdditionalInformation" 
+            rows="4" 
+            placeholder="Enter any additional comments or information here. If none, keep 'None'"
+            oninput="autoResizeTextarea(this)"
+            style="text-align: left; text-align-last: left;">None</textarea>
     </div>
 </div>
 <!-- Images Section -->

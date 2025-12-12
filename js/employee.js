@@ -1031,6 +1031,17 @@ async function openDetailsModal(truckId) {
                 <span class="detail-value">${truck.c28_expiry ? formatDate(truck.c28_expiry) : 'Not set'}</span>
             </div>` : '';
 
+        // ADD THIS: Generate Additional Information section
+        const additionalInfoHtml = truck.additional_information && truck.additional_information !== 'None' ? 
+            `<div class="detail-item full-width">
+                <span class="detail-label" style="text-decoration: underline;">Additional Information:</span>
+                <span class="detail-value long-text">${truck.additional_information.replace(/\n/g, '<br>')}</span>
+            </div>` : 
+            `<div class="detail-item full-width">
+                <span class="detail-label" style="text-decoration: underline;">Additional Information:</span>
+                <span class="detail-value">None</span>
+            </div>`;
+
         modalContent.innerHTML = `
             <div class="details-grid">
                 <div class="detail-section ${!hasDriverImage ? 'no-image' : ''}">
@@ -1087,6 +1098,7 @@ async function openDetailsModal(truckId) {
                         <span class="detail-value">${truck.c28 || 'NO'}</span>
                     </div>
                     ${c28ExpiryHtml}
+                    ${additionalInfoHtml} <!-- ADD THIS LINE -->
                 </div>
             </div>
         `;

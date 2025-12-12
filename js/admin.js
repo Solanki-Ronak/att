@@ -844,7 +844,6 @@ function showNotification(message) {
         }
     }, 3000);
 }
-
 async function openEditModal(truckId) {
     currentTruckId = truckId;
     const modal = document.getElementById('editModal');
@@ -917,9 +916,17 @@ async function openEditModal(truckId) {
         if (comesaExpiryInput) comesaExpiryInput.value = truck.comesa_expiry || '';
         if (c28ExpiryInput) c28ExpiryInput.value = truck.c28_expiry || '';
         
+        // FILL ADDITIONAL INFORMATION TEXT FIELD
+        const additionalInfoTextarea = document.getElementById('editAdditionalInformation');
+        if (additionalInfoTextarea) {
+            additionalInfoTextarea.value = truck.additional_information || 'None';
+            // Auto-resize the textarea
+            setTimeout(() => autoResizeTextarea(additionalInfoTextarea), 100);
+        }
+        
         // Fill dynamic fields
         Object.keys(fieldLabels).forEach(key => {
-            if (truck[key] && !['id', 'truck_number', 'driver_name', 'driver_license', 'driver_phone', 'driver_image_url', 'truck_image_url', 'driver_license_url', 'created_at', 'status', 'comesa', 'c28', 'comesa_expiry', 'c28_expiry', 'truck_type', 'truck_body', 'truck_make', 'truck_tons'].includes(key)) {
+            if (truck[key] && !['id', 'truck_number', 'driver_name', 'driver_license', 'driver_phone', 'driver_image_url', 'truck_image_url', 'driver_license_url', 'created_at', 'status', 'comesa', 'c28', 'comesa_expiry', 'c28_expiry', 'truck_type', 'truck_body', 'truck_make', 'truck_tons', 'additional_information'].includes(key)) {
                 addDynamicFieldToForm('edit', key, fieldLabels[key], truck[key]);
             }
         });
@@ -998,27 +1005,27 @@ async function openEditModal(truckId) {
             }
         }
 
-if (comesaSelect) {
-    comesaSelect.value = truck.comesa || 'NO';
-    // Trigger the change handler to show/hide expiry field
-    handleComesaChange('edit');
-    
-    // If COMESA is YES and there's an expiry date, set it
-    if (truck.comesa === 'YES' && truck.comesa_expiry) {
-        comesaExpiryInput.value = truck.comesa_expiry;
-    }
-}
+        if (comesaSelect) {
+            comesaSelect.value = truck.comesa || 'NO';
+            // Trigger the change handler to show/hide expiry field
+            handleComesaChange('edit');
+            
+            // If COMESA is YES and there's an expiry date, set it
+            if (truck.comesa === 'YES' && truck.comesa_expiry) {
+                comesaExpiryInput.value = truck.comesa_expiry;
+            }
+        }
 
-if (c28Select) {
-    c28Select.value = truck.c28 || 'NO';
-    // Trigger the change handler to show/hide expiry field
-    handleC28Change('edit');
-    
-    // If C28 is YES and there's an expiry date, set it
-    if (truck.c28 === 'YES' && truck.c28_expiry) {
-        c28ExpiryInput.value = truck.c28_expiry;
-    }
-}
+        if (c28Select) {
+            c28Select.value = truck.c28 || 'NO';
+            // Trigger the change handler to show/hide expiry field
+            handleC28Change('edit');
+            
+            // If C28 is YES and there's an expiry date, set it
+            if (truck.c28 === 'YES' && truck.c28_expiry) {
+                c28ExpiryInput.value = truck.c28_expiry;
+            }
+        }
         // Reset modal state (but preserve No Driver mode)
         resetEditModalStatePreservingNoDriver();
         
@@ -1110,6 +1117,16 @@ async function openAdminDetailsModal(truckId) {
                 <span class="detail-value">${truck.c28_expiry ? formatDate(truck.c28_expiry) : 'Not set'}</span>
             </div>` : '';
 
+        const additionalInfoHtml = truck.additional_information && truck.additional_information !== 'None' ? 
+    `<div class="detail-item full-width">
+        <span class="detail-label" style="text-decoration: underline;">Additional Information:</span>
+        <span class="detail-value long-text">${truck.additional_information.replace(/\n/g, '<br>')}</span>
+    </div>` : 
+    `<div class="detail-item full-width">
+        <span class="detail-label" style="text-decoration: underline;">Additional Information:</span>
+        <span class="detail-value">None</span>
+    </div>`;
+
         modal.innerHTML = `
             <div class="modal-content modal-large">
                 <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
@@ -1168,6 +1185,7 @@ async function openAdminDetailsModal(truckId) {
                             <span class="detail-value">${truck.c28 || 'NO'}</span>
                         </div>
                         ${c28ExpiryHtml}
+                        ${additionalInfoHtml}
                     </div>
                 </div>
             </div>
@@ -1187,7 +1205,6 @@ async function openAdminDetailsModal(truckId) {
         alert('Error loading truck details');
     }
 }
-
 document.addEventListener('DOMContentLoaded', function() {
     // Ensure all images use the correct classes
     initializeImageClasses();
@@ -1404,7 +1421,6 @@ function addNewField() {
     toggleAddFieldSection();
 }
 
-
 async function handleEditFormSubmit(event) {
     event.preventDefault();
     
@@ -1435,6 +1451,9 @@ async function handleEditFormSubmit(event) {
     const c28ExpiryInput = document.getElementById('editC28Expiry');
     const comesaExpiry = comesaExpiryInput ? comesaExpiryInput.value || null : null;
     const c28Expiry = c28ExpiryInput ? c28ExpiryInput.value || null : null;
+    
+    // Get Additional Information text field value
+    const additionalInformation = document.getElementById('editAdditionalInformation').value || 'None';
     
     // USE CROPPED IMAGES INSTEAD OF ORIGINAL FILES
     const driverImageFile = noDriverMode ? null : (window.edit_driver_cropped_image || document.getElementById('editDriverImage').files[0]);
@@ -1529,6 +1548,7 @@ async function handleEditFormSubmit(event) {
             c28: c28,
             comesa_expiry: comesaExpiry,
             c28_expiry: c28Expiry,
+            additional_information: additionalInformation, // ADD THIS LINE
             // Add truck specifications
             truck_type: document.getElementById('editTruckType').value,
             truck_body: document.getElementById('editTruckBody').value,
@@ -6102,7 +6122,6 @@ function addAdditionalImage(modalType) {
     // Clear temporary data
     window[tempKey] = null;
 }
-// MODIFIED FUNCTION: Update form submission to use cropped images
 async function handleAddFormSubmit(event) {
     event.preventDefault();
     
@@ -6130,6 +6149,9 @@ async function handleAddFormSubmit(event) {
     const addC28ExpiryInput = document.getElementById('addC28Expiry');
     const comesaExpiry = addComesaExpiryInput ? addComesaExpiryInput.value || null : null;
     const c28Expiry = addC28ExpiryInput ? addC28ExpiryInput.value || null : null;
+    
+    // Get Additional Information text field value
+    const additionalInformation = document.getElementById('addAdditionalInformation').value || 'None';
     
     // Use cropped images if available, otherwise use original files
     const driverImageFile = noDriverMode ? null : (window.add_driver_cropped_image || document.getElementById('addDriverImage').files[0]);
@@ -6219,6 +6241,7 @@ async function handleAddFormSubmit(event) {
             c28: c28,
             comesa_expiry: comesaExpiry,
             c28_expiry: c28Expiry,
+            additional_information: additionalInformation, // ADD THIS LINE
             truck_image_url: truckImageUrl,
             ...dynamicFieldsData
         };
@@ -7101,3 +7124,21 @@ let currentTrucksData = {
     'left': []
     
 };
+
+
+// Auto-resize textarea based on content
+function autoResizeTextarea(textarea) {
+    // Reset height to auto to get the correct scrollHeight
+    textarea.style.height = 'auto';
+    
+    // Set new height based on content
+    const newHeight = Math.min(textarea.scrollHeight, 200); // Max 200px
+    textarea.style.height = newHeight + 'px';
+    
+    // Update save button state
+    if (textarea.id.includes('edit')) {
+        updateEditSaveButtonState();
+    } else if (textarea.id.includes('add')) {
+        updateSaveButtonState();
+    }
+}

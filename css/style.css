@@ -3171,3 +3171,14 @@
     }
 }
 
+
+    .detail-value.long-text {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        max-width: 100%;
+        overflow-wrap: break-word;
+        text-align: left;
+        text-align-last: left;
+        line-height: 1.5;
+    }
+
