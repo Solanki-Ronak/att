@@ -422,139 +422,196 @@
         // Create Supabase client
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        document.addEventListener('DOMContentLoaded', function() {
-
-            localStorage.removeItem('employeeSessionExpired');
+       document.addEventListener('DOMContentLoaded', function() {
+    // ========== DEBUGGING INFO ==========
+    console.log('=== EMPLOYEE SESSION DEBUG ===');
+    console.log('Referrer:', document.referrer);
+    console.log('URL:', window.location.href);
+    console.log('Logged In:', localStorage.getItem('employeeLoggedIn'));
+    console.log('Session Expired:', localStorage.getItem('employeeSessionExpired'));
+    console.log('Username:', localStorage.getItem('employeeUsername'));
+    console.log('Last Activity:', localStorage.getItem('lastActivityTime'));
+    console.log('==============================');
     
-    // ========== AUTHENTICATION CHECK ==========
-    // Check if already logged in
-    const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
+    // ========== CRITICAL FIX ==========
+    // Check URL parameters for force login
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceLogin = urlParams.get('force');
     
-    if (isLoggedIn) {
-        // Already logged in, redirect to dashboard
-        window.location.href = 'index.html';
-        return; // Stop further execution
-    }
-            const loginForm = document.getElementById('loginForm');
-            const messageDiv = document.getElementById('message');
+    // If force login is requested OR user is coming from main page, clear all session data
+    const referrer = document.referrer;
+    const isFromMainPage = referrer.includes('index.html') || 
+                          referrer.endsWith('/') || 
+                          referrer === '' ||
+                          referrer.includes(window.location.origin + '/');
+    
+    if (forceLogin === 'true' || isFromMainPage) {
+        console.log('Fresh login attempt - clearing all session data');
+        localStorage.removeItem('employeeLoggedIn');
+        localStorage.removeItem('employeeUsername');
+        localStorage.removeItem('lastActivityTime');
+        localStorage.removeItem('employeeSessionExpired');
+        
+        // If force login, remove the parameter from URL to prevent loop
+        if (forceLogin === 'true') {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        
+        // Don't redirect - let user log in fresh
+        console.log('Proceeding to fresh login screen');
+    } else {
+        // Check if already logged in and session is valid
+        const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
+        const isSessionExpired = localStorage.getItem('employeeSessionExpired') === 'true';
+        const lastActivityTime = localStorage.getItem('lastActivityTime');
+        
+        // If logged in and session not expired and has recent activity, redirect to dashboard
+        if (isLoggedIn && !isSessionExpired && lastActivityTime) {
+            const currentTime = Date.now();
+            const timeDifference = currentTime - parseInt(lastActivityTime);
+            const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes
             
-            // Test Supabase connection
-            async function testConnection() {
-                try {
-                    console.log('Testing Supabase connection...');
-                    const { data, error } = await supabase
-                        .from('employee_users')
-                        .select('count', { count: 'exact', head: true });
-                    
-                    if (error) {
-                        console.error('Supabase connection test failed:', error);
-                        return false;
-                    }
-                    
-                    console.log('Supabase connection successful');
-                    return true;
-                } catch (error) {
-                    console.error('Supabase connection test error:', error);
-                    return false;
-                }
+            // Only redirect if session is still valid
+            if (timeDifference <= INACTIVITY_TIMEOUT) {
+                console.log('Valid session found, redirecting to dashboard');
+                window.location.href = 'index.html';
+                return; // Stop further execution
+            } else {
+                // Session has expired, clear it
+                console.log('Session expired due to inactivity, clearing data');
+                localStorage.setItem('employeeSessionExpired', 'true');
+            }
+        }
+        
+        // If session was marked as expired, clear it
+        if (isSessionExpired) {
+            console.log('Session was marked as expired, clearing data');
+            localStorage.removeItem('employeeLoggedIn');
+            localStorage.removeItem('employeeUsername');
+            localStorage.removeItem('lastActivityTime');
+            localStorage.removeItem('employeeSessionExpired');
+        }
+    }
+    
+    const loginForm = document.getElementById('loginForm');
+    const messageDiv = document.getElementById('message');
+    
+    // Test Supabase connection
+    async function testConnection() {
+        try {
+            console.log('Testing Supabase connection...');
+            const { data, error } = await supabase
+                .from('employee_users')
+                .select('count', { count: 'exact', head: true });
+            
+            if (error) {
+                console.error('Supabase connection test failed:', error);
+                return false;
+            }
+            
+            console.log('Supabase connection successful');
+            return true;
+        } catch (error) {
+            console.error('Supabase connection test error:', error);
+            return false;
+        }
+    }
+
+    loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        
+        // Clear previous messages
+        messageDiv.className = 'message';
+        messageDiv.style.display = 'none';
+        
+        // Show loading state
+        const loginBtn = loginForm.querySelector('.login-btn');
+        const originalBtnText = loginBtn.innerHTML;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+        loginBtn.disabled = true;
+        
+        try {
+            // Test connection first
+            const isConnected = await testConnection();
+            if (!isConnected) {
+                throw new Error('Database connection failed. Please try again.');
             }
 
-            loginForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const username = document.getElementById('username').value.trim();
-                const password = document.getElementById('password').value.trim();
-                
-                // Clear previous messages
-                messageDiv.className = 'message';
-                messageDiv.style.display = 'none';
-                
-                // Show loading state
-                const loginBtn = loginForm.querySelector('.login-btn');
-                const originalBtnText = loginBtn.innerHTML;
-                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
-                loginBtn.disabled = true;
-                
-                try {
-                    // Test connection first
-                    const isConnected = await testConnection();
-                    if (!isConnected) {
-                        throw new Error('Database connection failed. Please try again.');
-                    }
-
-                    console.log('Checking credentials for:', username);
-                    
-                    // Query the employee_users table to check credentials
-                    const { data, error } = await supabase
-                        .from('employee_users')
-                        .select('*')
-                        .eq('username', username)
-                        .eq('is_active', true)
-                        .single();
-                    
-                    if (error) {
-                        console.error('Supabase query error:', error);
-                        // If no user found
-                        if (error.code === 'PGRST116') {
-                            throw new Error('Invalid username or password!');
-                        }
-                        throw new Error('Authentication failed. Please try again.');
-                    }
-                    
-                    if (!data) {
-                        throw new Error('Invalid username or password!');
-                    }
-                    
-                    console.log('User found:', data.username);
-                    
-                    // Check if password matches
-                // In your employeelogin.html, modify the successful login section:
-if (data.password === password) {
-    // Successful login
-    messageDiv.textContent = 'Login successful! Redirecting...';
-    messageDiv.className = 'message success';
-    messageDiv.style.display = 'block';
-    
-    // Store login state in localStorage
-    localStorage.setItem('employeeLoggedIn', 'true');
-    localStorage.setItem('employeeUsername', username);
-    
-    // CRITICAL: Clear any existing session expired flag
-    localStorage.removeItem('employeeSessionExpired');
-    
-    // Set current time as last activity time
-    localStorage.setItem('lastActivityTime', Date.now());
-    
-    // Redirect to employee dashboard
-    setTimeout(function() {
-        window.location.href = 'index.html';
-    }, 1000);
-} else {
-                        throw new Error('Invalid username or password!');
-                    }
-                    
-                } catch (error) {
-                    // Failed login
-                    console.error('Login error:', error);
-                    messageDiv.textContent = error.message;
-                    messageDiv.className = 'message error';
-                    messageDiv.style.display = 'block';
-                    
-                    // Shake animation for error
-                    loginForm.style.animation = 'shake 0.5s';
-                    setTimeout(() => {
-                        loginForm.style.animation = '';
-                    }, 500);
-                } finally {
-                    // Reset button state
-                    loginBtn.innerHTML = originalBtnText;
-                    loginBtn.disabled = false;
-                }
-            });
+            console.log('Checking credentials for:', username);
             
-            // Test connection on page load
-            testConnection();
-        });
+            // Query the employee_users table to check credentials
+            const { data, error } = await supabase
+                .from('employee_users')
+                .select('*')
+                .eq('username', username)
+                .eq('is_active', true)
+                .single();
+            
+            if (error) {
+                console.error('Supabase query error:', error);
+                // If no user found
+                if (error.code === 'PGRST116') {
+                    throw new Error('Invalid username or password!');
+                }
+                throw new Error('Authentication failed. Please try again.');
+            }
+            
+            if (!data) {
+                throw new Error('Invalid username or password!');
+            }
+            
+            console.log('User found:', data.username);
+            
+            // Check if password matches
+            if (data.password === password) {
+                // Successful login
+                messageDiv.textContent = 'Login successful! Redirecting...';
+                messageDiv.className = 'message success';
+                messageDiv.style.display = 'block';
+                
+                // Store login state in localStorage
+                localStorage.setItem('employeeLoggedIn', 'true');
+                localStorage.setItem('employeeUsername', username);
+                
+                // CRITICAL: Clear any existing session expired flag
+                localStorage.removeItem('employeeSessionExpired');
+                
+                // Set current time as last activity time
+                localStorage.setItem('lastActivityTime', Date.now());
+                
+                // Redirect to employee dashboard
+                setTimeout(function() {
+                    window.location.href = 'index.html';
+                }, 1000);
+            } else {
+                throw new Error('Invalid username or password!');
+            }
+            
+        } catch (error) {
+            // Failed login
+            console.error('Login error:', error);
+            messageDiv.textContent = error.message;
+            messageDiv.className = 'message error';
+            messageDiv.style.display = 'block';
+            
+            // Shake animation for error
+            loginForm.style.animation = 'shake 0.5s';
+            setTimeout(() => {
+                loginForm.style.animation = '';
+            }, 500);
+        } finally {
+            // Reset button state
+            loginBtn.innerHTML = originalBtnText;
+            loginBtn.disabled = false;
+        }
+    });
+    
+    // Test connection on page load
+    testConnection();
+});
     </script>
 </body>
 </html>
