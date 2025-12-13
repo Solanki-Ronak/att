@@ -1846,3 +1846,183 @@ function resetModalScroll() {
     
     
 }
+
+
+// Add these variables at the top of your employee.js file
+let isBackButtonModalShowing = false;
+let preventBackButtonOnce = false;
+
+// Add this function to show back button confirmation
+function showBackButtonConfirmation() {
+    if (isBackButtonModalShowing) return;
+    
+    isBackButtonModalShowing = true;
+    const modal = document.getElementById('backButtonConfirmModal');
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// Add this function to hide back button confirmation
+function hideBackButtonConfirmation() {
+    isBackButtonModalShowing = false;
+    const modal = document.getElementById('backButtonConfirmModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+// Add this function to handle back button logout
+function handleBackButtonLogout() {
+    // Clear all session data
+    localStorage.removeItem('employeeLoggedIn');
+    localStorage.removeItem('employeeUsername');
+    localStorage.removeItem('lastActivityTime');
+    localStorage.removeItem('employeeSessionExpired');
+    
+    // Allow navigation back
+    preventBackButtonOnce = false;
+    window.history.back();
+}
+
+// Add this function to cancel back button action
+function cancelBackButton() {
+    hideBackButtonConfirmation();
+    
+    // Push another state to prevent immediate back navigation
+    if (window.history && window.history.pushState) {
+        window.history.pushState(null, null, window.location.href);
+        setupBackButtonDetection();
+    }
+}
+
+// Add this function to setup back button detection
+function setupBackButtonDetection() {
+    // Clear any existing state
+    if (window.history && window.history.pushState) {
+        // Add initial state
+        window.history.pushState(null, null, window.location.href);
+        
+        // Listen for back/forward button
+        window.addEventListener('popstate', function(event) {
+            if (preventBackButtonOnce) {
+                preventBackButtonOnce = false;
+                return;
+            }
+            
+            // Check if user is logged in
+            const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
+            
+            if (isLoggedIn && !isSessionExpiredModalShowing) {
+                // Show confirmation modal and prevent navigation
+                showBackButtonConfirmation();
+                
+                // Prevent the navigation
+                if (window.history && window.history.pushState) {
+                    window.history.pushState(null, null, window.location.href);
+                }
+            }
+        });
+    }
+}
+
+// Add this function to check if we should prevent back button
+function shouldPreventBackButton() {
+    const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
+    return isLoggedIn && !isSessionExpiredModalShowing;
+}
+
+// Update the DOMContentLoaded event listener in employee.js:
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
+    
+    // Setup back button detection
+    setupBackButtonDetection();
+    
+    // Setup modal event listeners
+    setupBackButtonModalListeners();
+    
+    // ... existing code ...
+});
+
+// Add this function to setup modal button listeners
+function setupBackButtonModalListeners() {
+    const confirmBackBtn = document.getElementById('confirmBackBtn');
+    const cancelBackBtn = document.getElementById('cancelBackBtn');
+    const modal = document.getElementById('backButtonConfirmModal');
+    
+    if (confirmBackBtn) {
+        confirmBackBtn.onclick = function() {
+            hideBackButtonConfirmation();
+            handleBackButtonLogout();
+        };
+    }
+    
+    if (cancelBackBtn) {
+        cancelBackBtn.onclick = function() {
+            cancelBackButton();
+        };
+    }
+    
+    // Close modal when clicking outside
+    if (modal) {
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                cancelBackButton();
+            }
+        };
+    }
+    
+    // Also close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isBackButtonModalShowing) {
+            cancelBackButton();
+        }
+    });
+}
+
+// Also add this to prevent back button when session expired modal is showing
+// Update your existing session expired modal code to handle back button
+function showSessionExpiredModal() {
+    if (isSessionExpiredModalShowing) return;
+    
+    const modal = document.getElementById('sessionExpiredModal');
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        
+        // Stop all background activities
+        stopAllPageActivities();
+        
+        isSessionExpiredModalShowing = true;
+        
+        // Push state to prevent back button
+        if (window.history && window.history.pushState) {
+            window.history.pushState(null, null, window.location.href);
+        }
+    }
+}
+
+// Update the manualLogout function to handle back button properly
+function manualLogout() {
+    // Remove logout confirmation modal if exists
+    const logoutModal = document.getElementById('logoutConfirmModal');
+    if (logoutModal) {
+        document.body.removeChild(logoutModal);
+    }
+    
+    clearTimeout(inactivityTimeout);
+    clearTimeout(warningTimeout);
+    localStorage.removeItem('employeeLoggedIn');
+    localStorage.removeItem('employeeUsername');
+    localStorage.removeItem('lastActivityTime');
+    localStorage.removeItem(SESSION_EXPIRED_KEY);
+    hideSessionExpiredModal();
+    restorePageActivities();
+    
+    // Allow navigation without confirmation
+    preventBackButtonOnce = true;
+    window.location.href = LOGIN_PAGE;
+}
