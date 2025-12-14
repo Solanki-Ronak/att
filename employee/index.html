@@ -696,6 +696,76 @@ document.addEventListener('click', function(e) {
         return false;
     }
 });
+
+
+
+// Enhanced back button handler
+document.addEventListener('DOMContentLoaded', function() {
+    let backButtonPressed = false;
+    
+    // Function to show logout modal on back button
+    function handleBackButton() {
+        const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
+        
+        if (isLoggedIn && !backButtonPressed) {
+            backButtonPressed = true;
+            
+            // Show the same logout confirmation modal
+            showLogoutConfirmation();
+            
+            // Reset flag after a delay
+            setTimeout(() => {
+                backButtonPressed = false;
+            }, 1000);
+            
+            return true; // Indicate that back was handled
+        }
+        return false;
+    }
+    
+    // Method 1: Popstate for browser back button
+    window.addEventListener('popstate', function(event) {
+        if (handleBackButton()) {
+            // Push state back to keep user on current page
+            history.pushState(null, null, window.location.href);
+        }
+    });
+    
+    // Method 2: For mobile hardware back button
+    if ('onbeforeunload' in window) {
+        window.onbeforeunload = function(e) {
+            const isLoggedIn = localStorage.getItem('employeeLoggedIn') === 'true';
+            
+            if (isLoggedIn && window.location.pathname.includes('employee/index.html')) {
+                // Don't show browser's default dialog, use our modal instead
+                handleBackButton();
+                return null;
+            }
+            return null;
+        };
+    }
+    
+    // Method 3: For Android back button (cordova/phonegap)
+    document.addEventListener('backbutton', function(e) {
+        if (handleBackButton()) {
+            e.preventDefault();
+        }
+    }, false);
+    
+    // Initialize history state
+    if (history && history.pushState) {
+        // Add initial state
+        history.pushState({backButton: true}, '');
+        
+        // Listen for back navigation
+        window.onpopstate = function(event) {
+            if (event.state && event.state.backButton) {
+                handleBackButton();
+                history.pushState({backButton: true}, '');
+            }
+        };
+    }
+});
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
