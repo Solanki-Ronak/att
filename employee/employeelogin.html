@@ -613,5 +613,14 @@
     testConnection();
 });
     </script>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Clear history state when coming from login
+    if (history && history.replaceState) {
+        history.replaceState(null, '', window.location.href);
+    }
+});
+</script>
 </body>
 </html>

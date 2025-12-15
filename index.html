@@ -5,523 +5,782 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Truck Management System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
         :root {
-            --primary-color: #001f3f;
-            --secondary-color: #003366;
-            --accent-color: #00509e;
-            --button-primary: #00509e;
-            --button-secondary: #2ecc71;
-            --text-color: white;
+            --primary-dark: #0a192f;
+            --primary-blue: #1a365d;
+            --accent-blue: #3182ce;
+            --electric-blue: #4299e1;
+            --light-blue: #90cdf4;
+            --cyber-blue: #00d4ff;
+            --gradient-start: #0f3460;
+            --gradient-end: #1a365d;
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --text-white: #ffffff;
+            --text-light: #e2e8f0;
+            --text-muted: #a0aec0;
+            --success: #48bb78;
+            --error: #f56565;
         }
 
         body {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: var(--text-color);
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            color: var(--text-white);
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            overflow-x: hidden;
+            align-items: flex-start;
             padding: 10px;
-            transition: all 0.5s ease;
+            overflow-y: auto;
         }
 
-        .tms-container {
-            width: 100%;
-            max-width: 1000px;
-            text-align: center;
-            padding: 2rem 1.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tms-container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        .bg-shape {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(66, 153, 225, 0.1);
+            filter: blur(60px);
             z-index: -1;
         }
+        .bg-shape-1 { width: 400px; height: 400px; top: -200px; right: -100px; }
+        .bg-shape-2 { width: 300px; height: 300px; bottom: -150px; left: -100px; }
 
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 0.8rem;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-            color: var(--text-color);
-        }
-
-        .subtitle {
-            font-size: 1rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
-
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .tms-btn {
-            padding: 1.2rem 2.5rem;
-            font-size: 1.1rem;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            min-width: 220px;
-            min-height: 60px;
-        }
-
-        .tms-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
+        .container {
             width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: all 0.6s ease;
-        }
-
-        .tms-btn:hover::before {
-            left: 100%;
-        }
-
-        .tms-btn-primary {
-            background: linear-gradient(45deg, var(--button-primary), color-mix(in srgb, var(--button-primary) 80%, black));
-            color: white;
-        }
-
-        .tms-btn-secondary {
-            background: linear-gradient(45deg, var(--button-secondary), color-mix(in srgb, var(--button-secondary) 80%, black));
-            color: white;
-        }
-
-        .tms-btn:hover {
-            transform: translateY(-8px) scale(1.05);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .tms-btn:active {
-            transform: translateY(-2px) scale(1.02);
-        }
-
-        /* Button animation effects */
-        @keyframes buttonPulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(0, 80, 158, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(0, 80, 158, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(0, 80, 158, 0);
-            }
-        }
-
-        .tms-btn-primary:hover {
-            animation: buttonPulse 1.5s infinite;
-        }
-
-        .tms-btn-secondary:hover {
-            animation: buttonPulse 1.5s infinite;
-        }
-
-        .truck-icons {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            flex-wrap: nowrap;
-            gap: 0.5rem;
-            margin: 2rem 0;
-        }
-
-        .truck-icon {
-            font-size: 2.5rem;
-            color: white;
-            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
-            transition: all 0.3s ease;
-            animation: float 3s ease-in-out infinite;
-            flex: 1;
-            text-align: center;
-        }
-
-        .truck-icon:nth-child(1) {
-            animation-delay: 0s;
-        }
-
-        .truck-icon:nth-child(2) {
-            animation-delay: 0.5s;
-        }
-
-        .truck-icon:nth-child(3) {
-            animation-delay: 1s;
-        }
-
-        .truck-icon:nth-child(4) {
-            animation-delay: 1.5s;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0) rotate(0deg);
-            }
-            50% {
-                transform: translateY(-10px) rotate(3deg);
-            }
-        }
-
-        .truck-icon:hover {
-            animation: pulse 0.5s ease-in-out, glow 1.5s ease-in-out infinite alternate;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.15);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        @keyframes glow {
-            from {
-                filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
-            }
-            to {
-                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.7));
-            }
-        }
-
-        .road {
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
-            margin: 1.5rem 0;
-            position: relative;
-            overflow: hidden;
-            border-radius: 2px;
-        }
-
-        .road::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
-            animation: roadShine 3s infinite;
-        }
-
-        @keyframes roadShine {
-            0% {
-                left: -100%;
-            }
-            100% {
-                left: 100%;
-            }
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .feature {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 1rem;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 1200px;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            gap: 12px;
+            min-height: fit-content;
+            margin-top: 3px;
+        }
+
+        /* Header - Compact */
+        .header {
             text-align: center;
-            min-width: 0;
-            min-height: 140px;
+            padding: 0px 0 0px 0;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .header h1 {
+            font-size: 2.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--electric-blue) 0%, var(--cyber-blue) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        .header .subtitle {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            opacity: 0.9;
+            font-weight: 300;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+
+        /* Main content - Desktop layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 20px;
+            min-height: 460px; /* Equal height for both containers */
+        }
+
+        /* Features section - Uniform padding */
+        .features-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            padding: 18px 25px 20px 25px; /* Top: 18px, Bottom: 20px (uniform with login) */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            height: 100%; /* Make it take full height */
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px; /* Reduced gap */
+            margin-top: 8px;
+            flex: 1; /* Make it take available space */
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 18px 14px; /* Reduced padding */
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
+            min-height: 140px; /* Reduced height */
+            display: flex;
+            flex-direction: column;
             justify-content: center;
         }
 
-        .feature:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.2);
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--electric-blue), var(--cyber-blue));
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--electric-blue);
+            box-shadow: 0 8px 16px rgba(66, 153, 225, 0.2);
+        }
+
+        .feature-card:hover::before {
+            transform: translateX(0);
+        }
+
+        .feature-card i {
+            font-size: 2.2rem; /* Reduced size */
+            color: var(--light-blue);
+            margin-bottom: 8px; /* Reduced margin */
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover i {
+            color: var(--cyber-blue);
+            transform: scale(1.06);
+        }
+
+        .feature-card h3 {
+            font-size: 1.15rem; /* Reduced */
+            font-weight: 600;
+            color: var(--text-white);
+            margin-bottom: 5px; /* Reduced margin */
+        }
+
+        .feature-card p {
+            font-size: 0.9rem; /* Reduced */
+            color: var(--text-light);
+            opacity: 0.8;
+            line-height: 1.3;
+        }
+
+        /* Login section - Same height as features */
+        .login-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            padding: 18px 25px 20px 25px; /* Top: 18px, Bottom: 20px (uniform with features) */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            height: 100%; /* Make it take full height */
         }
 
-        .feature i {
-            font-size: 1.8rem;
-            margin-bottom: 0.8rem;
-            color: white;
+        .login-header {
+            text-align: center;
+            margin-bottom: 18px; /* Reduced margin */
+            padding-top: 3px;
         }
 
-        .feature h3 {
-            font-size: 0.95rem;
-            margin-bottom: 0.4rem;
+        .login-header i {
+            font-size: 2.4rem; /* Reduced size */
+            color: var(--electric-blue);
+            margin-bottom: 10px; /* Reduced margin */
+            display: block;
         }
 
-        .feature p {
-            font-size: 0.8rem;
+        .login-header h2 {
+            font-size: 1.8rem; /* Reduced */
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 5px; /* Reduced margin */
+        }
+
+        .login-header p {
+            font-size: 0.9rem; /* Reduced */
+            color: var(--text-light);
             opacity: 0.8;
         }
 
-        /* Tablet Styles */
-        @media (min-width: 769px) {
-            h1 {
-                font-size: 3rem;
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px; /* Reduced gap */
+            flex: 1; /* Make form take available space */
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px; /* Reduced margin */
+            color: var(--text-light);
+            font-weight: 500;
+            font-size: 0.92rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--light-blue);
+            font-size: 0.95rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 13px 13px 13px 40px; /* Reduced padding */
+            background: rgba(255, 255, 255, 0.07);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: var(--text-white);
+            font-size: 0.92rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--electric-blue);
+            background: rgba(66, 153, 225, 0.1);
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        }
+
+        .login-btn {
+            padding: 15px; /* Reduced padding */
+            background: linear-gradient(135deg, var(--electric-blue) 0%, var(--cyber-blue) 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px; /* Reduced gap */
+            margin-top: 5px; /* Reduced margin */
+            letter-spacing: 0.5px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(66, 153, 225, 0.4);
+        }
+
+        .message {
+            padding: 11px; /* Reduced padding */
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            display: none;
+            margin-top: 8px; /* Reduced margin */
+            font-size: 0.85rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.error {
+            background: linear-gradient(135deg, rgba(245, 101, 101, 0.2), rgba(220, 38, 38, 0.2));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fecaca;
+            display: block;
+        }
+
+        .message.success {
+            background: linear-gradient(135deg, rgba(72, 187, 120, 0.2), rgba(34, 197, 94, 0.2));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #bbf7d0;
+            display: block;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
             }
-            
-            .subtitle {
-                font-size: 1.2rem;
-                margin-bottom: 3rem;
-            }
-            
-            .tms-btn {
-                padding: 1.2rem 2.5rem;
-                font-size: 1.1rem;
-                min-width: 240px;
-            }
-            
-            .truck-icon {
-                font-size: 3.5rem;
-            }
-            
-            .features {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 1.5rem;
-                margin-top: 2rem;
-            }
-            
-            .feature {
-                padding: 1.5rem;
-                min-height: 180px;
-            }
-            
-            .feature i {
-                font-size: 2.5rem;
-            }
-            
-            .feature h3 {
-                font-size: 1.1rem;
-            }
-            
-            .feature p {
-                font-size: 0.9rem;
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        /* Mobile optimization for 2x2 cards */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ================== RESPONSIVE DESIGN ================== */
+        /* Tablet - Keep desktop layout */
+        @media (max-width: 1024px) {
+            .container {
+                max-width: 95%;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .header .subtitle {
+                font-size: 1.05rem;
+            }
+            
+            .main-grid {
+                gap: 18px;
+                min-height: 440px;
+            }
+            
+            .features-section, .login-section {
+                padding: 16px 20px 18px 20px; /* Uniform padding */
+            }
+            
+            .features-grid {
+                gap: 14px;
+                margin-top: 6px;
+            }
+            
+            .feature-card {
+                padding: 16px 12px;
+                min-height: 130px;
+            }
+            
+            .feature-card h3 {
+                font-size: 1.05rem;
+            }
+            
+            .feature-card p {
+                font-size: 0.8rem;
+            }
+            
+            .login-header {
+                margin-bottom: 16px;
+            }
+        }
+
+        /* Mobile - FIXED: Header → Login → Features */
         @media (max-width: 768px) {
-            .tms-container {
-                padding: 1.5rem 1rem;
-                margin: 0;
+            body {
+                padding: 6px;
             }
             
-            h1 {
+            .container {
+                gap: 0; /* Remove gap for mobile stacking */
+            }
+            
+            /* KEEP header at the top (it's already outside main-grid) */
+            .header {
+                padding: 10px 8px 8px 8px;
+                margin-bottom: 30px;
+            }
+            
+            .header h1 {
                 font-size: 1.8rem;
-                margin-bottom: 0.5rem;
+                margin-bottom: 4px;
             }
             
-            .subtitle {
-                font-size: 0.9rem;
-                margin-bottom: 1.5rem;
+            .header .subtitle {
+                font-size: 0.95rem;
+                line-height: 1.3;
             }
             
-            .button-group {
-                gap: 1rem;
-                margin-bottom: 1.5rem;
+            /* Stack main-grid vertically */
+            .main-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 30px; /* Add small gap between sections */
+                min-height: auto;
             }
             
-            .tms-btn {
-                padding: 1rem 1.5rem;
-                font-size: 1rem;
-                min-width: 100%;
-                min-height: 55px;
+            /* REORDER: Login comes FIRST after header */
+            .login-section {
+                order: 1; /* Comes first in the stack */
+                margin: 0;
+                padding: 14px 16px 16px 16px; /* Uniform padding */
+                width: 100%;
+                height: auto; /* Auto height on mobile */
             }
             
-            .truck-icons {
-                margin: 1.5rem 0;
+            .login-header {
+                margin-bottom: 14px;
+                padding-top: 2px;
             }
             
-            .truck-icon {
+            .login-header i {
                 font-size: 2rem;
+                margin-bottom: 8px;
             }
             
-            .road {
-                margin: 1rem 0;
+            .login-header h2 {
+                font-size: 1.5rem;
+                margin-bottom: 3px;
             }
             
-            .features {
-                gap: 0.8rem;
-                margin-top: 1rem;
+            .login-header p {
+                font-size: 0.85rem;
             }
             
-            .feature {
-                padding: 0.8rem;
+            .login-form {
+                gap: 12px;
+            }
+            
+            .form-input {
+                padding: 12px 12px 12px 38px;
+                font-size: 0.85rem;
+            }
+            
+            .login-btn {
+                padding: 13px;
+                font-size: 0.9rem;
+            }
+            
+            /* REORDER: Features comes SECOND after login */
+            .features-section {
+                order: 2; /* Comes second in the stack */
+                padding: 14px 16px 16px 16px; /* Uniform padding */
+                margin: 0;
+                height: auto; /* Auto height on mobile */
+            }
+            
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                margin-top: 5px;
+            }
+            
+            .feature-card {
+                padding: 14px 10px;
                 min-height: 120px;
             }
             
-            .feature i {
-                font-size: 1.5rem;
-                margin-bottom: 0.5rem;
+            .feature-card i {
+                font-size: 1.6rem;
+                margin-bottom: 6px;
             }
             
-            .feature h3 {
-                font-size: 0.85rem;
-                margin-bottom: 0.3rem;
+            .feature-card h3 {
+                font-size: 0.95rem;
+                margin-bottom: 4px;
             }
             
-            .feature p {
+            .feature-card p {
                 font-size: 0.75rem;
+                line-height: 1.2;
             }
         }
 
-        /* For very small mobile screens */
-        @media (max-width: 350px) {
-            .tms-container {
-                padding: 1rem 0.8rem;
-            }
-            
-            h1 {
+        /* Small Mobile */
+        @media (max-width: 480px) {
+            .header h1 {
                 font-size: 1.6rem;
             }
             
-            .truck-icon {
-                font-size: 1.8rem;
+            .header .subtitle {
+                font-size: 0.85rem;
             }
             
-            .feature {
+            .login-section {
+                padding: 12px 14px 14px 14px;
+            }
+            
+            .login-header h2 {
+                font-size: 1.4rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .feature-card {
+                padding: 12px 8px;
                 min-height: 110px;
             }
+            
+            .feature-card i {
+                font-size: 1.5rem;
+            }
+            
+            .feature-card h3 {
+                font-size: 0.9rem;
+            }
+            
+            .feature-card p {
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Very small screens */
+        @media (max-width: 360px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .feature-card {
+                min-height: 100px;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="tms-container">
-        <h1><i class="fas fa-truck-moving"></i> Truck Management System</h1>
-        <p class="subtitle">Efficient logistics and fleet management solutions</p>
-        
-        <div class="truck-icons">
-            <div class="truck-icon"><i class="fas fa-gas-pump"></i></div>
-            <div class="truck-icon"><i class="fas fa-money-bill-wave"></i></div>
-            <div class="truck-icon"><i class="fas fa-truck-pickup"></i></div>
-            <div class="truck-icon"><i class="fas fa-users"></i></div>
+    <!-- Background shapes -->
+    <div class="bg-shape bg-shape-1"></div>
+    <div class="bg-shape bg-shape-2"></div>
+    
+    <div class="container">
+        <!-- Header - Always at the top (outside main-grid) -->
+        <div class="header">
+            <h1>Truck Management System</h1>
+            <p class="subtitle">Comprehensive fleet management for fuel tracking, allowances, and driver management</p>
         </div>
         
-        <div class="road"></div>
-        
-       <!-- Update these buttons in your main index.html file -->
-<div class="button-group">
-    <button onclick="window.location.href='employee/employeelogin.html?force=true'" class="tms-btn tms-btn-primary">
-        <i class="fas fa-user-tie"></i> Employee Portal
-    </button>
-    <button onclick="window.location.href='admin/adminlogin.html?force=true'" class="tms-btn tms-btn-secondary">
-        <i class="fas fa-tools"></i> Admin Portal
-    </button>
-</div>
-        
-        <div class="features">
-            <div class="feature">
-                <i class="fas fa-gas-pump"></i>
-                <h3>Fuel Tracking</h3>
-                <p>Monitor fuel consumption</p>
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- Features Section (will be second on mobile) -->
+            <div class="features-section">
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-gas-pump"></i>
+                        <h3>Fuel Tracking</h3>
+                        <p>Monitor and manage fuel consumption across your entire fleet</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <h3>Allowances</h3>
+                        <p>Track and manage driver allowances and expenses</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <i class="fas fa-truck-pickup"></i>
+                        <h3>Truck List</h3>
+                        <p>Maintain complete vehicle inventory with maintenance records</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <i class="fas fa-users"></i>
+                        <h3>Drivers</h3>
+                        <p>Manage driver information and performance tracking</p>
+                    </div>
+                </div>
             </div>
-            <div class="feature">
-                <i class="fas fa-money-bill-wave"></i>
-                <h3>Allowances</h3>
-                <p>Manage driver allowances</p>
-            </div>
-            <div class="feature">
-                <i class="fas fa-truck-pickup"></i>
-                <h3>Truck List</h3>
-                <p>View all vehicles</p>
-            </div>
-            <div class="feature">
-                <i class="fas fa-users"></i>
-                <h3>Drivers</h3>
-                <p>Driver management</p>
+            
+            <!-- Login Section (will be first on mobile) -->
+            <div class="login-section">
+                <div class="login-header">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <h2>System Login</h2>
+                    <p>Enter credentials for Employee or Admin access</p>
+                </div>
+                
+                <div id="message" class="message"></div>
+                
+                <form class="login-form" id="loginForm">
+                    <div class="form-group">
+                        <label for="username">
+                            Username
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" 
+                                   id="username" 
+                                   class="form-input" 
+                                   placeholder="Enter your username"
+                                   required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">
+                            Password
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" 
+                                   id="password" 
+                                   class="form-input" 
+                                   placeholder="Enter your password"
+                                   required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="login-btn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Login to System</span>
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 
     <script>
-        // Add interactive effects
+        // Initialize Supabase client
+        const supabaseUrl = "https://znfyskpqbgcnxxhdwwqi.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuZnlza3BxYmdjbnh4aGR3d3FpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3NjQ5NTUsImV4cCI6MjA3NjM0MDk1NX0.oWup1BSPN3QM-Rpz7FScsyuBykFwAHy2uW8EYpi4R50";
+        
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
         document.addEventListener('DOMContentLoaded', function() {
-            const buttons = document.querySelectorAll('.tms-btn');
-            const features = document.querySelectorAll('.feature');
-            const truckIcons = document.querySelectorAll('.truck-icon');
+            // Clear session data
+            ['employeeLoggedIn', 'adminLoggedIn', 'employeeUsername', 'adminUsername', 
+             'lastActivityTime', 'adminLastActivityTime', 'employeeSessionExpired', 'adminSessionExpired']
+                .forEach(item => localStorage.removeItem(item));
             
-            // Button effects
-            buttons.forEach(button => {
-                button.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-8px) scale(1.05)';
-                });
-                
-                button.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0) scale(1)';
-                });
-                
-                button.addEventListener('mousedown', function() {
-                    this.style.transform = 'translateY(-2px) scale(1.02)';
-                });
-                
-                button.addEventListener('mouseup', function() {
-                    this.style.transform = 'translateY(-8px) scale(1.05)';
-                });
-            });
+            const loginForm = document.getElementById('loginForm');
+            const messageDiv = document.getElementById('message');
             
-            // Feature hover effects
-            features.forEach(feature => {
-                feature.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-5px)';
-                });
+            function showMessage(text, type) {
+                messageDiv.textContent = text;
+                messageDiv.className = `message ${type}`;
+                messageDiv.style.display = 'block';
                 
-                feature.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
-            });
-            
-            // Truck icon hover effects
-            truckIcons.forEach(icon => {
-                icon.addEventListener('mouseenter', function() {
-                    this.style.animation = 'pulse 0.5s ease-in-out, glow 1.5s ease-in-out infinite alternate';
-                });
+                if (type === 'success') {
+                    setTimeout(() => messageDiv.style.display = 'none', 3000);
+                }
+            }
+
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
                 
-                icon.addEventListener('mouseleave', function() {
-                    this.style.animation = 'float 3s ease-in-out infinite';
-                    this.style.animationDelay = getComputedStyle(this).animationDelay;
-                });
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+                
+                messageDiv.style.display = 'none';
+                
+                if (!username || !password) {
+                    showMessage('Please fill in all fields', 'error');
+                    return;
+                }
+                
+                const loginBtn = loginForm.querySelector('.login-btn');
+                const loginText = loginBtn.querySelector('span');
+                const loginIcon = loginBtn.querySelector('i');
+                const originalText = loginText.textContent;
+                const originalIcon = loginIcon.className;
+                
+                loginText.textContent = 'Authenticating...';
+                loginIcon.className = 'fas fa-spinner loading';
+                loginBtn.disabled = true;
+                
+                try {
+                    // Check employee table
+                    const { data: employeeData } = await supabase
+                        .from('employee_users')
+                        .select('*')
+                        .eq('username', username)
+                        .eq('is_active', true)
+                        .single();
+                    
+                    let userFound = false;
+                    let userRole = '';
+                    
+                    if (employeeData && employeeData.password === password) {
+                        userFound = true;
+                        userRole = 'employee';
+                    } else {
+                        // Check admin table
+                        const { data: adminData } = await supabase
+                            .from('admin_users')
+                            .select('*')
+                            .eq('username', username)
+                            .eq('is_active', true)
+                            .single();
+                        
+                        if (adminData && adminData.password === password) {
+                            userFound = true;
+                            userRole = 'admin';
+                        }
+                    }
+                    
+                    if (userFound) {
+                        showMessage('Login successful! Redirecting...', 'success');
+                        
+                        if (userRole === 'employee') {
+                            localStorage.setItem('employeeLoggedIn', 'true');
+                            localStorage.setItem('employeeUsername', username);
+                            localStorage.setItem('lastActivityTime', Date.now());
+                            
+                            setTimeout(() => {
+                                window.location.href = 'employee/index.html';
+                            }, 1000);
+                        } else if (userRole === 'admin') {
+                            localStorage.setItem('adminLoggedIn', 'true');
+                            localStorage.setItem('adminUsername', username);
+                            localStorage.setItem('adminLastActivityTime', Date.now());
+                            
+                            setTimeout(() => {
+                                window.location.href = 'admin/index.html';
+                            }, 1000);
+                        }
+                    } else {
+                        throw new Error('Invalid username or password!');
+                    }
+                    
+                } catch (error) {
+                    showMessage(error.message, 'error');
+                } finally {
+                    setTimeout(() => {
+                        loginText.textContent = originalText;
+                        loginIcon.className = originalIcon;
+                        loginBtn.disabled = false;
+                    }, 1500);
+                }
             });
         });
     </script>
