@@ -515,46 +515,78 @@
             }
         }
 
-        /* Small Mobile */
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.6rem;
-            }
-            
-            .header .subtitle {
-                font-size: 0.85rem;
-            }
-            
-            .login-section {
-                padding: 12px 14px 14px 14px;
-            }
-            
-            .login-header h2 {
-                font-size: 1.4rem;
-            }
-            
-            .features-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-            }
-            
-            .feature-card {
-                padding: 12px 8px;
-                min-height: 110px;
-            }
-            
-            .feature-card i {
-                font-size: 1.5rem;
-            }
-            
-            .feature-card h3 {
-                font-size: 0.9rem;
-            }
-            
-            .feature-card p {
-                font-size: 0.7rem;
-            }
-        }
+       /* Small Mobile */
+@media (max-width: 480px) {
+    .header h1 {
+        font-size: 2rem; /* Increased from 1.6rem */
+    }
+    
+    .header .subtitle {
+        font-size: 1rem; /* Increased from 0.85rem */
+        line-height: 1.4;
+    }
+    
+    .login-section {
+        padding: 16px 18px 18px 18px; /* Slightly more padding */
+    }
+    
+    .login-header i {
+        font-size: 2rem; /* Added for login icon */
+    }
+    
+    .login-header h2 {
+        font-size: 1.7rem; /* Increased from 1.4rem */
+        margin-bottom: 8px;
+    }
+    
+    .login-header p {
+        font-size: 1rem; /* Added for login subtitle */
+    }
+    
+    .form-group label {
+        font-size: 1rem; /* Added for form labels */
+    }
+    
+    .form-input {
+        font-size: 1rem; /* Added for input text */
+        padding: 14px 14px 14px 42px;
+    }
+    
+    .login-btn {
+        font-size: 1.1rem; /* Added for button text */
+        padding: 15px;
+    }
+    
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .feature-card {
+        padding: 18px 12px; /* Increased padding */
+        min-height: 130px; /* Increased height */
+    }
+    
+    .feature-card i {
+        font-size: 1.9rem; /* Increased from 1.5rem */
+        margin-bottom: 10px;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.2rem; /* Increased from 0.9rem */
+        margin-bottom: 6px;
+    }
+    
+    .feature-card p {
+        font-size: 0.9rem; /* Increased from 0.7rem */
+        line-height: 1.4;
+    }
+    
+    .message {
+        font-size: 0.95rem; /* Added for messages */
+        padding: 12px;
+    }
+}
 
 
 
