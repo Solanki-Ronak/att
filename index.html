@@ -332,12 +332,12 @@
             backdrop-filter: blur(20px);
             border-radius: 16px;
             border: 1px solid var(--card-border);
-            padding: 15px;
+            padding: 20px;
             width: 100%;
             height: auto;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            min-height: 180px; /* Reduced from original */
-            max-height: 200px; /* Limit maximum height */
+            min-height: 220px; /* INCREASED */
+            max-height: 240px; /* INCREASED */
         }
 
         .carousel-container {
@@ -358,23 +358,23 @@
             flex: 0 0 100%;
             display: flex;
             flex-direction: row;
-            gap: 12px;
-            padding: 5px;
+            gap: 20px; /* INCREASED */
+            padding: 10px; /* INCREASED */
             height: 100%;
             align-items: center;
-            min-height: 150px; /* Reduced height */
+            min-height: 180px; /* INCREASED */
         }
 
         .carousel-icon {
-            flex: 0 0 35%;
+            flex: 0 0 40%; /* INCREASED */
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 10px;
+            padding: 15px; /* INCREASED */
         }
 
         .carousel-icon i {
-            font-size: 2.8rem; /* Smaller icon */
+            font-size: 3.5rem; /* INCREASED */
             color: var(--light-blue);
             transition: all 0.3s ease;
         }
@@ -384,25 +384,25 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 5px 10px 5px 0;
+            padding: 10px 15px 10px 0; /* INCREASED */
             overflow: hidden;
         }
 
         .carousel-content h3 {
-            font-size: 1.1rem; /* Smaller heading */
+            font-size: 1.4rem; /* INCREASED */
             font-weight: 600;
             color: var(--text-white);
-            margin-bottom: 6px;
-            line-height: 1.2;
+            margin-bottom: 10px; /* INCREASED */
+            line-height: 1.3;
         }
 
         .carousel-content p {
-            font-size: 0.8rem; /* Smaller text */
+            font-size: 0.95rem; /* INCREASED */
             color: var(--text-light);
             opacity: 0.9;
-            line-height: 1.3;
+            line-height: 1.4; /* INCREASED */
             display: -webkit-box;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 4; /* INCREASED LINES */
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -419,22 +419,22 @@
             align-items: center;
             pointer-events: none;
             z-index: 10;
-            padding: 0 5px;
+            padding: 0 10px; /* INCREASED */
         }
 
         .carousel-btn {
             background: rgba(30, 41, 59, 0.7);
             border: 1px solid var(--card-border);
             color: var(--text-white);
-            width: 30px;
-            height: 30px;
+            width: 36px; /* INCREASED */
+            height: 36px; /* INCREASED */
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 0.9rem;
+            font-size: 1rem; /* INCREASED */
             pointer-events: all;
         }
 
@@ -446,18 +446,18 @@
 
         .carousel-dots {
             position: absolute;
-            bottom: 5px;
+            bottom: 10px; /* INCREASED */
             left: 0;
             right: 0;
             display: flex;
             justify-content: center;
-            gap: 6px;
+            gap: 8px; /* INCREASED */
             z-index: 10;
         }
 
         .carousel-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px; /* INCREASED */
+            height: 10px; /* INCREASED */
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.3);
             cursor: pointer;
@@ -593,9 +593,9 @@
             /* Show mobile carousel */
             .mobile-carousel-section {
                 display: block !important;
-                min-height: 170px;
-                max-height: 180px;
-                padding: 12px;
+                min-height: 200px; /* INCREASED */
+                max-height: 220px; /* INCREASED */
+                padding: 18px; /* INCREASED */
             }
             
             /* Login comes first on mobile */
@@ -643,23 +643,23 @@
                 font-size: 1rem;
             }
             
-            /* Mobile carousel adjustments for tablet */
+            /* Mobile carousel adjustments */
             .carousel-slide {
-                min-height: 140px;
-                gap: 10px;
+                min-height: 165px; /* INCREASED */
+                gap: 18px; /* INCREASED */
             }
             
             .carousel-icon i {
-                font-size: 2.5rem;
+                font-size: 3.2rem; /* INCREASED */
             }
             
             .carousel-content h3 {
-                font-size: 1rem;
+                font-size: 1.3rem; /* INCREASED */
             }
             
             .carousel-content p {
-                font-size: 0.75rem;
-                -webkit-line-clamp: 3;
+                font-size: 0.9rem; /* INCREASED */
+                -webkit-line-clamp: 4; /* KEPT 4 LINES */
             }
         }
 
@@ -744,54 +744,54 @@
             
             /* Mobile carousel adjustments */
             .mobile-carousel-section {
-                padding: 10px !important;
+                padding: 15px !important; /* INCREASED */
                 border-radius: 14px;
-                min-height: 160px !important;
-                max-height: 170px !important;
+                min-height: 190px !important; /* INCREASED */
+                max-height: 210px !important; /* INCREASED */
             }
             
             .carousel-slide {
-                min-height: 140px !important;
-                gap: 8px;
+                min-height: 160px !important; /* INCREASED */
+                gap: 15px; /* INCREASED */
             }
             
             .carousel-icon {
-                flex: 0 0 30%;
-                padding: 8px;
+                flex: 0 0 38%; /* INCREASED */
+                padding: 12px; /* INCREASED */
             }
             
             .carousel-icon i {
-                font-size: 2.2rem;
+                font-size: 2.8rem; /* INCREASED */
             }
             
             .carousel-content {
-                padding: 5px 8px 5px 0;
+                padding: 10px 12px 10px 0; /* INCREASED */
             }
             
             .carousel-content h3 {
-                font-size: 0.95rem;
-                margin-bottom: 4px;
+                font-size: 1.2rem; /* INCREASED */
+                margin-bottom: 8px; /* INCREASED */
             }
             
             .carousel-content p {
-                font-size: 0.7rem;
-                line-height: 1.2;
-                -webkit-line-clamp: 3;
+                font-size: 0.85rem; /* INCREASED */
+                line-height: 1.4; /* INCREASED */
+                -webkit-line-clamp: 4; /* KEPT 4 LINES */
             }
             
             .carousel-btn {
-                width: 28px;
-                height: 28px;
-                font-size: 0.8rem;
+                width: 32px; /* INCREASED */
+                height: 32px; /* INCREASED */
+                font-size: 0.9rem; /* INCREASED */
             }
             
             .carousel-dots {
-                bottom: 3px;
+                bottom: 8px; /* INCREASED */
             }
             
             .carousel-dot {
-                width: 6px;
-                height: 6px;
+                width: 8px; /* INCREASED */
+                height: 8px; /* INCREASED */
             }
         }
 
@@ -836,32 +836,32 @@
             
             /* Mobile carousel adjustments */
             .mobile-carousel-section {
-                min-height: 150px !important;
-                max-height: 160px !important;
-                padding: 8px !important;
+                min-height: 180px !important; /* INCREASED */
+                max-height: 200px !important; /* INCREASED */
+                padding: 12px !important; /* INCREASED */
             }
             
             .carousel-slide {
-                min-height: 130px !important;
-                gap: 6px;
+                min-height: 150px !important; /* INCREASED */
+                gap: 12px; /* INCREASED */
             }
             
             .carousel-icon i {
-                font-size: 1.8rem;
+                font-size: 2.4rem; /* INCREASED */
             }
             
             .carousel-content h3 {
-                font-size: 0.9rem;
+                font-size: 1.1rem; /* INCREASED */
             }
             
             .carousel-content p {
-                font-size: 0.65rem;
-                -webkit-line-clamp: 3;
+                font-size: 0.8rem; /* INCREASED */
+                -webkit-line-clamp: 4; /* KEPT 4 LINES */
             }
             
             .carousel-btn {
-                width: 26px;
-                height: 26px;
+                width: 30px; /* INCREASED */
+                height: 30px; /* INCREASED */
             }
         }
 
@@ -930,7 +930,7 @@
                             </div>
                             <div class="carousel-content">
                                 <h3>Fuel Tracking</h3>
-                                <p>Monitor fuel consumption across your fleet. Track expenses and optimize efficiency with real-time data.</p>
+                                <p>Monitor fuel consumption across your fleet. Track expenses and optimize efficiency with real-time data analytics.</p>
                             </div>
                         </div>
                         
@@ -941,7 +941,7 @@
                             </div>
                             <div class="carousel-content">
                                 <h3>Allowances</h3>
-                                <p>Track driver allowances & expenses. Automate payments and generate detailed budget reports.</p>
+                                <p>Track driver allowances & expenses efficiently. Automate payments and generate detailed budget reports.</p>
                             </div>
                         </div>
                         
@@ -952,7 +952,7 @@
                             </div>
                             <div class="carousel-content">
                                 <h3>Truck List</h3>
-                                <p>Complete vehicle inventory with maintenance records. Schedule services and track vehicle history.</p>
+                                <p>Complete vehicle inventory with maintenance records. Schedule services and track vehicle history for management.</p>
                             </div>
                         </div>
                         
@@ -963,7 +963,7 @@
                             </div>
                             <div class="carousel-content">
                                 <h3>Drivers</h3>
-                                <p>Manage driver info & performance tracking. Monitor schedules, certifications, and safety records.</p>
+                                <p>Manage driver info & performance tracking. Monitor schedules, certifications, and safety records for your team.</p>
                             </div>
                         </div>
                     </div>
