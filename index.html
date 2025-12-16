@@ -58,15 +58,15 @@
             max-width: 1200px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            min-height: fit-content;
-            margin-top: 3px;
+            gap: 20px;
+            margin: 0 auto;
+            padding: 20px 0;
         }
 
-        /* Header - Compact */
+        /* Header */
         .header {
             text-align: center;
-            padding: 0px 0 0px 0;
+            padding: 0 20px;
             animation: fadeInDown 0.8s ease;
         }
 
@@ -77,8 +77,9 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            margin-bottom: 6px;
+            margin-bottom: 10px;
             letter-spacing: -0.5px;
+            line-height: 1.2;
         }
 
         .header .subtitle {
@@ -91,49 +92,49 @@
             line-height: 1.4;
         }
 
-        /* Main content - Desktop layout */
+        /* Main content */
         .main-grid {
             display: grid;
             grid-template-columns: 1.4fr 1fr;
-            gap: 20px;
-            min-height: 460px; /* Equal height for both containers */
+            gap: 24px;
+            min-height: 460px;
         }
 
-        /* Features section - Uniform padding */
+        /* Features section */
         .features-section {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
             border-radius: 16px;
             border: 1px solid var(--card-border);
-            padding: 18px 25px 20px 25px; /* Top: 18px, Bottom: 20px (uniform with login) */
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            height: 100%; /* Make it take full height */
+            height: 100%;
         }
 
         .features-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 16px; /* Reduced gap */
-            margin-top: 8px;
-            flex: 1; /* Make it take available space */
+            gap: 20px;
+            margin-top: 10px;
+            flex: 1;
         }
 
         .feature-card {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
-            padding: 18px 14px; /* Reduced padding */
+            padding: 24px 16px;
             text-align: center;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 1px solid transparent;
             position: relative;
             overflow: hidden;
-            min-height: 140px; /* Reduced height */
+            min-height: 160px;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            align-items: center;
         }
 
         .feature-card::before {
@@ -159,9 +160,9 @@
         }
 
         .feature-card i {
-            font-size: 2.2rem; /* Reduced size */
+            font-size: 2.4rem;
             color: var(--light-blue);
-            margin-bottom: 8px; /* Reduced margin */
+            margin-bottom: 12px;
             display: block;
             transition: all 0.3s ease;
         }
@@ -172,64 +173,64 @@
         }
 
         .feature-card h3 {
-            font-size: 1.15rem; /* Reduced */
+            font-size: 1.25rem;
             font-weight: 600;
             color: var(--text-white);
-            margin-bottom: 5px; /* Reduced margin */
+            margin-bottom: 8px;
         }
 
         .feature-card p {
-            font-size: 0.9rem; /* Reduced */
+            font-size: 0.95rem;
             color: var(--text-light);
             opacity: 0.8;
-            line-height: 1.3;
+            line-height: 1.4;
         }
 
-        /* Login section - Same height as features */
+        /* Login section */
         .login-section {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
             border-radius: 16px;
             border: 1px solid var(--card-border);
-            padding: 18px 25px 20px 25px; /* Top: 18px, Bottom: 20px (uniform with features) */
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            height: 100%; /* Make it take full height */
+            height: 100%;
         }
 
         .login-header {
             text-align: center;
-            margin-bottom: 18px; /* Reduced margin */
-            padding-top: 3px;
+            margin-bottom: 24px;
+            padding-top: 10px;
         }
 
         .login-header i {
-            font-size: 2.4rem; /* Reduced size */
+            font-size: 2.8rem;
             color: var(--electric-blue);
-            margin-bottom: 10px; /* Reduced margin */
+            margin-bottom: 16px;
             display: block;
         }
 
         .login-header h2 {
-            font-size: 1.8rem; /* Reduced */
+            font-size: 2rem;
             font-weight: 700;
             color: var(--text-white);
-            margin-bottom: 5px; /* Reduced margin */
+            margin-bottom: 8px;
         }
 
         .login-header p {
-            font-size: 0.9rem; /* Reduced */
+            font-size: 1rem;
             color: var(--text-light);
             opacity: 0.8;
+            line-height: 1.4;
         }
 
         .login-form {
             display: flex;
             flex-direction: column;
-            gap: 14px; /* Reduced gap */
-            flex: 1; /* Make form take available space */
+            gap: 20px;
+            flex: 1;
         }
 
         .form-group {
@@ -238,10 +239,10 @@
 
         .form-group label {
             display: block;
-            margin-bottom: 5px; /* Reduced margin */
+            margin-bottom: 8px;
             color: var(--text-light);
             font-weight: 500;
-            font-size: 0.92rem;
+            font-size: 1rem;
         }
 
         .input-wrapper {
@@ -250,21 +251,21 @@
 
         .input-wrapper i {
             position: absolute;
-            left: 13px;
+            left: 16px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--light-blue);
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
 
         .form-input {
             width: 100%;
-            padding: 13px 13px 13px 40px; /* Reduced padding */
+            padding: 16px 16px 16px 48px;
             background: rgba(255, 255, 255, 0.07);
             border: 2px solid transparent;
             border-radius: 10px;
             color: var(--text-white);
-            font-size: 0.92rem;
+            font-size: 1rem;
             transition: all 0.3s ease;
         }
 
@@ -276,20 +277,20 @@
         }
 
         .login-btn {
-            padding: 15px; /* Reduced padding */
+            padding: 16px;
             background: linear-gradient(135deg, var(--electric-blue) 0%, var(--cyber-blue) 100%);
             border: none;
             border-radius: 10px;
             color: white;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 7px; /* Reduced gap */
-            margin-top: 5px; /* Reduced margin */
+            gap: 10px;
+            margin-top: 10px;
             letter-spacing: 0.5px;
         }
 
@@ -299,13 +300,13 @@
         }
 
         .message {
-            padding: 11px; /* Reduced padding */
+            padding: 16px;
             border-radius: 8px;
             font-weight: 500;
             text-align: center;
             display: none;
-            margin-top: 8px; /* Reduced margin */
-            font-size: 0.85rem;
+            margin-top: 16px;
+            font-size: 0.95rem;
             animation: slideIn 0.3s ease;
         }
 
@@ -335,17 +336,6 @@
             }
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -358,10 +348,12 @@
         }
 
         /* ================== RESPONSIVE DESIGN ================== */
-        /* Tablet - Keep desktop layout */
+        
+        /* Tablet */
         @media (max-width: 1024px) {
             .container {
-                max-width: 95%;
+                padding: 16px;
+                gap: 16px;
             }
             
             .header h1 {
@@ -369,226 +361,252 @@
             }
             
             .header .subtitle {
-                font-size: 1.05rem;
+                font-size: 1.1rem;
             }
             
             .main-grid {
-                gap: 18px;
+                gap: 20px;
                 min-height: 440px;
             }
             
             .features-section, .login-section {
-                padding: 16px 20px 18px 20px; /* Uniform padding */
-            }
-            
-            .features-grid {
-                gap: 14px;
-                margin-top: 6px;
+                padding: 20px;
             }
             
             .feature-card {
-                padding: 16px 12px;
-                min-height: 130px;
+                padding: 20px 12px;
+                min-height: 140px;
+            }
+            
+            .feature-card i {
+                font-size: 2rem;
             }
             
             .feature-card h3 {
-                font-size: 1.05rem;
+                font-size: 1.1rem;
             }
             
             .feature-card p {
-                font-size: 0.8rem;
+                font-size: 0.85rem;
             }
             
-            .login-header {
-                margin-bottom: 16px;
+            .login-header i {
+                font-size: 2.4rem;
+            }
+            
+            .login-header h2 {
+                font-size: 1.8rem;
             }
         }
 
-        /* Mobile - FIXED: Header → Login → Features */
+        /* Mobile - Stack vertically */
         @media (max-width: 768px) {
             body {
-                padding: 6px;
+                padding: 12px;
+                min-height: 100vh;
+                display: block;
+                overflow-x: hidden;
             }
             
             .container {
-                gap: 0; /* Remove gap for mobile stacking */
+                padding: 0;
+                gap: 24px;
+                width: 100%;
+                max-width: 100%;
             }
             
-            /* KEEP header at the top (it's already outside main-grid) */
             .header {
-                padding: 10px 8px 8px 8px;
-                margin-bottom: 5px;
+                padding: 0 16px 16px 16px;
+                margin-bottom: 8px;
             }
             
             .header h1 {
-                font-size: 1.8rem;
-                margin-bottom: 4px;
+                font-size: 2rem;
+                margin-bottom: 8px;
+                line-height: 1.2;
             }
             
             .header .subtitle {
-                font-size: 0.95rem;
-                line-height: 1.3;
+                font-size: 1.05rem;
+                line-height: 1.4;
             }
             
             /* Stack main-grid vertically */
             .main-grid {
                 display: flex;
                 flex-direction: column;
-                gap: 30px; /* Add small gap between sections */
+                gap: 24px;
                 min-height: auto;
+                padding: 0 16px;
             }
             
-            /* REORDER: Login comes FIRST after header */
+            /* Login comes first on mobile */
             .login-section {
-                order: 1; /* Comes first in the stack */
-                margin: 0;
-                padding: 14px 16px 16px 16px; /* Uniform padding */
+                order: 1;
+                padding: 24px 20px;
                 width: 100%;
-                height: auto; /* Auto height on mobile */
+                height: auto;
+                border-radius: 16px;
             }
             
             .login-header {
-                margin-bottom: 14px;
-                padding-top: 2px;
+                margin-bottom: 20px;
             }
             
             .login-header i {
-                font-size: 2rem;
-                margin-bottom: 8px;
+                font-size: 2.4rem;
+                margin-bottom: 12px;
             }
             
             .login-header h2 {
-                font-size: 1.5rem;
-                margin-bottom: 3px;
+                font-size: 1.8rem;
+                margin-bottom: 6px;
             }
             
             .login-header p {
-                font-size: 0.85rem;
+                font-size: 0.95rem;
             }
             
             .login-form {
-                gap: 12px;
+                gap: 16px;
+            }
+            
+            .form-group label {
+                font-size: 0.95rem;
             }
             
             .form-input {
-                padding: 12px 12px 12px 38px;
-                font-size: 0.85rem;
+                padding: 14px 14px 14px 44px;
+                font-size: 0.95rem;
             }
             
             .login-btn {
-                padding: 13px;
-                font-size: 0.9rem;
+                padding: 15px;
+                font-size: 1rem;
             }
             
-            /* REORDER: Features comes SECOND after login */
+            /* Features comes second */
             .features-section {
-                order: 2; /* Comes second in the stack */
-                padding: 14px 16px 16px 16px; /* Uniform padding */
-                margin: 0;
-                height: auto; /* Auto height on mobile */
+                order: 2;
+                padding: 24px 20px;
+                width: 100%;
+                height: auto;
+                border-radius: 16px;
             }
             
             .features-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-                margin-top: 5px;
+                gap: 16px;
+                margin-top: 8px;
             }
             
             .feature-card {
-                padding: 14px 10px;
-                min-height: 120px;
+                padding: 20px 14px;
+                min-height: 140px;
+            }
+            
+            .feature-card i {
+                font-size: 1.8rem;
+                margin-bottom: 10px;
+            }
+            
+            .feature-card h3 {
+                font-size: 1.1rem;
+                margin-bottom: 6px;
+            }
+            
+            .feature-card p {
+                font-size: 0.85rem;
+                line-height: 1.3;
+            }
+        }
+
+        /* Small Mobile - Adjusted for better readability */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                gap: 20px;
+            }
+            
+            .header {
+                padding: 0 12px 12px 12px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .header .subtitle {
+                font-size: 1rem;
+            }
+            
+            .main-grid {
+                padding: 0 12px;
+                gap: 20px;
+            }
+            
+            .login-section,
+            .features-section {
+                padding: 22px 18px;
+                border-radius: 14px;
+            }
+            
+            .login-header i {
+                font-size: 2.2rem;
+            }
+            
+            .login-header h2 {
+                font-size: 1.6rem;
+            }
+            
+            .login-header p {
+                font-size: 0.9rem;
+            }
+            
+            .features-grid {
+                gap: 14px;
+            }
+            
+            .feature-card {
+                padding: 18px 12px;
+                min-height: 130px;
             }
             
             .feature-card i {
                 font-size: 1.6rem;
-                margin-bottom: 6px;
             }
             
             .feature-card h3 {
-                font-size: 0.95rem;
-                margin-bottom: 4px;
+                font-size: 1rem;
             }
             
             .feature-card p {
-                font-size: 0.75rem;
-                line-height: 1.2;
+                font-size: 0.8rem;
             }
         }
 
-       /* Small Mobile */
-@media (max-width: 480px) {
-    .header h1 {
-        font-size: 2rem; /* Increased from 1.6rem */
-    }
-    
-    .header .subtitle {
-        font-size: 1rem; /* Increased from 0.85rem */
-        line-height: 1.4;
-    }
-    
-    .login-section {
-        padding: 16px 18px 18px 18px; /* Slightly more padding */
-    }
-    
-    .login-header i {
-        font-size: 2rem; /* Added for login icon */
-    }
-    
-    .login-header h2 {
-        font-size: 1.7rem; /* Increased from 1.4rem */
-        margin-bottom: 8px;
-    }
-    
-    .login-header p {
-        font-size: 1rem; /* Added for login subtitle */
-    }
-    
-    .form-group label {
-        font-size: 1rem; /* Added for form labels */
-    }
-    
-    .form-input {
-        font-size: 1rem; /* Added for input text */
-        padding: 14px 14px 14px 42px;
-    }
-    
-    .login-btn {
-        font-size: 1.1rem; /* Added for button text */
-        padding: 15px;
-    }
-    
-    .features-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-    }
-    
-    .feature-card {
-        padding: 18px 12px; /* Increased padding */
-        min-height: 130px; /* Increased height */
-    }
-    
-    .feature-card i {
-        font-size: 1.9rem; /* Increased from 1.5rem */
-        margin-bottom: 10px;
-    }
-    
-    .feature-card h3 {
-        font-size: 1.2rem; /* Increased from 0.9rem */
-        margin-bottom: 6px;
-    }
-    
-    .feature-card p {
-        font-size: 0.9rem; /* Increased from 0.7rem */
-        line-height: 1.4;
-    }
-    
-    .message {
-        font-size: 0.95rem; /* Added for messages */
-        padding: 12px;
-    }
-}
-
-
+        /* Extra Small Mobile - Single column features */
+        @media (max-width: 360px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .feature-card {
+                min-height: 120px;
+            }
+            
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .login-header h2 {
+                font-size: 1.4rem;
+            }
+        }
 
         /* Loading animation */
         .loading {
@@ -607,7 +625,7 @@
     <div class="bg-shape bg-shape-2"></div>
     
     <div class="container">
-        <!-- Header - Always at the top (outside main-grid) -->
+        <!-- Header -->
         <div class="header">
             <h1>Truck Management System</h1>
             <p class="subtitle">Comprehensive fleet management for fuel tracking, allowances, and driver management</p>
@@ -615,7 +633,7 @@
         
         <!-- Main Content Grid -->
         <div class="main-grid">
-            <!-- Features Section (will be second on mobile) -->
+            <!-- Features Section -->
             <div class="features-section">
                 <div class="features-grid">
                     <div class="feature-card">
@@ -644,7 +662,7 @@
                 </div>
             </div>
             
-            <!-- Login Section (will be first on mobile) -->
+            <!-- Login Section -->
             <div class="login-section">
                 <div class="login-header">
                     <i class="fas fa-sign-in-alt"></i>
