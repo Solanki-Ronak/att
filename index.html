@@ -100,7 +100,7 @@
             min-height: 460px;
         }
 
-        /* Features section */
+        /* Features section for desktop */
         .features-section {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
@@ -324,6 +324,151 @@
             display: block;
         }
 
+        /* ========== COMPACT MOBILE FEATURE CAROUSEL ========== */
+        .mobile-carousel-section {
+            display: none; /* Hidden by default */
+            order: 2;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            padding: 15px;
+            width: 100%;
+            height: auto;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            min-height: 180px; /* Reduced from original */
+            max-height: 200px; /* Limit maximum height */
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .carousel-slides {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            width: 100%;
+            height: 100%;
+        }
+
+        .carousel-slide {
+            flex: 0 0 100%;
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+            padding: 5px;
+            height: 100%;
+            align-items: center;
+            min-height: 150px; /* Reduced height */
+        }
+
+        .carousel-icon {
+            flex: 0 0 35%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .carousel-icon i {
+            font-size: 2.8rem; /* Smaller icon */
+            color: var(--light-blue);
+            transition: all 0.3s ease;
+        }
+
+        .carousel-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 5px 10px 5px 0;
+            overflow: hidden;
+        }
+
+        .carousel-content h3 {
+            font-size: 1.1rem; /* Smaller heading */
+            font-weight: 600;
+            color: var(--text-white);
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+
+        .carousel-content p {
+            font-size: 0.8rem; /* Smaller text */
+            color: var(--text-light);
+            opacity: 0.9;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Navigation arrows positioned on sides */
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+            z-index: 10;
+            padding: 0 5px;
+        }
+
+        .carousel-btn {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid var(--card-border);
+            color: var(--text-white);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            pointer-events: all;
+        }
+
+        .carousel-btn:hover {
+            background: var(--electric-blue);
+            transform: scale(1.1);
+            border-color: var(--electric-blue);
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            z-index: 10;
+        }
+
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background: var(--electric-blue);
+            transform: scale(1.2);
+        }
+
         /* Animations */
         @keyframes fadeInDown {
             from {
@@ -399,7 +544,7 @@
             }
         }
 
-        /* Mobile - Stack vertically */
+        /* Mobile - Stack vertically and show carousel */
         @media (max-width: 768px) {
             body {
                 padding: 12px;
@@ -438,6 +583,19 @@
                 gap: 24px;
                 min-height: auto;
                 padding: 0 16px;
+            }
+            
+            /* Hide desktop features section on mobile */
+            .features-section {
+                display: none !important;
+            }
+            
+            /* Show mobile carousel */
+            .mobile-carousel-section {
+                display: block !important;
+                min-height: 170px;
+                max-height: 180px;
+                padding: 12px;
             }
             
             /* Login comes first on mobile */
@@ -485,192 +643,227 @@
                 font-size: 1rem;
             }
             
-            /* Features comes second */
-            .features-section {
-                order: 2;
-                padding: 24px 20px;
-                width: 100%;
-                height: auto;
-                border-radius: 16px;
-            }
-            
-            .features-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 16px;
-                margin-top: 8px;
-            }
-            
-            .feature-card {
-                padding: 20px 14px;
+            /* Mobile carousel adjustments for tablet */
+            .carousel-slide {
                 min-height: 140px;
+                gap: 10px;
             }
             
-            .feature-card i {
-                font-size: 1.8rem;
-                margin-bottom: 10px;
+            .carousel-icon i {
+                font-size: 2.5rem;
             }
             
-            .feature-card h3 {
-                font-size: 1.1rem;
-                margin-bottom: 6px;
+            .carousel-content h3 {
+                font-size: 1rem;
             }
             
-            .feature-card p {
-                font-size: 0.85rem;
-                line-height: 1.3;
+            .carousel-content p {
+                font-size: 0.75rem;
+                -webkit-line-clamp: 3;
             }
         }
 
         /* Small Mobile - Adjusted for better readability */
-@media (max-width: 480px) {
-    body {
-        padding: 10px;
-    }
-    
-    .container {
-        gap: 20px;
-    }
-    
-    .header {
-        padding: 0 0px 0px 0px;
-        margin-bottom: 0px;
-    }
-    
-    .header h1 {
-        font-size: 1.8rem;
-    }
-    
-    .header .subtitle {
-        font-size: 1rem;
-    }
-    
-    .main-grid {
-        padding: 0 12px;
-        gap: 20px;
-    }
-    
-    .login-section {
-        padding: 18px 16px !important; /* Reduced padding */
-        border-radius: 14px;
-        min-height: auto !important;
-    }
-    
-    .login-header {
-        margin-bottom: 16px !important; /* Reduced margin */
-    }
-    
-    .login-header i {
-        font-size: 2rem; /* Slightly smaller icon */
-        margin-bottom: 10px; /* Reduced margin */
-    }
-    
-    .login-header h2 {
-        font-size: 1.5rem; /* Slightly smaller heading */
-        margin-bottom: 4px; /* Reduced margin */
-    }
-    
-    .login-header p {
-        font-size: 0.85rem; /* Smaller text */
-        line-height: 1.3;
-    }
-    
-    .login-form {
-        gap: 14px !important; /* Reduced gap between form elements */
-    }
-    
-    .form-group {
-        margin-bottom: 0;
-    }
-    
-    .form-group label {
-        font-size: 0.9rem;
-        margin-bottom: 6px; /* Reduced margin */
-    }
-    
-    .form-input {
-        padding: 12px 12px 12px 40px !important; /* Reduced padding */
-        font-size: 0.9rem;
-        min-height: 44px; /* Ensure consistent height */
-    }
-    
-    .login-btn {
-        padding: 12px !important; /* Reduced padding */
-        font-size: 0.95rem;
-        margin-top: 8px; /* Reduced margin */
-        min-height: 44px; /* Ensure consistent height */
-    }
-    
-    /* Features section adjustments */
-    .features-section {
-        padding: 18px 16px !important;
-        border-radius: 14px;
-    }
-    
-    .features-grid {
-        gap: 12px;
-    }
-    
-    .feature-card {
-        padding: 16px 10px;
-        min-height: 120px; /* Reduced height */
-    }
-    
-    .feature-card i {
-        font-size: 1.4rem; /* Smaller icon */
-        margin-bottom: 8px;
-    }
-    
-    .feature-card h3 {
-        font-size: 0.95rem;
-        margin-bottom: 4px;
-    }
-    
-    .feature-card p {
-        font-size: 0.78rem;
-        line-height: 1.3;
-    }
-}
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                gap: 20px;
+            }
+            
+            .header {
+                padding: 0 0px 0px 0px;
+                margin-bottom: -10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .header .subtitle {
+                font-size: 1rem;
+            }
+            
+            .main-grid {
+                padding: 0 12px;
+                gap: 20px;
+            }
+            
+            .login-section {
+                padding: 18px 16px !important;
+                border-radius: 14px;
+                min-height: auto !important;
+            }
+            
+            .login-header {
+                margin-bottom: 16px !important;
+            }
+            
+            .login-header i {
+                font-size: 2rem;
+                margin-bottom: 10px;
+            }
+            
+            .login-header h2 {
+                font-size: 1.5rem;
+                margin-bottom: 4px;
+            }
+            
+            .login-header p {
+                font-size: 0.85rem;
+                line-height: 1.3;
+            }
+            
+            .login-form {
+                gap: 14px !important;
+            }
+            
+            .form-group {
+                margin-bottom: 0;
+            }
+            
+            .form-group label {
+                font-size: 0.9rem;
+                margin-bottom: 6px;
+            }
+            
+            .form-input {
+                padding: 12px 12px 12px 40px !important;
+                font-size: 0.9rem;
+                min-height: 44px;
+            }
+            
+            .login-btn {
+                padding: 12px !important;
+                font-size: 0.95rem;
+                margin-top: 8px;
+                min-height: 44px;
+            }
+            
+            /* Mobile carousel adjustments */
+            .mobile-carousel-section {
+                padding: 10px !important;
+                border-radius: 14px;
+                min-height: 160px !important;
+                max-height: 170px !important;
+            }
+            
+            .carousel-slide {
+                min-height: 140px !important;
+                gap: 8px;
+            }
+            
+            .carousel-icon {
+                flex: 0 0 30%;
+                padding: 8px;
+            }
+            
+            .carousel-icon i {
+                font-size: 2.2rem;
+            }
+            
+            .carousel-content {
+                padding: 5px 8px 5px 0;
+            }
+            
+            .carousel-content h3 {
+                font-size: 0.95rem;
+                margin-bottom: 4px;
+            }
+            
+            .carousel-content p {
+                font-size: 0.7rem;
+                line-height: 1.2;
+                -webkit-line-clamp: 3;
+            }
+            
+            .carousel-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
+            }
+            
+            .carousel-dots {
+                bottom: 3px;
+            }
+            
+            .carousel-dot {
+                width: 6px;
+                height: 6px;
+            }
+        }
 
-/* Extra small devices */
-@media (max-width: 380px) {
-    .login-section {
-        padding: 16px 14px !important; /* Even more compact */
-    }
-    
-    .login-header {
-        margin-bottom: 14px !important;
-    }
-    
-    .login-header i {
-        font-size: 1.8rem;
-        margin-bottom: 8px;
-    }
-    
-    .login-header h2 {
-        font-size: 1.4rem;
-    }
-    
-    .login-header p {
-        font-size: 0.82rem;
-    }
-    
-    .login-form {
-        gap: 12px !important;
-    }
-    
-    .form-input {
-        padding: 10px 10px 10px 38px !important;
-        font-size: 0.88rem;
-        min-height: 42px;
-    }
-    
-    .login-btn {
-        padding: 11px !important;
-        font-size: 0.92rem;
-        min-height: 42px;
-    }
-}
-
+        /* Extra small devices */
+        @media (max-width: 380px) {
+            .login-section {
+                padding: 16px 14px !important;
+            }
+            
+            .login-header {
+                margin-bottom: 14px !important;
+            }
+            
+            .login-header i {
+                font-size: 1.8rem;
+                margin-bottom: 8px;
+            }
+            
+            .login-header h2 {
+                font-size: 1.4rem;
+            }
+            
+            .login-header p {
+                font-size: 0.82rem;
+            }
+            
+            .login-form {
+                gap: 12px !important;
+            }
+            
+            .form-input {
+                padding: 10px 10px 10px 38px !important;
+                font-size: 0.88rem;
+                min-height: 42px;
+            }
+            
+            .login-btn {
+                padding: 11px !important;
+                font-size: 0.92rem;
+                min-height: 42px;
+            }
+            
+            /* Mobile carousel adjustments */
+            .mobile-carousel-section {
+                min-height: 150px !important;
+                max-height: 160px !important;
+                padding: 8px !important;
+            }
+            
+            .carousel-slide {
+                min-height: 130px !important;
+                gap: 6px;
+            }
+            
+            .carousel-icon i {
+                font-size: 1.8rem;
+            }
+            
+            .carousel-content h3 {
+                font-size: 0.9rem;
+            }
+            
+            .carousel-content p {
+                font-size: 0.65rem;
+                -webkit-line-clamp: 3;
+            }
+            
+            .carousel-btn {
+                width: 26px;
+                height: 26px;
+            }
+        }
 
         /* Loading animation */
         .loading {
@@ -697,7 +890,7 @@
         
         <!-- Main Content Grid -->
         <div class="main-grid">
-            <!-- Features Section -->
+            <!-- Desktop Features Section (Hidden on mobile) -->
             <div class="features-section">
                 <div class="features-grid">
                     <div class="feature-card">
@@ -722,6 +915,76 @@
                         <i class="fas fa-users"></i>
                         <h3>Drivers</h3>
                         <p>Manage driver information and performance tracking</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile Carousel Section (Hidden on desktop) -->
+            <div class="mobile-carousel-section">
+                <div class="carousel-container">
+                    <div class="carousel-slides">
+                        <!-- Slide 1: Fuel Tracking -->
+                        <div class="carousel-slide" data-slide="1">
+                            <div class="carousel-icon">
+                                <i class="fas fa-gas-pump"></i>
+                            </div>
+                            <div class="carousel-content">
+                                <h3>Fuel Tracking</h3>
+                                <p>Monitor fuel consumption across your fleet. Track expenses and optimize efficiency with real-time data.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Slide 2: Allowances -->
+                        <div class="carousel-slide" data-slide="2">
+                            <div class="carousel-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="carousel-content">
+                                <h3>Allowances</h3>
+                                <p>Track driver allowances & expenses. Automate payments and generate detailed budget reports.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Slide 3: Truck List -->
+                        <div class="carousel-slide" data-slide="3">
+                            <div class="carousel-icon">
+                                <i class="fas fa-truck-pickup"></i>
+                            </div>
+                            <div class="carousel-content">
+                                <h3>Truck List</h3>
+                                <p>Complete vehicle inventory with maintenance records. Schedule services and track vehicle history.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Slide 4: Drivers -->
+                        <div class="carousel-slide" data-slide="4">
+                            <div class="carousel-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="carousel-content">
+                                <h3>Drivers</h3>
+                                <p>Manage driver info & performance tracking. Monitor schedules, certifications, and safety records.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Navigation arrows on sides -->
+                    <div class="carousel-nav">
+                        <button class="carousel-btn prev-btn" aria-label="Previous feature">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        
+                        <button class="carousel-btn next-btn" aria-label="Next feature">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Dots indicator at bottom -->
+                    <div class="carousel-dots">
+                        <span class="carousel-dot active" data-slide="0"></span>
+                        <span class="carousel-dot" data-slide="1"></span>
+                        <span class="carousel-dot" data-slide="2"></span>
+                        <span class="carousel-dot" data-slide="3"></span>
                     </div>
                 </div>
             </div>
@@ -887,6 +1150,103 @@
                     }, 1500);
                 }
             });
+
+            // Carousel functionality
+            const carouselSlides = document.querySelector('.carousel-slides');
+            const slides = document.querySelectorAll('.carousel-slide');
+            const dots = document.querySelectorAll('.carousel-dot');
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
+            
+            let currentSlide = 0;
+            let autoSlideInterval;
+            const slideCount = slides.length;
+            
+            // Initialize carousel
+            function initCarousel() {
+                // Only initialize if we're on mobile (carousel exists)
+                if (!carouselSlides) return;
+                
+                // Set initial position
+                updateCarousel();
+                
+                // Start auto slide
+                startAutoSlide();
+                
+                // Add event listeners
+                prevBtn.addEventListener('click', goToPrevSlide);
+                nextBtn.addEventListener('click', goToNextSlide);
+                
+                // Add click events to dots
+                dots.forEach(dot => {
+                    dot.addEventListener('click', function() {
+                        const slideIndex = parseInt(this.getAttribute('data-slide'));
+                        goToSlide(slideIndex);
+                    });
+                });
+                
+                // Pause on hover
+                const carouselContainer = document.querySelector('.carousel-container');
+                carouselContainer.addEventListener('mouseenter', pauseAutoSlide);
+                carouselContainer.addEventListener('mouseleave', startAutoSlide);
+                
+                // Pause on touch
+                carouselContainer.addEventListener('touchstart', pauseAutoSlide);
+                carouselContainer.addEventListener('touchend', startAutoSlide);
+            }
+            
+            function updateCarousel() {
+                // Move slides container
+                carouselSlides.style.transform = `translateX(-${currentSlide * 100}%)`;
+                
+                // Update active dot
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentSlide);
+                });
+            }
+            
+            function goToSlide(slideIndex) {
+                currentSlide = slideIndex;
+                updateCarousel();
+                resetAutoSlide();
+            }
+            
+            function goToNextSlide() {
+                currentSlide = (currentSlide + 1) % slideCount;
+                updateCarousel();
+                resetAutoSlide();
+            }
+            
+            function goToPrevSlide() {
+                currentSlide = (currentSlide - 1 + slideCount) % slideCount;
+                updateCarousel();
+                resetAutoSlide();
+            }
+            
+            function startAutoSlide() {
+                // Clear existing interval
+                if (autoSlideInterval) {
+                    clearInterval(autoSlideInterval);
+                }
+                
+                // Start new interval (5 seconds)
+                autoSlideInterval = setInterval(goToNextSlide, 5000);
+            }
+            
+            function pauseAutoSlide() {
+                if (autoSlideInterval) {
+                    clearInterval(autoSlideInterval);
+                    autoSlideInterval = null;
+                }
+            }
+            
+            function resetAutoSlide() {
+                pauseAutoSlide();
+                startAutoSlide();
+            }
+            
+            // Initialize carousel
+            initCarousel();
         });
     </script>
 </body>
